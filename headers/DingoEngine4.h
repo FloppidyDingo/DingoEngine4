@@ -1,7 +1,11 @@
 // DingoEngine4.h - Contains base engine stuff
 #pragma once
 
+#ifdef DINGOENGINE4_EXPORTS
 #define DE4_API __declspec(dllexport)
+#else
+#define DE4_API __declspec(dllimport)
+#endif
 
 #define DE4_PLATFORMER 0
 #define DE4_TOPDOWN 1
