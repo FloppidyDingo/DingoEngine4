@@ -92,7 +92,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>B:\Projects\DingoEngine4\DingoEngine4\DingoEngine4\headers;B:\Projects\glm;B:\Projects\C Libraries\png++-0.2.9;B:\Projects\C Libraries\lpng1637;B:\Projects\GLUT\glew-2.1.0\include;B:\Projects\glfw-3.3.4.bin.WIN32\include;B:\Projects\OpenAL 1.1 SDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>B:\Projects\DingoEngine4\DingoEngine4\DingoEngine4\headers;B:\Projects\GLUT\glew-2.1.0\include;B:\Projects\glfw-3.3.4.bin.WIN32\include;B:\Projects\OpenAL 1.1 SDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>Default</LanguageStandard_C>
     </ClCompile>
@@ -104,7 +104,7 @@
       <EntryPointSymbol>
       </EntryPointSymbol>
       <AdditionalDependencies>kernel32.lib;glew32s.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;glfw3.lib;OpenAL32.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -138,7 +138,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>B:\Projects\DingoEngine4\DingoEngine4\DingoEngine4\headers;B:\Projects\glm;B:\Projects\C Libraries\png++-0.2.9;B:\Projects\C Libraries\lpng1637;B:\Projects\GLUT\glew-2.1.0\include;B:\Projects\glfw-3.3.4.bin.WIN32\include;B:\Projects\OpenAL 1.1 SDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>B:\Projects\DingoEngine4\DingoEngine4\DingoEngine4\headers;B:\Projects\GLUT\glew-2.1.0\include;B:\Projects\glfw-3.3.4.bin.WIN32\include;B:\Projects\OpenAL 1.1 SDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
