@@ -1,5 +1,4 @@
 #pragma once
-#include "pch.h"
 #include "DE4Types.h"
 #include "Utils.h"
 #include "GLFW/glfw3.h"

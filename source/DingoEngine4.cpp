@@ -13,7 +13,6 @@ Things to Add/change/fix:
 
 #pragma once
 
-#include "pch.h"
 #include "DingoEngine4.h"
 #include "DE4Types.h"
 #include "Utils.h"
@@ -30,8 +29,8 @@ Things to Add/change/fix:
 #include <alc.h>
 #include <Windows.h>
 
-//I have no idea what this is but it seems important------------------------------------------------
-#pragma region important crap
+//DLL Main
+#pragma region DLL Main
 BOOL APIENTRY DllMain(HMODULE hModule,
 	DWORD  ul_reason_for_call,
 	LPVOID lpReserved
@@ -58,8 +57,8 @@ bool getAlError();
 #pragma endregion
 
 //Actual DE4 code-----------------------------------------------------------------------------------
-#pragma region variables
 
+#pragma region variables
 //object management
 std::vector<Entity> Entities;
 unsigned int entityCount = 0;

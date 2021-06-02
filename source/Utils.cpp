@@ -1,5 +1,4 @@
 #pragma once
-#include "pch.h"
 #include "Utils.h"
 #include "lodepng.h"
 #include <math.h>

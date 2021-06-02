@@ -84,15 +84,17 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;DINGOENGINE4_EXPORTS;_WINDOWS;_USRDLL;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>B:\Projects\glm;B:\Projects\C Libraries\png++-0.2.9;B:\Projects\C Libraries\lpng1637;B:\Projects\GLUT\glew-2.1.0\include;B:\Projects\glfw-3.3.4.bin.WIN32\include;B:\Projects\OpenAL 1.1 SDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>B:\Projects\DingoEngine4\DingoEngine4\DingoEngine4\headers;B:\Projects\glm;B:\Projects\C Libraries\png++-0.2.9;B:\Projects\C Libraries\lpng1637;B:\Projects\GLUT\glew-2.1.0\include;B:\Projects\glfw-3.3.4.bin.WIN32\include;B:\Projects\OpenAL 1.1 SDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard_C>Default</LanguageStandard_C>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -102,6 +104,7 @@
       <EntryPointSymbol>
       </EntryPointSymbol>
       <AdditionalDependencies>kernel32.lib;glew32s.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;glfw3.lib;OpenAL32.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -125,7 +128,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -133,8 +136,9 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;DINGOENGINE4_EXPORTS;_WINDOWS;_USRDLL;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>B:\Projects\glm;B:\Projects\C Libraries\png++-0.2.9;B:\Projects\C Libraries\lpng1637;B:\Projects\GLUT\glew-2.1.0\include;B:\Projects\glfw-3.3.4.bin.WIN32\include;B:\Projects\OpenAL 1.1 SDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>B:\Projects\DingoEngine4\DingoEngine4\DingoEngine4\headers;B:\Projects\glm;B:\Projects\C Libraries\png++-0.2.9;B:\Projects\C Libraries\lpng1637;B:\Projects\GLUT\glew-2.1.0\include;B:\Projects\glfw-3.3.4.bin.WIN32\include;B:\Projects\OpenAL 1.1 SDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
@@ -174,30 +178,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="DE4Types.h" />
-    <ClInclude Include="DingoEngine4.h" />
-    <ClInclude Include="framework.h" />
-    <ClInclude Include="lodepng.h" />
-    <ClInclude Include="pch.h" />
-    <ClInclude Include="shaders.h" />
-    <ClInclude Include="Utils.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="DE4Types.cpp" />
-    <ClCompile Include="DingoEngine4.cpp" />
-    <ClCompile Include="lodepng.cpp" />
-    <ClCompile Include="pch.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="Utils.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Gui.frag" />
     <None Include="Ent.frag" />
     <None Include="Base.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="headers\DE4Types.h" />
+    <ClInclude Include="headers\DingoEngine4.h" />
+    <ClInclude Include="headers\lodepng.h" />
+    <ClInclude Include="headers\shaders.h" />
+    <ClInclude Include="headers\Utils.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="source\DE4Types.cpp" />
+    <ClCompile Include="source\DingoEngine4.cpp" />
+    <ClCompile Include="source\lodepng.cpp" />
+    <ClCompile Include="source\Utils.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
