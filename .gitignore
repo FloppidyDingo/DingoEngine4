@@ -5,6 +5,8 @@
 
 # User-specific files
 *.rsuser
+*.vcxproj
+*.filters
 *.suo
 *.user
 *.userosscache
