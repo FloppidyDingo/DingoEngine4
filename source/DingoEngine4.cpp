@@ -1,12 +1,10 @@
 /*
 Things to do:
-	implement fKeyboardEvent
-	finish Utils
-	redo keyboard input
-	Switch to GLFW (GLUT sucks)
+	finish and implement Utils
+	optimize and complete logging
+	implement map generation
 
 Things to Add/change/fix:
-	Built-in map generator (XML tagged, will finally allow us to make a GOD DAMN LEVEL EDITOR)
 	Create a support library (Animation timer)
 	Add particle system
 */
@@ -19,6 +17,7 @@ Things to Add/change/fix:
 #include "shaders.h"
 
 #include <iostream>
+#include <fstream>
 #include <algorithm>
 #include <array>
 #include <math.h>
@@ -99,7 +98,7 @@ float camDir[2];
 std::vector<std::array<unsigned int,3>> noCollides;
 unsigned int noCollideCount = 0;
 
-//profiler
+//profiler and logging
 std::string profilerInfo; //The profiler string
 int fps; //Frames per second
 int fpsTemp;
@@ -110,6 +109,8 @@ int drawCalls; //Number of draw calls
 int textureSwaps; //Number of texture swaps
 bool Profile; //Profiler enable
 int frame = 0; //total number of frames
+std::ofstream logFile; //log file
+bool deepDebug; //log all activity?
 
 //graphics variables
 GLFWwindow* window;
@@ -166,6 +167,12 @@ unsigned char kbdreleasekey[128];
 std::vector<KbdEvent*> keys;
 #pragma endregion
 
+/*
+if (deepDebug) {
+	logFile << getMillis() << " | " << std::endl;
+}
+*/
+
 //Update each frame
 /*
 When updating:
@@ -202,6 +209,9 @@ void frameUpdate() {
 		for (int i = 0; i < kbdtmppresses; i++) {
 			if (fKeyPressed != nullptr) {
 				fKeyPressed(keys[kbdtmpprs[i]]->id.c_str());
+				if (deepDebug) {
+					logFile << getMillis() << " | Key Pressed: " << keys[kbdtmpprs[i]]->id.c_str() << std::endl;
+				}
 			}
 		}
 	}
@@ -209,6 +219,9 @@ void frameUpdate() {
 		for (int i = 0; i < kbdtmpreleases; i++) {
 			if (fKeyReleased != nullptr) {
 				fKeyReleased(keys[kbdtmprls[i]]->id.c_str());
+				if (deepDebug) {
+					logFile << getMillis() << " | Key Released:" << keys[kbdtmprls[i]]->id.c_str() << std::endl;
+				}
 			}
 		}
 	}
@@ -683,10 +696,18 @@ void windowResize(GLFWwindow* window, int width, int height){
 #pragma region Functions
 void DE4Start(bool debug, int resx, int resy, bool profile, int framerate, void (*init)(void), int argc, char** argv) {
 	#pragma region Startup Code
+	//start log file
+	deepDebug = debug;
+	logFile.open("log.txt");
+
 	//check some things to make sure nothing will completely explode
 	std::cout << "Dingo Engine 4 Version " << DE4_VERSION << "\n";
+	logFile << "Dingo Engine 4 Version " << DE4_VERSION << "\n";
 	if (fUpdate == NULL) {
 		std::cout << "Update loop not attached!!!";
+		logFile << "Update loop not attached!!!";
+		logFile.close();
+		exit(EXIT_FAILURE);
 	}
 
 	//initialise variables
@@ -700,8 +721,15 @@ void DE4Start(bool debug, int resx, int resy, bool profile, int framerate, void 
 
 	//start glfw
 	if (!glfwInit()){
+		std::cout << "GLFW failed to start!";
+		logFile << "GLFW failed to start!";
+		logFile.close();
 		exit(EXIT_FAILURE);
-	}	
+	}
+
+	if (deepDebug) {
+		logFile << getMillis() << " | GLFW started" << std::endl;
+	}
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
@@ -710,8 +738,12 @@ void DE4Start(bool debug, int resx, int resy, bool profile, int framerate, void 
 
 	if (!window)
 	{
+		logFile << getMillis() << " | Window creation failed" << std::endl;
 		glfwTerminate();
 		exit(EXIT_FAILURE);
+	}
+	if (deepDebug) {
+		logFile << getMillis() << " | Window created, resolution " << resx << ", " << resy << std::endl;
 	}
 
 	glfwMakeContextCurrent(window);
@@ -721,6 +753,12 @@ void DE4Start(bool debug, int resx, int resy, bool profile, int framerate, void 
 	if (err != GLEW_OK)
 	{
 		std::cout << "GL initialization error 0x" + err;
+		logFile << "GL initialization error 0x" + err;
+		logFile.close();
+		exit(EXIT_FAILURE);
+	}
+	if (deepDebug) {
+		logFile << getMillis() << " | OpenGL started" << std::endl;
 	}
 
 	//setup event handler
@@ -740,6 +778,8 @@ void DE4Start(bool debug, int resx, int resy, bool profile, int framerate, void 
 	glCompileShader(guivertex);
 	if (!getShaderError(guivertex, GL_COMPILE_STATUS)) {
 		std::cerr << "vertex shader failed to compile" << std::endl;
+		logFile << "vertex shader failed to compile" << std::endl;
+		logFile.close();
 		exit(EXIT_FAILURE);
 	}
 	source = guifragmentSource.c_str();
@@ -750,6 +790,8 @@ void DE4Start(bool debug, int resx, int resy, bool profile, int framerate, void 
 	glCompileShader(guifragment);
 	if (!getShaderError(guifragment, GL_COMPILE_STATUS)) {
 		std::cerr << "GUI Fragment shader failed to compile" << std::endl;
+		logFile << "GUI Fragment shader failed to compile" << std::endl;
+		logFile.close();
 		exit(EXIT_FAILURE);
 	}
 	GUIShader = glCreateProgram();
@@ -758,6 +800,8 @@ void DE4Start(bool debug, int resx, int resy, bool profile, int framerate, void 
 	glLinkProgram(GUIShader);
 	if (!getLinkError(GUIShader, GL_LINK_STATUS)) {
 		std::cerr << "GUI shader failed to link" << std::endl;
+		logFile << "GUI shader failed to link" << std::endl;
+		logFile.close();
 		exit(EXIT_FAILURE);
 	}
 	//compile ent shader
@@ -770,6 +814,8 @@ void DE4Start(bool debug, int resx, int resy, bool profile, int framerate, void 
 	glCompileShader(entfragment);
 	if (!getShaderError(entfragment, GL_COMPILE_STATUS)) {
 		std::cerr << "ENT Fragment shader failed to compile" << std::endl;
+		logFile << "ENT Fragment shader failed to compile" << std::endl;
+		logFile.close();
 		exit(EXIT_FAILURE);
 	}
 	ENTShader = glCreateProgram();
@@ -778,7 +824,12 @@ void DE4Start(bool debug, int resx, int resy, bool profile, int framerate, void 
 	glLinkProgram(ENTShader);
 	if (!getLinkError(ENTShader, GL_LINK_STATUS)) {
 		std::cerr << "ENT shader failed to link" << std::endl;
+		logFile << "ENT shader failed to link" << std::endl;
+		logFile.close();
 		exit(EXIT_FAILURE);
+	}
+	if (deepDebug) {
+		logFile << getMillis() << " | Shader compilation succeeded" << std::endl;
 	}
 
 	//generate and bind VAO
@@ -799,12 +850,20 @@ void DE4Start(bool debug, int resx, int resy, bool profile, int framerate, void 
 	//set GL texture filtering options
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	if (deepDebug) {
+		logFile << getMillis() << " | GL buffers created" << std::endl;
+	}
 
 	//start audio engine
 	ALCdevice* openALDevice = alcOpenDevice(nullptr);
 	if (!openALDevice)
 	{
-		std::cerr << "Audio failed to start" << std::endl;
+		std::cerr << "OpenAL failed to start" << std::endl;
+		logFile << "OpenAL failed to start" << std::endl;
+		getAlError();
+	}
+	if (deepDebug) {
+		logFile << getMillis() << " | OpenAL started" << std::endl;
 	}
 
 	//create AL context
@@ -816,6 +875,9 @@ void DE4Start(bool debug, int resx, int resy, bool profile, int framerate, void 
 	ALCboolean contextMadeCurrent = false;
 	contextMadeCurrent = alcMakeContextCurrent(openALContext);
 	getAlError();
+	if (deepDebug) {
+		logFile << getMillis() << " | Audio context created" << std::endl;
+	}
 
 	//execute assigned init function
 	init();
@@ -829,6 +891,8 @@ void DE4Start(bool debug, int resx, int resy, bool profile, int framerate, void 
 	}
 
 	glfwTerminate();
+	logFile << "DE4 exiting...";
+	logFile.close();
 	#pragma endregion
 }
 
@@ -885,30 +949,35 @@ bool getAlError() {
 	if (error != AL_NO_ERROR) {
 		switch (error) {
 			case AL_INVALID_NAME: {
-				std::cerr << "AL_INVALID_NAME: a bad name (ID) was passed to an OpenAL function";
+				std::cerr << "AL_INVALID_NAME: a bad name (ID) was passed to an OpenAL function" << std::endl;
+				logFile << "AL_INVALID_NAME: a bad name (ID) was passed to an OpenAL function" << std::endl;
 				break;
 			}
 			case AL_INVALID_ENUM: {
-				std::cerr << "AL_INVALID_ENUM: an invalid enum value was passed to an OpenAL function";
+				std::cerr << "AL_INVALID_ENUM: an invalid enum value was passed to an OpenAL function" << std::endl;
+				logFile << "AL_INVALID_ENUM: an invalid enum value was passed to an OpenAL function" << std::endl;
 				break;
 			}
 			case AL_INVALID_VALUE: {
-				std::cerr << "AL_INVALID_VALUE: an invalid value was passed to an OpenAL function";
+				std::cerr << "AL_INVALID_VALUE: an invalid value was passed to an OpenAL function" << std::endl;
+				logFile << "AL_INVALID_VALUE: an invalid value was passed to an OpenAL function" << std::endl;
 				break;
 			}
 			case AL_INVALID_OPERATION: {
-				std::cerr << "AL_INVALID_OPERATION: the requested operation is not valid";
+				std::cerr << "AL_INVALID_OPERATION: the requested operation is not valid" << std::endl;
+				logFile << "AL_INVALID_OPERATION: the requested operation is not valid" << std::endl;
 				break;
 			}
 			case AL_OUT_OF_MEMORY: {
-				std::cerr << "AL_OUT_OF_MEMORY: the requested operation resulted in OpenAL running out of memory";
+				std::cerr << "AL_OUT_OF_MEMORY: the requested operation resulted in OpenAL running out of memory" << std::endl;
+				logFile << "AL_OUT_OF_MEMORY: the requested operation resulted in OpenAL running out of memory" << std::endl;
 				break;
 			}
 			default: {
-				std::cerr << "UNKNOWN AL ERROR: " << error;
+				std::cerr << "UNKNOWN AL ERROR: " << error << std::endl;
+				logFile << "UNKNOWN AL ERROR: " << error << std::endl;
 			}
 		}
-		std::cerr << std::endl;
 		return false;
 	}
 	return true;
@@ -919,6 +988,16 @@ long long getMillis() {
 		std::chrono::system_clock::now().time_since_epoch()
 	);
 	return ms.count();
+}
+
+void log(std::string log) {
+	if (deepDebug) {
+		logFile << getMillis() << " | " << log << std::endl;
+	}
+}
+
+void error(std::string error) {
+	logFile << getMillis() << " | " << error << std::endl;
 }
 #pragma endregion
 

@@ -459,7 +459,8 @@ void TileSheet::createSheet(std::string url_base, std::string url_def)
 							}
 						}
 						if (edy == 0) { //validate final point was actually found
-							std::cerr << "Error in bounds file, Point 3 not found. Sprites not generated";
+							std::cerr << "Error in bounds file, Point 3 not found. Sprites not generated" <<std::endl;
+							error("Error in bounds file, Point 3 not found. Sprites not generated");
 							return;
 						}
 						else { //crop base image using starting and ending coordinates
@@ -496,6 +497,7 @@ void TileSheet::createSheet(std::string url_base, std::string url_def)
 							widthList.push_back(subWidth);
 							heightList.push_back(subHeight);
 							std::cout << "Texture generated id " << std::to_string(textureID) << std::endl;
+							log("Texture generated id " + std::to_string(textureID));
 						}
 					}
 					break;
@@ -503,7 +505,8 @@ void TileSheet::createSheet(std::string url_base, std::string url_def)
 			}
 		}
 		if (phase == 1) { //Throw error if reach the end of X coord while in second phase (Second point obviously missing)
-			std::cerr << "Error in bounds file, Point 2 not found. Sprites not generated";
+			std::cerr << "Error in bounds file, Point 2 not found. Sprites not generated" << std::endl;
+			error("Error in bounds file, Point 2 not found. Sprites not generated");
 			return;
 		}
 		

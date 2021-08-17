@@ -2,6 +2,10 @@
 #include "DE4Types.h"
 #include <vector>
 
+void error(std::string error);
+
+void log(std::string log);
+
 float range(Entity e1, Entity e2);
 
 Entity getClosest(std::vector<Entity> list, Entity target);

@@ -9,8 +9,10 @@
 
 #define DE4_PLATFORMER 0
 #define DE4_TOPDOWN 1
+#define LIGHT_AMBIENT 1
+#define LIGHT_POINT 2
 #define MAX_INFOLOG_LENGTH 1024
-#define DE4_VERSION "0.1.1b"
+#define DE4_VERSION "0.2.0b"
 
 //DE4 key defines
 #define DE4_MSE_RCLICK			   0
@@ -140,6 +142,7 @@
 //Main Engine Functions----------------------------------------------------------------------------------------------
 DE4_API void DE4Start(bool debug, int resx, int resy, bool profile, int framerate, void (*init)(void), int argc, char** argv);
 DE4_API void DE4SetScene(unsigned int sceneID);
+DE4_API void DE4ErrorCallback(void(*func)(const char error[]));
 //DE4_API void DE4
 
 //Pysics Functions-----------------------------------------------------------------------------------------------------
@@ -165,6 +168,7 @@ DE4_API void GPUSetTitle(const char title[]);
 
 //Entity Methods-----------------------------------------------------------------------------------------------------
 DE4_API void ENTAssign(unsigned int code);
+DE4_API void ENTAssign(const char id[]);
 DE4_API unsigned int ENTCreate();
 DE4_API void ENTDestroy(unsigned int code);
 DE4_API void ENTDestroyAll();
@@ -334,3 +338,13 @@ DE4_API float AUDGetY();
 DE4_API bool AUDisPlaying();
 DE4_API bool AUDisSpatial();
 //DE4_API void AUD
+
+//Map Generation-----------------------------------------------------------------------------------------------------
+DE4_API void MAPSetTileFolder(const char path[]);
+DE4_API void MAPStartTagCallback(void(*func)(const char tag[]));
+DE4_API void MAPVariableCallback(void(*func)(const char id[], const char value[]));
+DE4_API void MAPEntityCreationCallback(void(*func)(unsigned int codeID));
+DE4_API void MAPTriggerCreationCallback(void(*func)(unsigned int codeID));
+DE4_API void MAPLightCreationCallback(void(*func)(unsigned int codeID));
+DE4_API unsigned int MAPGenerate(const char path[]);
+//DE4_API void MAP
