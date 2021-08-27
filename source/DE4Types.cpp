@@ -420,8 +420,16 @@ std::vector<Trigger> Scene::getTriggers()
 
 //Tilesheet-----------------------------------------------------------------------------------
 #pragma region Tilesheet
+std::string TileSheet::getID() {
+	return this->ID;
+}
 void TileSheet::createSheet(std::string url_base, std::string url_def)
 {
+	//split file name by slash mark, use last index to find file name
+	std::vector<std::string> fileSplit;
+	stringSplit(url_base, '/', fileSplit);
+	this->ID = fileSplit[fileSplit.size() - 1];
+
 	//load base and bounds images
 	unsigned int width = 0;
 	unsigned int height = 0;
@@ -496,8 +504,7 @@ void TileSheet::createSheet(std::string url_base, std::string url_def)
 							idList.push_back(textureID);
 							widthList.push_back(subWidth);
 							heightList.push_back(subHeight);
-							std::cout << "Texture generated id " << std::to_string(textureID) << std::endl;
-							log("Texture generated id " + std::to_string(textureID));
+							log("Texture generated " + this->ID + " ID " + std::to_string(textureID));
 						}
 					}
 					break;
@@ -505,7 +512,6 @@ void TileSheet::createSheet(std::string url_base, std::string url_def)
 			}
 		}
 		if (phase == 1) { //Throw error if reach the end of X coord while in second phase (Second point obviously missing)
-			std::cerr << "Error in bounds file, Point 2 not found. Sprites not generated" << std::endl;
 			error("Error in bounds file, Point 2 not found. Sprites not generated");
 			return;
 		}

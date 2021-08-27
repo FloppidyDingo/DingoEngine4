@@ -4,6 +4,10 @@
 #include <math.h>
 #include <iostream>
 #include <fstream>
+#include <algorithm>
+#include <string>
+#include <vector>
+#include <sstream>
 
 bool inBetween(float point, float lowBound, float highBound) {
 	return (point > lowBound) && (point < highBound);
@@ -205,18 +209,28 @@ bool load_wav_file_header(std::ifstream& file, std::uint8_t& channels, std::int3
     return true;
 }
 
+void stringSplit(std::string const& str, const char delim, std::vector<std::string>& out) {
+    // construct a stream from the string
+    std::stringstream ss(str);
+
+    std::string s;
+    while (std::getline(ss, s, delim)) {
+        out.push_back(s);
+    }
+}
+
 bool load_wav(const std::string& filename, std::uint8_t& channels, std::int32_t& sampleRate, std::uint8_t& bitsPerSample, std::vector<char> &data)
 {
     ALsizei size;
     std::ifstream in(filename, std::ios::binary);
     if (!in.is_open())
     {
-        std::cerr << "ERROR: Could not open \"" << filename << "\"" << std::endl;
+        error("Could not open \"" + filename + "\"");
         return false;
     }
     if (!load_wav_file_header(in, channels, sampleRate, bitsPerSample, size))
     {
-        std::cerr << "ERROR: Could not load wav header of \"" << filename << "\"" << std::endl;
+        error("Could not load wav header of \"" + filename + "\"");
         return false;
     }
 
