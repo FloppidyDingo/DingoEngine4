@@ -10,9 +10,11 @@ class TileSheet {
 private:
 	unsigned char* imageData;
 	unsigned char* boundsData;
+	std::string ID;
 
 public:
 	unsigned int codeID;
+	std::string getID();
 	void createSheet(std::string url_base, std::string url_def);
 	std::vector<unsigned int> idList;
 	std::vector<unsigned int> widthList;
