@@ -165,11 +165,41 @@ int kbdreleases;
 unsigned char kbdkey[128]; //list of the indexes of activated registered keys
 unsigned char kbdreleasekey[128];
 std::vector<KbdEvent*> keys;
+
+//Map generation
+std::string tilePath;
+void (*fTagStart)(const char tag[]);
+void (*fTagVariable)(const char id[], const char value[]);
+void(*fEntityCreated)(unsigned int codeID);
+void(*fTriggerCreated)(unsigned int codeID);
+void(*fLightCreated)(unsigned int codeID);
+struct objectData {
+	std::string objectID;
+	std::string tileID;
+	unsigned int frame;
+	bool solid;
+	float mass;
+	bool visible;
+	float opacity;
+	int collision;
+	bool invertX;
+	bool invertY;
+
+	bool ambient;
+	float brightness;
+	float red;
+	float green;
+	float blue;
+
+	float width;
+	float height;
+};
 #pragma endregion
 
 /*
 if (deepDebug) {
 	logFile << getMillis() << " | " << std::endl;
+	std::cout << " " << std::endl;
 }
 */
 
@@ -993,11 +1023,13 @@ long long getMillis() {
 void log(std::string log) {
 	if (deepDebug) {
 		logFile << getMillis() << " | " << log << std::endl;
+		std::cout << getMillis() << " | " << log << std::endl;
 	}
 }
 
 void error(std::string error) {
-	logFile << getMillis() << " | " << error << std::endl;
+	logFile << getMillis() << "ERROR | " << error << std::endl;
+	std::cerr << getMillis() << "ERROR | " << error << std::endl;
 }
 #pragma endregion
 
@@ -2201,3 +2233,168 @@ bool AUDisSpatial()
 	return Sounds[activeSound].isSpatial();
 }
 #pragma endregion
+
+void MAPSetTileFolder(const char path[]) {
+	tilePath = std::string(path);
+}
+
+void MAPStartTagCallback(void(*func)(const char tag[])) {
+	fTagStart = func;
+}
+
+void MAPVariableCallback(void(*func)(const char id[], const char value[])) {
+	fTagVariable = func;
+}
+
+void MAPEntityCreationCallback(void(*func)(unsigned int codeID)) {
+	fEntityCreated = func;
+}
+
+void MAPTriggerCreationCallback(void(*func)(unsigned int codeID)) {
+	fTriggerCreated = func;
+}
+
+void MAPLightCreationCallback(void(*func)(unsigned int codeID)) {
+	fLightCreated = func;
+}
+
+int MAPGenerate(const char path[]) {
+	//create and open map file
+	std::ifstream inputFile;
+	inputFile.open(path);
+	if (!inputFile.is_open()) {
+		logFile << getMillis() << " | Map file failed to open: " << path << std::endl;
+		return -1;
+	}
+
+	//create map generation data
+	std::string input;
+	std::vector<std::string> data;
+	std::vector<std::string> tags;
+	std::vector<std::string> tagVars;
+	unsigned int sceneID = SCNCreate();
+	unsigned int mode = 0; //read mode: 0 = tag scan
+	unsigned int line = 0;
+	objectData object;
+
+	//read map file
+	while (std::getline(inputFile, input)) {
+		//split data by end bracket (to input multiple tags on the same line)
+		stringSplit(input, '>', data);
+	}
+
+	//close file
+	inputFile.close();
+	if (deepDebug) {
+		logFile << getMillis() << " | Map file read successfully, compiling: " << path << std::endl;
+		std::cout << " | Map file read successfully, compiling: " << path << std::endl;
+	}
+
+	//scan tag data
+	for (std::string str : data) {
+		switch (mode) {
+			case 0: {
+				if (str.data()[0] == '<' && str.data()[1] != '/') { //check if string is an opening tag
+					//remove bracket and split tag and variables
+					tagVars.clear();
+					str.erase(std::remove(str.begin(), str.end(), '<'), str.end());
+					tags.insert(tags.begin(), str);
+					stringSplit(str, ' ', tagVars);
+					std::string strVar = tagVars[0];
+					bool customTag = false;
+
+					//call tag callback if not a standard tag
+					if (strVar != "tile" && strVar != "trigger" && strVar != "light" && fTagStart != nullptr) {
+						fTagStart(strVar.data());
+						customTag = true;
+					}
+
+					//parse through tagvars and create object
+					for (std::string strVar: tagVars) {
+						if (customTag) { //process custom tag
+							if (strVar.find('=') != std::string::npos) { //check if segment is actually a variable
+								//split segment into two halves
+								std::vector<std::string> vars;
+								stringSplit(strVar, '=', vars);
+
+								//remove quotes from value portion
+								vars[1].erase(std::remove(vars[1].begin(), vars[1].end(), '"'), vars[1].end());
+
+								//call variable callback
+								if (fTagVariable != nullptr) {
+									fTagVariable(vars[0].data(), vars[1].data());
+								}
+							}
+						} else { //process object tag
+							if (strVar.find('=') != std::string::npos) { //check if segment is actually a variable
+								//split segment into two halves
+								std::vector<std::string> vars;
+								stringSplit(strVar, '=', vars);
+
+								//remove quotes from value portion
+								vars[1].erase(std::remove(vars[1].begin(), vars[1].end(), '"'), vars[1].end());
+
+								//figure out what variable to assign, then parse and store value
+								if (vars[0] == "id") {
+									object.objectID = vars[1];
+								} else if (vars[0] == "frame") {
+									object.frame = std::stoi(vars[1]);
+								} else if (vars[0] == "skin") {
+									object.tileID = vars[1];
+								} else if (vars[0] == "solid") {
+
+								} else if (vars[0] == "mass") {
+
+								} else if (vars[0] == "visible") {
+
+								} else if (vars[0] == "opacity") {
+
+								} else if (vars[0] == "collision") {
+
+								} else if (vars[0] == "invertx") {
+
+								} else if (vars[0] == "inverty") {
+
+								} else if (vars[0] == "ambient") {
+
+								} else if (vars[0] == "brightness") {
+
+								} else if (vars[0] == "red") {
+
+								} else if (vars[0] == "green") {
+
+								} else if (vars[0] == "blue") {
+
+								} else if (vars[0] == "width") {
+
+								} else if (vars[0] == "height") {
+
+								}
+							}
+						}
+					}
+				}
+				break;
+			}
+			case 1: { //read text (coordinates only)
+				if (str.data()[0] == '<' && str.data()[1] == '/') { //check if string is closing tag
+					//remove bracket and slash
+					str.erase(std::remove(str.begin(), str.end(), '<'), str.end());
+					str.erase(std::remove(str.begin(), str.end(), '/'), str.end());
+
+					//check if closing tag is the same as opening tag
+
+					//exit text mode and break;
+				}
+
+				//process coordinates
+
+				//use placeholder object to create object (use tag in tags vector to determine witch object to create)
+
+				break;
+			}
+		}
+	}
+
+	return sceneID;
+}

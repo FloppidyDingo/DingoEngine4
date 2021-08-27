@@ -346,5 +346,5 @@ DE4_API void MAPVariableCallback(void(*func)(const char id[], const char value[]
 DE4_API void MAPEntityCreationCallback(void(*func)(unsigned int codeID));
 DE4_API void MAPTriggerCreationCallback(void(*func)(unsigned int codeID));
 DE4_API void MAPLightCreationCallback(void(*func)(unsigned int codeID));
-DE4_API unsigned int MAPGenerate(const char path[]);
+DE4_API int MAPGenerate(const char path[]);
 //DE4_API void MAP
