@@ -190,6 +190,7 @@ struct objectData {
 	float red;
 	float green;
 	float blue;
+	float radius;
 
 	float width;
 	float height;
@@ -267,8 +268,8 @@ void frameUpdate() {
 
 	double msdx, msdy;
 	glfwGetCursorPos(window, &msdx, &msdy);
-	msex = (msdx - (windowX / 2)) * ((float)resolutionX / (float)windowX);
-	msey = -(msdy - (windowY / 2)) * ((float)resolutionY / (float)windowY);
+	msex = (msdx - (windowX / 2)) * ((float)resolutionX / (float)windowX) / globalScale;
+	msey = -(msdy - (windowY / 2)) * ((float)resolutionY / (float)windowY) / globalScale;
 
 	//call update function
 	fUpdate();
@@ -453,8 +454,8 @@ void frameUpdate() {
 			Entity e = Entities[ei];
 			if (inBetween(e.x, t.x - (t.width / 2), t.x + (t.width / 2)) && 
 				inBetween(e.y, t.y - (t.height / 2), t.y + (t.height / 2)) && t.enabled) {
-				char* charID = new char[t.id.size() + 1];
-				strcpy_s(charID, t.id.size() + 1, t.id.c_str());
+				char* charID = new char[t.getID().size() + 1];
+				strcpy_s(charID, t.getID().size() + 1, t.getID().c_str());
 				fTrigger(charID, e.codeID);
 				delete[] charID;
 			}
@@ -529,10 +530,10 @@ void frameUpdate() {
 			//send vertex data
 			vertData = {
 				//position
-				((ent.x - (ent.getWidth() * globalScale * ent.getScale() / 2)) * invX), ((ent.y + (ent.getHeight() * globalScale * ent.getScale() / 2)) * invY), 0,
-				((ent.x + (ent.getWidth() * globalScale * ent.getScale() / 2)) * invX), ((ent.y + (ent.getHeight() * globalScale * ent.getScale() / 2)) * invY), 0,
-				((ent.x + (ent.getWidth() * globalScale * ent.getScale() / 2)) * invX), ((ent.y - (ent.getHeight() * globalScale * ent.getScale() / 2)) * invY), 0,
-				((ent.x - (ent.getWidth() * globalScale * ent.getScale() / 2)) * invX), ((ent.y - (ent.getHeight() * globalScale * ent.getScale() / 2)) * invY), 0,
+				(((ent.x * globalScale) - (ent.getWidth() * globalScale * ent.getScale() / 2)) * invX), (((ent.y * globalScale) + (ent.getHeight() * globalScale * ent.getScale() / 2)) * invY), 0,
+				(((ent.x * globalScale) + (ent.getWidth() * globalScale * ent.getScale() / 2)) * invX), (((ent.y * globalScale) + (ent.getHeight() * globalScale * ent.getScale() / 2)) * invY), 0,
+				(((ent.x * globalScale) + (ent.getWidth() * globalScale * ent.getScale() / 2)) * invX), (((ent.y * globalScale) - (ent.getHeight() * globalScale * ent.getScale() / 2)) * invY), 0,
+				(((ent.x * globalScale) - (ent.getWidth() * globalScale * ent.getScale() / 2)) * invX), (((ent.y * globalScale) - (ent.getHeight() * globalScale * ent.getScale() / 2)) * invY), 0,
 			};	
 			//rescale to screen coords
 			vertData[0] = vertData[0] / resolutionX * 2;
@@ -585,10 +586,10 @@ void frameUpdate() {
 			//send vertex data
 			vertData = {
 				//position
-				((ent.x - (ent.getWidth() * globalScale * ent.getScale() / 2))* invX), ((ent.y + (ent.getHeight() * globalScale * ent.getScale() / 2))* invY), 0,
-				((ent.x + (ent.getWidth() * globalScale * ent.getScale() / 2))* invX), ((ent.y + (ent.getHeight() * globalScale * ent.getScale() / 2))* invY), 0,
-				((ent.x + (ent.getWidth() * globalScale * ent.getScale() / 2))* invX), ((ent.y - (ent.getHeight() * globalScale * ent.getScale() / 2))* invY), 0,
-				((ent.x - (ent.getWidth() * globalScale * ent.getScale() / 2))* invX), ((ent.y - (ent.getHeight() * globalScale * ent.getScale() / 2))* invY), 0,
+				(((ent.x * globalScale) - (ent.getWidth() * globalScale * ent.getScale() / 2)) * invX), (((ent.y * globalScale) + (ent.getHeight() * globalScale * ent.getScale() / 2)) * invY), 0,
+				(((ent.x * globalScale) + (ent.getWidth() * globalScale * ent.getScale() / 2)) * invX), (((ent.y * globalScale) + (ent.getHeight() * globalScale * ent.getScale() / 2)) * invY), 0,
+				(((ent.x * globalScale) + (ent.getWidth() * globalScale * ent.getScale() / 2)) * invX), (((ent.y * globalScale) - (ent.getHeight() * globalScale * ent.getScale() / 2)) * invY), 0,
+				(((ent.x * globalScale) - (ent.getWidth() * globalScale * ent.getScale() / 2)) * invX), (((ent.y * globalScale) - (ent.getHeight() * globalScale * ent.getScale() / 2)) * invY), 0,
 			};
 			//rescale to screen coords
 			vertData[0] = vertData[0] / resolutionX * 2;
@@ -643,7 +644,7 @@ void frameUpdate() {
 			fpsTimer = fpsStart;
 		}
 		frame++;
-		profilerInfo += 
+		profilerInfo +=
 			"Frame: " + std::to_string(frame) + //total frames
 			" | TOBJ: " + std::to_string(entities.size()) + //Total objects
 			" | POBJ: " + std::to_string(physObjects) + //Physics objects
@@ -653,7 +654,8 @@ void frameUpdate() {
 			" | TPHYS: " + std::to_string(physicsEnd - physicsStart) + //Physics time
 			" | TUSE: " + std::to_string(userEnd - userStart) + //Update and event handler time
 			" | TDRAW: " + std::to_string(drawEnd - drawStart) + //Update and event handler time
-			" | FPS: " + std::to_string(fps); //frames per second
+			" | FPS: " + std::to_string(fps) + //frames per second
+			" | MSE: " + std::to_string(msex) + ", " + std::to_string(msey); //mouse position
 		glfwSetWindowTitle(window, profilerInfo.c_str());
 	}
 	#pragma endregion
@@ -1163,7 +1165,7 @@ void ENTAssign(unsigned int code)
 	unsigned int i = 0;
 	while (i < Entities.size()) {
 		if (Entities.at(i).codeID == code) {
-			activeEntity = Entities.at(i).codeID;
+			activeEntity = i;
 			break;
 		}
 		i++;
@@ -1210,12 +1212,12 @@ float ENTGetY()
 
 int ENTGetWidth()
 {
-	return Entities[activeEntity].getWidth() * globalScale;
+	return Entities[activeEntity].getWidth();
 }
 
 int ENTGetHeight()
 {
-	return Entities[activeEntity].getHeight() * globalScale;
+	return Entities[activeEntity].getHeight();
 }
 
 void ENTSetX(float x)
@@ -1225,6 +1227,11 @@ void ENTSetX(float x)
 
 void ENTSetY(float y)
 {
+	Entities[activeEntity].y = y;
+}
+
+void ENTSetPosition(float x, float y) {
+	Entities[activeEntity].x = x;
 	Entities[activeEntity].y = y;
 }
 
@@ -1403,7 +1410,7 @@ void SCNAssign(unsigned int code)
 	unsigned int i = 0;
 	while (i < Scenes.size()) {
 		if (Scenes.at(i).codeID == code) {
-			activeScene = Scenes.at(i).codeID;
+			activeScene = i;
 			break;
 		}
 		i++;
@@ -1616,7 +1623,7 @@ void ANIAssign(unsigned int code)
 	unsigned int i = 0;
 	while (i < Animations.size()) {
 		if (Animations.at(i).codeID == code) {
-			activeAnimation = Animations.at(i).codeID;
+			activeAnimation = i;
 			break;
 		}
 		i++;
@@ -1720,7 +1727,7 @@ void TLSAssign(unsigned int codeID)
 	unsigned int i = 0;
 	while (i < Tilesheets.size()) {
 		if (Tilesheets.at(i).codeID == codeID) {
-			activeSheet = Tilesheets.at(i).codeID;
+			activeSheet = i;
 			break;
 		}
 		i++;
@@ -1767,7 +1774,7 @@ void LGTAssign(unsigned int codeID)
 	unsigned int i = 0;
 	while (i < Lights.size()) {
 		if (Lights.at(i).codeID == codeID) {
-			activeLight = Lights.at(i).codeID;
+			activeLight = i;
 			break;
 		}
 		i++;
@@ -1800,6 +1807,19 @@ void LGTDestroyAll()
 {
 	Lights.clear();
 	lightCount = 0;
+}
+
+void LGTSetX(float x) {
+	Lights[activeLight].x = x;
+}
+
+void LGTSetY(float y) {
+	Lights[activeLight].y = y;
+}
+
+void LGTSetPosition(float x, float y) {
+	Lights[activeLight].x = x;
+	Lights[activeLight].y = y;
 }
 
 void LGTSetType(unsigned int type)
@@ -1837,6 +1857,16 @@ void LGTSetColor(float red, float green, float blue)
 	Lights[activeLight].rgb[0] = red;
 	Lights[activeLight].rgb[1] = green;
 	Lights[activeLight].rgb[2] = blue;
+}
+
+void LGTSetID(const char id[]) {
+	Lights[activeLight].setID(std::string(id));
+}
+
+char* LGTGetID() {
+	char* charID = new char[Lights[activeLight].getID().size() + 1];
+	strcpy_s(charID, Lights[activeLight].getID().size() + 1, Lights[activeLight].getID().c_str());
+	return charID;
 }
 #pragma endregion
 
@@ -1933,7 +1963,7 @@ void TRGAssign(unsigned int codeID)
 	unsigned int i = 0;
 	while (i < Triggers.size()) {
 		if (Triggers.at(i).codeID == codeID) {
-			activeTrigger = Triggers.at(i).codeID;
+			activeTrigger = i;
 			break;
 		}
 		i++;
@@ -1978,9 +2008,14 @@ void TRGSetY(unsigned int y)
 	Triggers[activeTrigger].y = y;
 }
 
+void TRGSetPosition(float x, float y) {
+	Triggers[activeTrigger].x = x;
+	Triggers[activeTrigger].y = y;
+}
+
 void TRGSetID(const char id[])
 {
-	Triggers[activeTrigger].id = std::string(id);
+	Triggers[activeTrigger].setID(std::string(id));
 }
 
 float TRGGetX()
@@ -2005,8 +2040,8 @@ float TRGGetHeight()
 
 char* TRGGetID()
 {
-	char* charID = new char[Triggers[activeTrigger].id.size() + 1];
-	strcpy_s(charID, Triggers[activeTrigger].id.size() + 1, Triggers[activeTrigger].id.c_str());
+	char* charID = new char[Triggers[activeTrigger].getID().size() + 1];
+	strcpy_s(charID, Triggers[activeTrigger].getID().size() + 1, Triggers[activeTrigger].getID().c_str());
 	return charID;
 }
 
@@ -2050,7 +2085,7 @@ void AUDAssignSource(unsigned int codeID)
 	unsigned int i = 0;
 	while (i < Sounds.size()) {
 		if (Sounds.at(i).codeID == codeID) {
-			activeSound = Sounds.at(i).codeID;
+			activeSound = i;
 			break;
 		}
 		i++;
@@ -2273,9 +2308,9 @@ int MAPGenerate(const char path[]) {
 	std::vector<std::string> tags;
 	std::vector<std::string> tagVars;
 	unsigned int sceneID = SCNCreate();
-	unsigned int mode = 0; //read mode: 0 = tag scan
-	unsigned int line = 0;
+	unsigned int mode = 0; //read mode: 0 = tag scan, 1 = text mode
 	objectData object;
+	bool customTag = false;
 
 	//read map file
 	while (std::getline(inputFile, input)) {
@@ -2285,10 +2320,7 @@ int MAPGenerate(const char path[]) {
 
 	//close file
 	inputFile.close();
-	if (deepDebug) {
-		logFile << getMillis() << " | Map file read successfully, compiling: " << path << std::endl;
-		std::cout << " | Map file read successfully, compiling: " << path << std::endl;
-	}
+	log("Map file read successfully, compiling: " + std::string(path));
 
 	//scan tag data
 	for (std::string str : data) {
@@ -2298,15 +2330,18 @@ int MAPGenerate(const char path[]) {
 					//remove bracket and split tag and variables
 					tagVars.clear();
 					str.erase(std::remove(str.begin(), str.end(), '<'), str.end());
-					tags.insert(tags.begin(), str);
 					stringSplit(str, ' ', tagVars);
 					std::string strVar = tagVars[0];
-					bool customTag = false;
+					tags.insert(tags.begin(), strVar);
 
 					//call tag callback if not a standard tag
-					if (strVar != "tile" && strVar != "trigger" && strVar != "light" && fTagStart != nullptr) {
-						fTagStart(strVar.data());
+					if (strVar != "tile" && strVar != "trigger" && strVar != "light") {
+						if (fTagStart != nullptr) {
+							fTagStart(strVar.data());
+						}
 						customTag = true;
+					} else {
+						customTag = false;
 					}
 
 					//parse through tagvars and create object
@@ -2342,37 +2377,40 @@ int MAPGenerate(const char path[]) {
 								} else if (vars[0] == "skin") {
 									object.tileID = vars[1];
 								} else if (vars[0] == "solid") {
-
+									object.solid = vars[1] == "true";
 								} else if (vars[0] == "mass") {
-
+									object.mass = std::stof(vars[1]);
 								} else if (vars[0] == "visible") {
-
+									object.visible = vars[1] == "true";
 								} else if (vars[0] == "opacity") {
-
+									object.opacity = std::stof(vars[1]);
 								} else if (vars[0] == "collision") {
-
+									object.collision = std::stoi(vars[1]);
 								} else if (vars[0] == "invertx") {
-
+									object.invertX = vars[1] == "true";
 								} else if (vars[0] == "inverty") {
-
+									object.invertY = vars[1] == "true";
 								} else if (vars[0] == "ambient") {
-
+									object.ambient = vars[1] == "true";
 								} else if (vars[0] == "brightness") {
-
+									object.brightness = std::stof(vars[1]);
 								} else if (vars[0] == "red") {
-
+									object.red = std::stoi(vars[1]) / 255.0;
 								} else if (vars[0] == "green") {
-
+									object.green = std::stoi(vars[1]) / 255.0;
 								} else if (vars[0] == "blue") {
-
+									object.blue = std::stoi(vars[1]) / 255.0;
+								} else if (vars[0] == "radius") {
+									object.radius = std::stof(vars[1]);
 								} else if (vars[0] == "width") {
-
+									object.width = std::stof(vars[1]);
 								} else if (vars[0] == "height") {
-
+									object.height = std::stof(vars[1]);
 								}
 							}
 						}
 					}
+					mode = 1;
 				}
 				break;
 			}
@@ -2382,14 +2420,98 @@ int MAPGenerate(const char path[]) {
 					str.erase(std::remove(str.begin(), str.end(), '<'), str.end());
 					str.erase(std::remove(str.begin(), str.end(), '/'), str.end());
 
-					//check if closing tag is the same as opening tag
+					//check if closing tag is the same as opening tag, then remove
+					if (tags[0] == str) {
+						tags.erase(tags.begin());
+					} else {
+						error("Tag mismatch error!");
+					}
 
-					//exit text mode and break;
+					//exit text mode and break
+					mode = 0;
+					break;
 				}
 
-				//process coordinates
+				//skip next step if custom tag
+				if (customTag) {
+					break;
+				}
 
-				//use placeholder object to create object (use tag in tags vector to determine witch object to create)
+				//split coordinates into separate xy segments
+				std::vector<std::string> coordList;
+				stringSplit(str, ';', coordList);
+				for (std::string coordSegment : coordList) {
+					//split segment into separate coordinates
+					std::vector<std::string> coords;
+					stringSplit(coordSegment, ',', coords);
+					float x = 0.0, y = 0.0;
+					x = std::stof(coords[0]);
+					y = std::stof(coords[1]);
+					
+					//use placeholder object to create object (use tag in tags vector to determine witch object to create)
+					if (tags[0] == "tile") {
+						ENTCreate();
+						ENTSetID(object.objectID.data());
+						//scan tilesheet id
+						for (TileSheet sheet : Tilesheets) {
+							if (sheet.getID() == object.tileID) {
+								TLSAssign(sheet.codeID);
+								break;
+							}
+						}
+						ENTSetTileSheet();
+						ENTSetFrame(object.frame);
+						ENTSetSolid(object.solid);
+						ENTSetMass(object.mass);
+						ENTSetVisible(object.visible);
+						ENTSetOpacity(object.opacity);
+						ENTSetCollisionGroup(object.collision);
+						ENTSetInvertX(object.invertX);
+						ENTSetInvertY(object.invertY);
+						ENTSetPosition(x, y);
+
+						SCNAddEntity();
+
+						if (fEntityCreated != nullptr) {
+							fEntityCreated(Entities[activeEntity].codeID);
+						}
+
+						log("Entity created " + Entities[activeEntity].getID());
+					} else if (tags[0] == "trigger") {
+						TRGCreate();
+						TRGSetID(object.objectID.data());
+						TRGSetSize(object.width, object.height);
+						TRGSetPosition(x, y);
+
+						SCNAddTrigger();
+
+						if (fTriggerCreated != nullptr) {
+							fTriggerCreated(Triggers[activeTrigger].codeID);
+						}
+
+						log("Trigger created " + Triggers[activeTrigger].getID());
+					} else if (tags[0] == "light") {
+						LGTCreate();
+						LGTSetID(object.objectID.data());
+						if (object.ambient) {
+							LGTSetType(DE4_LIGHT_AMBIENT);
+						} else {
+							LGTSetType(DE4_LIGHT_POINT);
+						}
+						LGTSetBrightness(object.brightness);
+						LGTSetRadius(object.radius);
+						LGTSetColor(object.red, object.green, object.blue);
+						LGTSetPosition(x, y);
+
+						SCNAddLight();
+
+						if (fLightCreated != nullptr) {
+							fLightCreated(Lights[activeLight].codeID);
+						}
+
+						log("Light created " + Lights[activeLight].getID());
+					}
+				}
 
 				break;
 			}
