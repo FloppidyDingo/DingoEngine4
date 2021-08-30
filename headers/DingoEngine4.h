@@ -9,9 +9,9 @@
 
 #define DE4_PLATFORMER 0
 #define DE4_TOPDOWN 1
-#define LIGHT_AMBIENT 1
-#define LIGHT_POINT 2
-#define MAX_INFOLOG_LENGTH 1024
+#define DE4_LIGHT_AMBIENT 1
+#define DE4_LIGHT_POINT 2
+#define DE4_MAX_INFOLOG_LENGTH 1024
 #define DE4_VERSION "0.2.0b"
 
 //DE4 key defines
@@ -178,6 +178,7 @@ DE4_API int ENTGetWidth();
 DE4_API int ENTGetHeight();
 DE4_API void ENTSetX(float x);
 DE4_API void ENTSetY(float y);
+DE4_API void ENTSetPosition(float x, float y);
 DE4_API void ENTGetDir(float vec[]);
 DE4_API void ENTSetDir(float vec[]);
 DE4_API void ENTSetTileSheet(unsigned int tileid);
@@ -269,6 +270,9 @@ DE4_API void LGTAssign(unsigned int codeID);
 DE4_API unsigned int LGTCreate();
 DE4_API void LGTDestroy(unsigned int codeID);
 DE4_API void LGTDestroyAll();
+DE4_API void LGTSetX(float x);
+DE4_API void LGTSetY(float y);
+DE4_API void LGTSetPosition(float x, float y);
 DE4_API void LGTSetType(unsigned int type);
 DE4_API unsigned int LGTGetType();
 DE4_API void LGTSetRadius(float radius);
@@ -276,6 +280,8 @@ DE4_API float LGTGetRadius();
 DE4_API void LGTSetBrightness(float bright);
 DE4_API float LGTGetBrightness();
 DE4_API void LGTSetColor(float red, float green, float blue);
+DE4_API void LGTSetID(const char id[]);
+DE4_API char* LGTGetID();
 //DE4_API void LGT
 
 //Event Handler------------------------------------------------------------------------------------------------------
@@ -302,6 +308,7 @@ DE4_API void TRGDestroy(unsigned int codeID);
 DE4_API void TRGSetSize(unsigned int width, unsigned int height);
 DE4_API void TRGSetX(unsigned int x);
 DE4_API void TRGSetY(unsigned int y);
+DE4_API void TRGSetPosition(float x, float y);
 DE4_API void TRGSetID(const char id[]);
 DE4_API float TRGGetX();
 DE4_API float TRGGetY();

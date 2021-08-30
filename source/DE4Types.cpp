@@ -648,3 +648,27 @@ void Sound::reset()
 }
 
 #pragma endregion
+
+//Light---------------------------------------------------------------------------------------
+#pragma region Sound
+
+std::string Light::getID() {
+	return this->ID;
+}
+
+void Light::setID(std::string id) {
+	this->ID = id;
+}
+#pragma endregion
+
+//Trigger-------------------------------------------------------------------------------------
+#pragma region Trigger
+
+std::string Trigger::getID() {
+	return this->ID;
+}
+
+void Trigger::setID(std::string id) {
+	this->ID = id;
+}
+#pragma endregion

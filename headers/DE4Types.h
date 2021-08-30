@@ -24,6 +24,9 @@ public:
 
 #pragma region Light
 class Light {
+private:
+	std::string ID;
+
 public:
 	unsigned int codeID;
 	unsigned int type;
@@ -32,6 +35,8 @@ public:
 	float x = 0;
 	float y = 0;
 	float rgb[3];
+	std::string getID();
+	void setID(std::string id);
 };
 #pragma endregion
 
@@ -134,13 +139,17 @@ public:
 
 #pragma region Trigger
 class Trigger {
+private:
+	std::string ID;
+
 public:
+	std::string getID();
+	void setID(std::string id);
 	unsigned int codeID;
 	float x = 0;
 	float y = 0;
 	float width = 0;
 	float height = 0;
-	std::string id;
 	bool enabled = false;
 };
 #pragma endregion
