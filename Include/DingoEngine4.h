@@ -12,7 +12,7 @@
 #define DE4_LIGHT_AMBIENT 1
 #define DE4_LIGHT_POINT 2
 #define DE4_MAX_INFOLOG_LENGTH 1024
-#define DE4_VERSION "0.2.0b"
+#define DE4_VERSION "0.3.0b"
 
 //DE4 key defines
 #define DE4_MSE_RCLICK			   0
@@ -295,7 +295,6 @@ DE4_API void EVTSetMouseReleased(void (*func)(unsigned int button, int x, int y)
 DE4_API void EVTSetPostPhysicsTick(void (*func)());
 DE4_API void EVTAddKey(const char name[], int key);
 DE4_API void EVTRemoveKey(const char name[]);
-DE4_API void EVTAddSpecial(const char name[], int key);
 DE4_API void EVTClearKeys();
 DE4_API void EVTGetMousePos(int pos[]);
 DE4_API void EVTSetTriggerCallback(void (*func)(const char ID[], unsigned int entityID));
