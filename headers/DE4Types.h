@@ -4,6 +4,16 @@
 #include <algorithm>
 #include "al.h"
 
+struct KbdEvent {
+	unsigned int key = 0;
+	std::string id = "";
+};
+
+struct entry {
+	unsigned int id;
+	unsigned int index;
+};
+
 //Common data types used in DE4
 #pragma region Tilesheet
 class TileSheet {
@@ -156,30 +166,25 @@ public:
 
 #pragma region Scene
 class Scene {
-private:
-	std::vector<Entity> Entities;
-	std::vector<Entity> GUI;
-	std::vector<Light> Lights;
-	std::vector<Trigger> Triggers;
 
 public:
+	std::vector<entry> Entities;
+	std::vector<entry> GUI;
+	std::vector<entry> Lights;
+	std::vector<entry> Triggers;
 	unsigned int codeID;
-	void addEntity(Entity e);
-	void removeEntity(Entity e);
+	void addEntity(unsigned int id, unsigned int index);
+	void removeEntity(unsigned int id);
 	void clearEntities();
-	void addGUI(Entity e);
-	void removeGUI(Entity e);
+	void addGUI(unsigned int id, unsigned int index);
+	void removeGUI(unsigned int id);
 	void clearGUI();
-	void addLight(Light l);
-	void removeLight(Light l);
+	void addLight(unsigned int id, unsigned int index);
+	void removeLight(unsigned int id);
 	void clearLights();
-	void addTrigger(Trigger t);
-	void removeTrigger(Trigger t);
+	void addTrigger(unsigned int id, unsigned int index);
+	void removeTrigger(unsigned int id);
 	void clearTriggers();
-	std::vector<Entity> getEntities();
-	std::vector<Entity> getGUI();
-	std::vector<Light> getLights();
-	std::vector<Trigger> getTriggers();
 
 };
 #pragma endregion
@@ -219,9 +224,3 @@ public:
 	
 };
 #pragma endregion
-
-struct KbdEvent {
-	unsigned int key = 0;
-	int special = 0;
-	std::string id = "";
-};

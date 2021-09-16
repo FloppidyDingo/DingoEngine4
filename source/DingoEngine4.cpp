@@ -2,7 +2,6 @@
 Things to do:
 	finish and implement Utils
 	optimize and complete logging
-	implement map generation
 
 Things to Add/change/fix:
 	Create a support library (Animation timer)
@@ -83,11 +82,11 @@ unsigned int activeSound;
 std::vector<ALuint> Buffers;
 
 //scene management
-Scene scene;
-std::vector<unsigned int> entities;
-std::vector<unsigned int> gui;
-std::vector<unsigned int> lights;
-std::vector<unsigned int> triggers;
+unsigned int engineScene;
+int rebuildGUI;
+int rebuildEntities;
+int rebuildLights;
+int rebuildTriggers;
 
 //physics variables
 unsigned int physicsMode;
@@ -235,7 +234,7 @@ void frameUpdate() {
 	int kbdtmpreleases = kbdreleases;
 	kbdreleases = 0;
 	std::copy(std::begin(kbdreleasekey), std::end(kbdreleasekey), std::begin(kbdtmprls));
-	
+
 	if (kbdtmppresses > 0) {
 		for (int i = 0; i < kbdtmppresses; i++) {
 			if (fKeyPressed != nullptr) {
@@ -276,64 +275,64 @@ void frameUpdate() {
 	long long userEnd = getMillis();
 	#pragma endregion
 
-	//populate active object lists from scene
-	#pragma region list population
-	entities.clear();
-	unsigned int si = 0;
-	while (si < scene.getEntities().size()) {
-		unsigned int code = scene.getEntities().at(si).codeID;
-		unsigned int i = 0;
-		while (i < Entities.size()) {
-			if (Entities.at(i).codeID == code) {
-				entities.push_back(i);
-				break;
-			}
-			i++;
+	//rebuild scene if needed
+	#pragma region scene rebuild
+	long long tListStart = getMillis();
+
+	unsigned int sceneIndex = 0;
+	while (sceneIndex < Scenes.size()) {
+		if (Scenes.at(sceneIndex).codeID == engineScene) {
+			break;
 		}
-		si++;
+		sceneIndex++;
 	}
-	gui.clear();
-	si = 0;
-	while (si < scene.getGUI().size()) {
-		unsigned int code = scene.getGUI().at(si).codeID;
-		unsigned int i = 0;
-		while (i < Entities.size()) {
-			if (Entities.at(i).codeID == code) {
-				gui.push_back(i);
-				break;
+
+	if (rebuildGUI > 0) {
+		Scene scene;
+		for (int i = rebuildGUI; i < Entities.size(); i++) {
+			for (int i2 = 0; i2 < Scenes[sceneIndex].GUI.size(); i2++) {
+				if (Scenes[sceneIndex].GUI[i2].id == Entities[i].codeID) {
+					Scenes[sceneIndex].GUI[i2].index = i;
+				}
 			}
-			i++;
 		}
-		si++;
+		rebuildGUI = -1;
 	}
-	lights.clear();
-	si = 0;
-	while (si < scene.getLights().size()) {
-		unsigned int code = scene.getLights().at(si).codeID;
-		unsigned int i = 0;
-		while (i < Lights.size()) {
-			if (Lights.at(i).codeID == code) {
-				lights.push_back(i);
-				break;
+	if (rebuildEntities > 0) {
+		for (int i = rebuildEntities; i < Entities.size(); i++) {
+			for (int i2 = 0; i2 < Scenes[sceneIndex].Entities.size(); i2++) {
+				if (Scenes[sceneIndex].Entities[i2].id == Entities[i].codeID) {
+					Scenes[sceneIndex].Entities[i2].index = i;
+				}
 			}
-			i++;
 		}
-		si++;
+		rebuildEntities = -1;
 	}
-	triggers.clear();
-	si = 0;
-	while (si < scene.getTriggers().size()) {
-		unsigned int code = scene.getTriggers().at(si).codeID;
-		unsigned int i = 0;
-		while (i < Triggers.size()) {
-			if (Triggers.at(i).codeID == code) {
-				triggers.push_back(i);
-				break;
+	if (rebuildLights > 0) {
+		for (int i = rebuildLights; i < Lights.size(); i++) {
+			for (int i2 = 0; i2 < Scenes[sceneIndex].Lights.size(); i2++) {
+				if (Scenes[sceneIndex].Lights[i2].id == Lights[i].codeID) {
+					Scenes[sceneIndex].Lights[i2].index = i;
+				}
 			}
-			i++;
 		}
-		si++;
+		rebuildLights = -1;
 	}
+	if (rebuildTriggers > 0) {
+		for (int i = rebuildTriggers; i < Triggers.size(); i++) {
+			for (int i2 = 0; i2 < Scenes[sceneIndex].Triggers.size(); i2++) {
+				if (Scenes[sceneIndex].Triggers[i2].id == Triggers[i].codeID) {
+					Scenes[sceneIndex].Triggers[i2].index = i;
+				}
+			}
+		}
+		rebuildTriggers = -1;
+	}
+
+	//get current scene
+	Scene scene = Scenes.at(sceneIndex);
+
+	long long tListEnd = getMillis();
 	#pragma endregion
 
 	//Update objects
@@ -341,8 +340,8 @@ void frameUpdate() {
 	for (unsigned int i = 0; i < Animations.size(); i++) {
 		Animations[i].update();
 	}
-	for (unsigned int i = 0; i < entities.size(); i++) {
-		Entities[entities[i]].update();
+	for (unsigned int i = 0; i < scene.Entities.size(); i++) {
+		Entities[scene.Entities[i].index].update();
 	}
 	#pragma endregion
 
@@ -351,8 +350,8 @@ void frameUpdate() {
 	long long physicsStart = getMillis();
 	if (Profile) {
 		physObjects = 0;
-		for (unsigned int i : entities) {
-			if (Entities[i].getMass() != 0 || Entities[i].isSolid()) {
+		for (entry e : scene.Entities) {
+			if (Entities[e.index].getMass() != 0 || Entities[e.index].isSolid()) {
 				physObjects++;
 			}
 		}
@@ -360,19 +359,19 @@ void frameUpdate() {
 
 	//gravity
 	if (physicsMode == DE4_PLATFORMER) {
-		for (unsigned int i : entities) {
-			if (Entities[i].dir[1] < terminalVelocity) {
-				Entities[i].dir[1] -= gravity * Entities[i].getMass();
+		for (entry e : scene.Entities) {
+			if (Entities[e.index].dir[1] < terminalVelocity) {
+				Entities[e.index].dir[1] -= gravity * Entities[e.index].getMass();
 			}
 		}
 	}
 	
 	//collisions
-	for (unsigned int i : entities) {
-		if ((Entities[i].dir[0] != 0) || (Entities[i].dir[1] != 0)) {
-			for (unsigned int i2 : entities) {
-				Entity e1 = Entities[i];  //moving entity
-				Entity e2 = Entities[i2]; //solid entity
+	for (entry ent1 : scene.Entities) {
+		if ((Entities[ent1.index].dir[0] != 0) || (Entities[ent1.index].dir[1] != 0)) {
+			for (entry ent2 : scene.Entities) {
+				Entity e1 = Entities[ent1.index];  //moving entity
+				Entity e2 = Entities[ent2.index]; //solid entity
 				/*
 				Conditions for collision:
 					-the solid block is within a radius that is equal to the moving vector
@@ -429,9 +428,9 @@ void frameUpdate() {
 	}
 	
 	//movement
-	for (unsigned int i : entities) {
-		Entities[i].x += Entities[i].dir[0];
-		Entities[i].y += Entities[i].dir[1];
+	for (entry e : scene.Entities) {
+		Entities[e.index].x += Entities[e.index].dir[0];
+		Entities[e.index].y += Entities[e.index].dir[1];
 	}
 
 	//post physics tick
@@ -448,10 +447,10 @@ void frameUpdate() {
 
 	//trigger calculation
 	#pragma region triggers
-	for (unsigned int ti : triggers) {
-		Trigger t = Triggers[ti];
-		for (unsigned int ei : entities) {
-			Entity e = Entities[ei];
+	for (entry ti : scene.Triggers) {
+		Trigger t = Triggers[ti.index];
+		for (entry ent : scene.Entities) {
+			Entity e = Entities[ent.index];
 			if (inBetween(e.x, t.x - (t.width / 2), t.x + (t.width / 2)) && 
 				inBetween(e.y, t.y - (t.height / 2), t.y + (t.height / 2)) && t.enabled) {
 				char* charID = new char[t.getID().size() + 1];
@@ -480,8 +479,8 @@ void frameUpdate() {
 	float gcy = camPos[1];
 	//construct light array
 	lighting.clear();
-	for (int i = 0; i < lights.size(); i ++) {
-		Light l = Lights[lights[i]];
+	for (entry li : scene.Lights) {
+		Light l = Lights[li.index];
 		lighting.push_back(l.type); //type
 		lighting.push_back(l.rgb[0]); //R
 		lighting.push_back(l.rgb[1]); //G
@@ -500,11 +499,11 @@ void frameUpdate() {
 	//assign shader
 	glUseProgram(ENTShader);
 	int prevID = -1;
-	for (unsigned int e : entities) {
-		Entity ent = Entities[e];
+	for (entry e : scene.Entities) {
+		Entity ent = Entities[e.index];
 		//check if entity is in the screen and visible
-		bool render = (((ent.x - gcx) + (ent.getWidth() * globalScale / 2)) > -(resolutionX / 2) || ((ent.x - gcx) + (ent.getWidth() * globalScale / 2)) < (resolutionX / 2) ||
-			((ent.y - gcy) + (ent.getHeight() * globalScale / 2)) > -(resolutionY / 2) || ((ent.y - gcy) + (ent.getHeight() * globalScale / 2)) < (resolutionY / 2)) && ent.isVisible();
+		bool render = (((ent.x - gcx) + (ent.getWidth() * globalScale / 2)) > -(resolutionX / 2) && ((ent.x - gcx) + (ent.getWidth() * globalScale / 2)) < (resolutionX / 2) &&
+			((ent.y - gcy) + (ent.getHeight() * globalScale / 2)) > -(resolutionY / 2) && ((ent.y - gcy) + (ent.getHeight() * globalScale / 2)) < (resolutionY / 2)) && ent.isVisible();
 		if (render) 
 		{
 			drawCalls++;
@@ -573,8 +572,9 @@ void frameUpdate() {
 	glDisableVertexAttribArray(2);
 	glUseProgram(GUIShader);
 	prevID = -1;
-	for (unsigned int e : gui) {
-		Entity ent = Entities[e];
+	Entity ent;
+	for (entry e : scene.GUI) {
+		ent = Entities[e.index];
 		if (ent.isVisible()) {
 			drawCalls++;
 			//check if texture ID is already in use, if not set it to the correct one
@@ -646,14 +646,15 @@ void frameUpdate() {
 		frame++;
 		profilerInfo +=
 			"Frame: " + std::to_string(frame) + //total frames
-			" | TOBJ: " + std::to_string(entities.size()) + //Total objects
+			" | TOBJ: " + std::to_string(scene.Entities.size() + scene.GUI.size()) + //Total objects
 			" | POBJ: " + std::to_string(physObjects) + //Physics objects
 			" | DCS: " + std::to_string(drawCalls) + //Draw Calls
 			" | TSWP: " + std::to_string(textureSwaps) + //Texture Swaps
-			" | TTOT: " + std::to_string(totalEnd - totalStart) + //Total frame time
+			" ||| TTOT: " + std::to_string(totalEnd - totalStart) + //Total frame time
 			" | TPHYS: " + std::to_string(physicsEnd - physicsStart) + //Physics time
 			" | TUSE: " + std::to_string(userEnd - userStart) + //Update and event handler time
-			" | TDRAW: " + std::to_string(drawEnd - drawStart) + //Update and event handler time
+			" | TRBD: " + std::to_string(tListEnd - tListStart) + //Scene rebuild
+			" | TDRAW: " + std::to_string(drawEnd - drawStart) + //Render time
 			" | FPS: " + std::to_string(fps) + //frames per second
 			" | MSE: " + std::to_string(msex) + ", " + std::to_string(msey); //mouse position
 		glfwSetWindowTitle(window, profilerInfo.c_str());
@@ -1042,7 +1043,7 @@ void DE4SetScene(unsigned int sceneID)
 	while (i < Scenes.size()) {
 		Scene a1 = Scenes.at(i);
 		if (a1.codeID == sceneID) {
-			scene = Scenes.at(i);
+			engineScene = Scenes.at(i).codeID;
 			break;
 		}
 		i++;
@@ -1178,7 +1179,7 @@ unsigned int ENTCreate()
 	e.codeID = entityCount;
 	Entities.push_back(e);
 	entityCount++;
-	activeEntity = e.codeID;
+	ENTAssign(e.codeID);
 	return e.codeID;
 }
 
@@ -1188,6 +1189,8 @@ void ENTDestroy(unsigned int code)
 	while (i < Entities.size()) {
 		if (Entities.at(i).codeID == code) {
 			Entities.erase(Entities.begin() + i);
+			rebuildEntities = i;
+			rebuildGUI = i;
 			break;
 		}
 		i++;
@@ -1423,7 +1426,7 @@ unsigned int SCNCreate()
 	s.codeID = sceneCount;
 	Scenes.push_back(s);
 	sceneCount++;
-	activeScene = s.codeID;
+	SCNAssign(s.codeID);
 	return s.codeID;
 }
 
@@ -1447,7 +1450,7 @@ void SCNDestroyAll()
 
 void SCNAddEntity()
 {
-	Scenes[activeScene].addEntity(Entities[activeEntity]);
+	Scenes[activeScene].addEntity(Entities[activeEntity].codeID, activeEntity);
 }
 
 void SCNAddEntity(unsigned int entCode)
@@ -1455,7 +1458,7 @@ void SCNAddEntity(unsigned int entCode)
 	unsigned int i = 0;
 	while (i < Entities.size()) {
 		if (Entities.at(i).codeID == entCode) {
-			Scenes[activeScene].addEntity(Entities.at(i));
+			Scenes[activeScene].addEntity(Entities.at(i).codeID, i);
 			break;
 		}
 		i++;
@@ -1464,8 +1467,8 @@ void SCNAddEntity(unsigned int entCode)
 
 void SCNAddLight()
 {
-	Scenes[activeScene].addLight(Lights[activeLight]);
-	if (Scenes[activeScene].getLights().size() > MAX_LIGHTS) {
+	Scenes[activeScene].addLight(Lights[activeLight].codeID, activeLight);
+	if (Scenes[activeScene].Lights.size() > MAX_LIGHTS) {
 		std::cerr << "Maximum number of lights exceeded!";
 		exit(EXIT_FAILURE);
 	}
@@ -1476,12 +1479,12 @@ void SCNAddLight(unsigned int lightCode)
 	unsigned int i = 0;
 	while (i < Lights.size()) {
 		if (Lights.at(i).codeID == lightCode) {
-			Scenes[activeScene].addLight(Lights.at(i));
+			Scenes[activeScene].addLight(Lights.at(i).codeID, i);
 			break;
 		}
 		i++;
 	}
-	if (Scenes[activeScene].getLights().size() > MAX_LIGHTS) {
+	if (Scenes[activeScene].Lights.size() > MAX_LIGHTS) {
 		std::cerr << "Maximum number of lights exceeded!";
 		exit(EXIT_FAILURE);
 	}
@@ -1489,7 +1492,7 @@ void SCNAddLight(unsigned int lightCode)
 
 void SCNAddGUI()
 {
-	Scenes[activeScene].addGUI(Entities[activeEntity]);
+	Scenes[activeScene].addGUI(Entities[activeEntity].codeID, activeEntity);
 }
 
 void SCNAddGUI(unsigned int entCode)
@@ -1497,7 +1500,7 @@ void SCNAddGUI(unsigned int entCode)
 	unsigned int i = 0;
 	while (i < Entities.size()) {
 		if (Entities.at(i).codeID == entCode) {
-			Scenes[activeScene].addGUI(Entities.at(i));
+			Scenes[activeScene].addGUI(entCode, i);
 			break;
 		}
 		i++;
@@ -1506,7 +1509,7 @@ void SCNAddGUI(unsigned int entCode)
 
 void SCNAddTrigger()
 {
-	Scenes[activeScene].addTrigger(Triggers[activeTrigger]);
+	Scenes[activeScene].addTrigger(Triggers[activeTrigger].codeID, activeTrigger);
 }
 
 void SCNAddTrigger(unsigned int trigCode)
@@ -1514,7 +1517,7 @@ void SCNAddTrigger(unsigned int trigCode)
 	unsigned int i = 0;
 	while (i < Triggers.size()) {
 		if (Triggers.at(i).codeID == trigCode) {
-			Scenes[activeScene].addTrigger(Triggers.at(i));
+			Scenes[activeScene].addTrigger(Triggers.at(i).codeID, i);
 			break;
 		}
 		i++;
@@ -1523,70 +1526,42 @@ void SCNAddTrigger(unsigned int trigCode)
 
 void SCNRemoveEntity()
 {
-	Scenes[activeScene].removeEntity(Entities[activeEntity]);
+	Scenes[activeScene].removeEntity(Entities[activeEntity].codeID);
 }
 
 void SCNRemoveEntity(unsigned int entCode)
 {
-	unsigned int i = 0;
-	while (i < Entities.size()) {
-		if (Entities.at(i).codeID == entCode) {
-			Scenes[activeScene].removeEntity(Entities.at(i));
-			break;
-		}
-		i++;
-	}
+	Scenes[activeScene].removeEntity(entCode);
 }
 
 void SCNRemoveLight()
 {
-	Scenes[activeScene].removeLight(Lights[activeLight]);
+	Scenes[activeScene].removeLight(Lights[activeLight].codeID);
 }
 
 void SCNRemoveLight(unsigned int lightCode)
 {
-	unsigned int i = 0;
-	while (i < Lights.size()) {
-		if (Lights.at(i).codeID == lightCode) {
-			Scenes[activeScene].removeLight(Lights.at(i));
-			break;
-		}
-		i++;
-	}
+	Scenes[activeScene].removeLight(lightCode);
 }
 
 void SCNRemoveGUI()
 {
-	Scenes[activeScene].removeGUI(Entities[activeEntity]);
+	Scenes[activeScene].removeGUI(Entities[activeEntity].codeID);
 }
 
 void SCNRemoveGUI(unsigned int entCode)
 {
-	unsigned int i = 0;
-	while (i < Entities.size()) {
-		if (Entities.at(i).codeID == entCode) {
-			Scenes[activeScene].removeGUI(Entities.at(i));
-			break;
-		}
-		i++;
-	}
+	Scenes[activeScene].removeGUI(entCode);
 }
 
 void SCNRemoveTrigger()
 {
-	Scenes[activeScene].removeTrigger(Triggers[activeTrigger]);
+	Scenes[activeScene].removeTrigger(Triggers[activeTrigger].codeID);
 }
 
 void SCNRemoveTrigger(unsigned int trigCode)
 {
-	unsigned int i = 0;
-	while (i < Triggers.size()) {
-		if (Triggers.at(i).codeID == trigCode) {
-			Scenes[activeScene].removeTrigger(Triggers.at(i));
-			break;
-		}
-		i++;
-	}
+	Scenes[activeScene].removeTrigger(trigCode);
 }
 
 void SCNClearEntities()
@@ -1636,7 +1611,7 @@ unsigned int ANICreate()
 	an.codeID = animationCount;
 	animationCount++;
 	Animations.push_back(an);
-	activeAnimation = an.codeID;
+	ANIAssign(an.codeID);
 	return an.codeID;
 }
 
@@ -1740,7 +1715,7 @@ unsigned int TLSCreate()
 	s.codeID = tileSheetCount;
 	tileSheetCount++;
 	Tilesheets.push_back(s);
-	activeSheet = s.codeID;
+	TLSAssign(s.codeID);
 	return s.codeID;
 }
 
@@ -1787,7 +1762,7 @@ unsigned int LGTCreate()
 	l.codeID = lightCount;
 	lightCount++;
 	Lights.push_back(l);
-	activeLight = l.codeID;
+	LGTAssign(l.codeID);
 	return l.codeID;
 }
 
@@ -1797,6 +1772,7 @@ void LGTDestroy(unsigned int codeID)
 	while (i < Lights.size()) {
 		if (Lights.at(i).codeID == codeID) {
 			Lights.erase(Lights.begin() + i);
+			rebuildLights = i;
 			break;
 		}
 		i++;
@@ -1932,14 +1908,6 @@ void EVTRemoveKey(const char name[])
 	}
 }
 
-void EVTAddSpecial(const char name[], int key)
-{
-	KbdEvent* evt = new KbdEvent;
-	evt->special = key;
-	evt->id = std::string(name);
-	keys.push_back(evt);
-}
-
 void EVTClearKeys()
 {
 	keys.clear();
@@ -1976,7 +1944,7 @@ unsigned int TRGCreate()
 	t.codeID = triggerCount;
 	triggerCount++;
 	Triggers.push_back(t);
-	activeTrigger = t.codeID;
+	TRGAssign(t.codeID);
 	return t.codeID;
 }
 
@@ -1986,6 +1954,7 @@ void TRGDestroy(unsigned int codeID)
 	while (i < Triggers.size()) {
 		if (Triggers.at(i).codeID == codeID) {
 			Triggers.erase(Triggers.begin() + i);
+			rebuildTriggers = i;
 			break;
 		}
 		i++;
@@ -2063,7 +2032,6 @@ unsigned int AUDCreateSource()
 	s.codeID = soundCount;
 	
 	soundCount++;
-	activeSound = s.codeID;
 
 	ALuint source;
 
@@ -2076,6 +2044,7 @@ unsigned int AUDCreateSource()
 	s.setSourceID(source);
 
 	Sounds.push_back(s);
+	AUDAssignSource(s.codeID);
 
 	return s.codeID;
 }

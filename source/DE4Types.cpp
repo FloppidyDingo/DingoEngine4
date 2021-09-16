@@ -305,17 +305,19 @@ int Animation::update()
 
 //Scene---------------------------------------------------------------------------------------
 #pragma region Scene
-void Scene::addEntity(Entity e)
+void Scene::addEntity(unsigned int id, unsigned int index)
 {
+	entry e;
+	e.id = id;
+	e.index = index;
 	Entities.push_back(e);
 }
 
-void Scene::removeEntity(Entity e)
+void Scene::removeEntity(unsigned int id)
 {
 	unsigned int i = 0;
 	while (i < Entities.size()) {
-		Entity a1 = Entities.at(i);
-		if (a1.codeID == e.codeID) {
+		if (Entities[i].id == id) {
 			Entities.erase(Entities.begin() + i);
 			break;
 		}
@@ -328,17 +330,19 @@ void Scene::clearEntities()
 	Entities.clear();
 }
 
-void Scene::addGUI(Entity e)
+void Scene::addGUI(unsigned int id, unsigned int index)
 {
+	entry e;
+	e.id = id;
+	e.index = index;
 	GUI.push_back(e);
 }
 
-void Scene::removeGUI(Entity e)
+void Scene::removeGUI(unsigned int id)
 {
 	unsigned int i = 0;
 	while (i < GUI.size()) {
-		Entity a1 = GUI.at(i);
-		if (a1.codeID == e.codeID) {
+		if (GUI[i].id == id) {
 			GUI.erase(GUI.begin() + i);
 			break;
 		}
@@ -351,17 +355,19 @@ void Scene::clearGUI()
 	GUI.clear();
 }
 
-void Scene::addLight(Light l)
+void Scene::addLight(unsigned int id, unsigned int index)
 {
+	entry l;
+	l.id = id;
+	l.index = index;
 	Lights.push_back(l);
 }
 
-void Scene::removeLight(Light l)
+void Scene::removeLight(unsigned int id)
 {
 	unsigned int i = 0;
 	while (i < Lights.size()) {
-		Light a1 = Lights.at(i);
-		if (a1.codeID == l.codeID) {
+		if (Lights.at(i).id == id) {
 			GUI.erase(GUI.begin() + i);
 			break;
 		}
@@ -374,17 +380,19 @@ void Scene::clearLights()
 	Lights.clear();
 }
 
-void Scene::addTrigger(Trigger t)
+void Scene::addTrigger(unsigned int id, unsigned int index)
 {
+	entry t;
+	t.id = id;
+	t.index = index;
 	Triggers.push_back(t);
 }
 
-void Scene::removeTrigger(Trigger t)
+void Scene::removeTrigger(unsigned int id)
 {
 	unsigned int i = 0;
 	while (i < Triggers.size()) {
-		Trigger a1 = Triggers.at(i);
-		if (a1.codeID == t.codeID) {
+		if (Triggers.at(i).id == id) {
 			Triggers.erase(Triggers.begin() + i);
 			break;
 		}
@@ -397,25 +405,6 @@ void Scene::clearTriggers()
 	Triggers.clear();
 }
 
-std::vector<Entity> Scene::getEntities()
-{
-	return Entities;
-}
-
-std::vector<Entity> Scene::getGUI()
-{
-	return GUI;
-}
-
-std::vector<Light> Scene::getLights()
-{
-	return Lights;
-}
-
-std::vector<Trigger> Scene::getTriggers()
-{
-	return Triggers;
-}
 #pragma endregion
 
 //Tilesheet-----------------------------------------------------------------------------------
@@ -423,6 +412,7 @@ std::vector<Trigger> Scene::getTriggers()
 std::string TileSheet::getID() {
 	return this->ID;
 }
+
 void TileSheet::createSheet(std::string url_base, std::string url_def)
 {
 	//split file name by slash mark, use last index to find file name
