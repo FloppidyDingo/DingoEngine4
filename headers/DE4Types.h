@@ -97,7 +97,7 @@ private:
 	int collisionGroup;
 	bool invertX = false;
 	bool invertY = false;
-	std::vector<Animation> Animations;
+	std::vector<unsigned int> Animations;
 	void (*fBehavior)(unsigned int id);
 
 public:
@@ -120,7 +120,7 @@ public:
 	int getCollisionGroup();
 	bool isInvertX();
 	bool isInvertY();
-	Animation getAnimation(int index);
+	unsigned int getAnimation(int index);
 
 	void setActive(bool act);
 	void setVisible(bool vis);

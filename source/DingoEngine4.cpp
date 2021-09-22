@@ -343,6 +343,9 @@ void frameUpdate() {
 	for (unsigned int i = 0; i < scene.Entities.size(); i++) {
 		Entities[scene.Entities[i].index].update();
 	}
+	for (unsigned int i = 0; i < scene.GUI.size(); i++) {
+		Entities[scene.GUI[i].index].update();
+	}
 	#pragma endregion
 
 	//physics calculations

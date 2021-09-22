@@ -2,6 +2,8 @@
 #include "DE4Types.h"
 #include "Utils.h"
 #include "GLFW/glfw3.h"
+#include "DingoEngine4.h"
+
 #include <string.h>
 #include <iostream>
 
@@ -88,7 +90,7 @@ bool Entity::isInvertY()
 	return invertY;
 }
 
-Animation Entity::getAnimation(int index)
+unsigned int Entity::getAnimation(int index)
 {
 	return Animations.at(index);
 }
@@ -158,15 +160,14 @@ void Entity::setCollisionGroup(int group)
 
 void Entity::addAnimation(Animation ani)
 {
-	Animations.push_back(ani);
+	Animations.push_back(ani.codeID);
 }
 
 void Entity::removeAnimation(Animation ani)
 {
 	unsigned int i = 0;
 	while (i < Animations.size()) {
-		Animation a1 = Animations.at(i);
-		if (a1.codeID == ani.codeID) {
+		if (Animations[i] == ani.codeID) {
 			Animations.erase(Animations.begin() + i);
 			break;
 		}
@@ -201,6 +202,7 @@ void Entity::setInvertY(bool invert)
 
 /*Update Entity
 	Call behavior function
+	check animations
 */
 void Entity::update()
 {
@@ -208,8 +210,9 @@ void Entity::update()
 		fBehavior(Entity::codeID);
 	}
 	for (unsigned int i = 0; i < Animations.size(); i++) {
-		if (Animations[i].isRunning()) {
-			setFrame(Animations[i].getCurrentFrame());
+		ANIAssign(Animations[i]);
+		if (ANIIsRunning()) {
+			setFrame(ANIGetCurrentTile());
 		}
 	}
 }
@@ -260,7 +263,7 @@ int Animation::getCurrentFrame()
 
 int Animation::getCurrentTile()
 {
-	return currentTile;
+	return idList[currentTile];
 }
 
 bool Animation::isRunning()
