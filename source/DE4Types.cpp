@@ -518,6 +518,8 @@ void TileSheet::createSheet(std::string url_base, std::string url_def)
 //Sound---------------------------------------------------------------------------------------
 #pragma region Sound
 
+float globalVolume;
+
 void Sound::setSourceID(ALuint source)
 {
 	Sound::sourceID = source;
@@ -526,7 +528,7 @@ void Sound::setSourceID(ALuint source)
 void Sound::setVolume(float volume)
 {
 	Sound::volume = volume;
-	alSourcef(Sound::sourceID, AL_GAIN, volume);
+	alSourcef(Sound::sourceID, AL_GAIN, volume * globalVolume);
 }
 
 void Sound::setBalance(float balance)
@@ -570,8 +572,8 @@ void Sound::setSpatial(bool spatial)
 	}
 }
 
-void Sound::setTimeStamp(float time)
-{
+void Sound::setTimeStamp(float time){
+
 }
 
 float Sound::getVolume()
@@ -640,10 +642,18 @@ void Sound::reset()
 	alSourceRewind(Sound::sourceID);
 }
 
+void setGlobalVolume(float volume) {
+	globalVolume = volume;
+}
+
+float getGlobalVolume() {
+	return globalVolume;
+}
+
 #pragma endregion
 
 //Light---------------------------------------------------------------------------------------
-#pragma region Sound
+#pragma region Light
 
 std::string Light::getID() {
 	return this->ID;

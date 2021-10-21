@@ -12,7 +12,7 @@
 #define DE4_LIGHT_AMBIENT 1
 #define DE4_LIGHT_POINT 2
 #define DE4_MAX_INFOLOG_LENGTH 1024
-#define DE4_VERSION "0.3.0b"
+#define DE4_VERSION "0.3.1b"
 
 //DE4 key defines
 #define DE4_MSE_RCLICK			   0
@@ -142,7 +142,13 @@
 //Main Engine Functions----------------------------------------------------------------------------------------------
 DE4_API void DE4Start(bool debug, int resx, int resy, bool profile, int framerate, void (*init)(void), int argc, char** argv);
 DE4_API void DE4SetScene(unsigned int sceneID);
-DE4_API void DE4ErrorCallback(void(*func)(const char error[]));
+DE4_API void DE4SetVolume(float volume);
+DE4_API float DE4GetVolume();
+DE4_API void DE4SetFullScreen(bool fullScreen);
+DE4_API void DE4SetGlobalScale(float scale);
+DE4_API float DE4GetGlobalScale();
+DE4_API void DE4SetTitle(const char title[]);
+DE4_API void DE4Exit();
 //DE4_API void DE4
 
 //Pysics Functions-----------------------------------------------------------------------------------------------------
@@ -158,13 +164,6 @@ DE4_API void PHYRemoveNoCollide(unsigned int id);
 DE4_API unsigned int* PHYGetNoCollide(unsigned int id);
 DE4_API void PHYClearNoCollides();
 //DE4_API void PHY
-
-//GPU Functions------------------------------------------------------------------------------------------------------
-DE4_API void GPUSetFullScreen(bool fullScreen);
-DE4_API void GPUSetGlobalScale(float scale);
-DE4_API float GPUGetGlobalScale();
-DE4_API void GPUSetTitle(const char title[]);
-//DE4_API void GPU
 
 //Entity Methods-----------------------------------------------------------------------------------------------------
 DE4_API void ENTAssign(unsigned int code);

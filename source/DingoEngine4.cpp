@@ -6,6 +6,8 @@ Things to do:
 Things to Add/change/fix:
 	Create a support library (Animation timer)
 	Add particle system
+	Add dynamic textures (drawing surface)
+	Add parent nodes
 */
 
 #pragma once
@@ -57,6 +59,9 @@ bool getAlError();
 //Actual DE4 code-----------------------------------------------------------------------------------
 
 #pragma region variables
+//engine variables
+bool engineRunning;
+
 //object management
 std::vector<Entity> Entities;
 unsigned int entityCount = 0;
@@ -915,12 +920,15 @@ void DE4Start(bool debug, int resx, int resy, bool profile, int framerate, void 
 		logFile << getMillis() << " | Audio context created" << std::endl;
 	}
 
+	setGlobalVolume(1);
+
 	//execute assigned init function
 	init();
 	int tempx, tempy;
 	glfwGetFramebufferSize(window, &tempx, &tempy);
 	windowResize(window, tempx, tempy);
-	while (!glfwWindowShouldClose(window))
+	engineRunning = true;
+	while (!glfwWindowShouldClose(window) && engineRunning)
 	{
 		frameUpdate();
 		glfwPollEvents();
@@ -1053,6 +1061,39 @@ void DE4SetScene(unsigned int sceneID)
 	}
 }
 
+void DE4SetVolume(float volume) {
+	setGlobalVolume(volume);
+	for (Sound & sound : Sounds) {
+		sound.setVolume(sound.getVolume());
+	}
+}
+
+float DE4GetVolume() {
+	return getGlobalVolume();
+}
+
+void DE4SetFullScreen(bool fullScreen) {
+	glfwSetWindowMonitor(window, fullScreen ? glfwGetPrimaryMonitor() : NULL, 0, 0, resolutionX, resolutionY, GLFW_DONT_CARE);
+}
+
+void DE4SetGlobalScale(float scale) {
+	globalScale = scale;
+}
+
+float DE4GetGlobalScale() {
+	return globalScale;
+}
+
+void DE4SetTitle(const char title[]) {
+	if (!Profile) {
+		glfwSetWindowTitle(window, title);
+	}
+}
+
+void DE4Exit() {
+	engineRunning = false;
+}
+
 #pragma region Physics Functions
 void PHYSetMode(unsigned int mode)
 {
@@ -1139,36 +1180,23 @@ void PHYClearNoCollides()
 }
 #pragma endregion
 
-#pragma region GPU Functions
-void GPUSetFullScreen(bool fullScreen)
-{
-	glfwSetWindowMonitor(window, fullScreen ? glfwGetPrimaryMonitor() : NULL, 0, 0, resolutionX, resolutionY, GLFW_DONT_CARE);
-}
-
-void GPUSetGlobalScale(float scale)
-{
-	globalScale = scale;
-}
-
-float GPUGetGlobalScale()
-{
-	return globalScale;
-}
-
-void GPUSetTitle(const char title[])
-{
-	if (!Profile) {
-		glfwSetWindowTitle(window, title);
-	}
-}
-#pragma endregion
-
 #pragma region Entity Functions
 void ENTAssign(unsigned int code)
 {
 	unsigned int i = 0;
 	while (i < Entities.size()) {
 		if (Entities.at(i).codeID == code) {
+			activeEntity = i;
+			break;
+		}
+		i++;
+	}
+}
+
+void ENTAssign(const char id[]) {
+	unsigned int i = 0;
+	while (i < Entities.size()) {
+		if (strcmp(Entities.at(i).getID().c_str(), id)) {
 			activeEntity = i;
 			break;
 		}

@@ -221,6 +221,8 @@ public:
 	void stop();
 	void pause();
 	void reset();
-	
 };
+
+void setGlobalVolume(float volume);
+float getGlobalVolume();
 #pragma endregion
