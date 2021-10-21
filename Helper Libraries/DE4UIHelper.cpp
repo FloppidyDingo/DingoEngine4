@@ -81,6 +81,11 @@ void DE4Text::setY(float y) {
 	updateNeeded = true;
 }
 
+void DE4Text::setPosition(float x, float y) {
+	this->x = x;
+	this->y = y;
+}
+
 void DE4Text::setFont(int font) {
 	this->font = font;
 	updateNeeded = true;
@@ -125,6 +130,18 @@ unsigned int DE4Text::getTileSheet() {
 	return this->tile;
 }
 
+void DE4Text::setVisible(bool visible) {
+	this->visible = visible;
+	for (unsigned int id : entityList) {
+		ENTAssign(id);
+		ENTSetVisible(visible);
+	}
+}
+
+bool DE4Text::isVisible() {
+	return this->visible;
+}
+
 void DE4Text::update() {
 	if (updateNeeded) {
 		curX = 0;
@@ -134,6 +151,7 @@ void DE4Text::update() {
 		//remove all entities on entity list from scene
 		for (unsigned int id : entityList) {
 			SCNRemoveGUI(id);
+			ENTDestroy(id);
 		}
 		entityList.clear();
 
@@ -156,10 +174,12 @@ void DE4Text::update() {
 				ENTSetTileSheet(tile);
 				ENTSetFrame(c + (font * 95));
 				ENTSetScale(fontSize);
+				ENTSetVisible(true);
 
 				//position entity
+				curX += ENTGetWidth() / 2;
 				ENTSetPosition(curX + x, curY + y);
-				curX += ENTGetWidth();
+				curX += ENTGetWidth() / 2;
 
 				//add entity to scene and entity list
 				entityList.push_back(entity);
@@ -183,4 +203,21 @@ std::string DE4Text::getText() {
 
 void DE4Text::registerScene(unsigned int scene) {
 	this->scene = scene;
+}
+
+void DE4UIManager::registerText(DE4Text& text) {
+	textList.push_back(&text);
+}
+
+void DE4UIManager::registerButton(DE4Button& button) {
+	buttonList.push_back(&button);
+}
+
+void DE4UIManager::update() {
+	for (int i = 0; i < buttonList.size(); i++) {
+		buttonList[i]->update();
+	}
+	for (int i = 0; i < textList.size(); i++) {
+		textList[i]->update();
+	}
 }
