@@ -12,7 +12,7 @@
 #define DE4_LIGHT_AMBIENT 1
 #define DE4_LIGHT_POINT 2
 #define DE4_MAX_INFOLOG_LENGTH 1024
-#define DE4_VERSION "0.3.1b"
+#define DE4_VERSION "0.4.1b"
 
 //DE4 key defines
 #define DE4_MSE_RCLICK			   0
@@ -142,8 +142,10 @@
 //Main Engine Functions----------------------------------------------------------------------------------------------
 DE4_API void DE4Start(bool debug, int resx, int resy, bool profile, int framerate, void (*init)(void), int argc, char** argv);
 DE4_API void DE4SetScene(unsigned int sceneID);
-DE4_API void DE4SetVolume(float volume);
-DE4_API float DE4GetVolume();
+DE4_API void DE4SetSFXVolume(float volume);
+DE4_API float DE4GetSFXVolume();
+DE4_API void DE4SetMusicVolume(float volume);
+DE4_API float DE4GetMusicVolume();
 DE4_API void DE4SetFullScreen(bool fullScreen);
 DE4_API void DE4SetGlobalScale(float scale);
 DE4_API float DE4GetGlobalScale();

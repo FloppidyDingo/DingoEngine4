@@ -194,6 +194,7 @@ class Sound {
 private:
 	float volume = 0;
 	float balance = 0;
+	float type;
 	float x = 0;
 	float y = 0;
 	bool loop = false;
@@ -206,6 +207,8 @@ public:
 	void setBalance(float balance);
 	void setX(float x);
 	void setY(float y);
+	void setMusic(bool music);
+	bool isMusic();
 	void setLooping(bool loop);
 	void setSpatial(bool spatial);
 	void setTimeStamp(float time);
@@ -223,6 +226,8 @@ public:
 	void reset();
 };
 
-void setGlobalVolume(float volume);
-float getGlobalVolume();
+void setSFXVolume(float volume);
+float getSFXVolume();
+void setMusicVolume(float volume);
+float getMusicVolume();
 #pragma endregion
