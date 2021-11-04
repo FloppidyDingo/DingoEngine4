@@ -518,7 +518,8 @@ void TileSheet::createSheet(std::string url_base, std::string url_def)
 //Sound---------------------------------------------------------------------------------------
 #pragma region Sound
 
-float globalVolume;
+float SFXVolume;
+float musVolume;
 
 void Sound::setSourceID(ALuint source)
 {
@@ -528,7 +529,11 @@ void Sound::setSourceID(ALuint source)
 void Sound::setVolume(float volume)
 {
 	Sound::volume = volume;
-	alSourcef(Sound::sourceID, AL_GAIN, volume * globalVolume);
+	if (type) {
+		alSourcef(Sound::sourceID, AL_GAIN, volume * musVolume);
+	} else {
+		alSourcef(Sound::sourceID, AL_GAIN, volume * SFXVolume);
+	}
 }
 
 void Sound::setBalance(float balance)
@@ -553,6 +558,15 @@ void Sound::setY(float y)
 	if (Sound::spatial == true) {
 		alSource3f(Sound::sourceID, AL_POSITION, Sound::x, y, 0);
 	}
+}
+
+void Sound::setMusic(bool music) {
+	this->type = music;
+	this->setVolume(this->volume);
+}
+
+bool Sound::isMusic() {
+	return this->type;
 }
 
 void Sound::setLooping(bool loop)
@@ -642,12 +656,20 @@ void Sound::reset()
 	alSourceRewind(Sound::sourceID);
 }
 
-void setGlobalVolume(float volume) {
-	globalVolume = volume;
+void setSFXVolume(float volume) {
+	SFXVolume = volume;
 }
 
-float getGlobalVolume() {
-	return globalVolume;
+float getSFXVolume() {
+	return SFXVolume;
+}
+
+void setMusicVolume(float volume) {
+	musVolume = volume;
+}
+
+float getMusicVolume() {
+	return musVolume;
 }
 
 #pragma endregion

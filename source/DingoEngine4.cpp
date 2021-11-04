@@ -634,7 +634,6 @@ void frameUpdate() {
 	glDisableVertexAttribArray(2);
 	glUseProgram(0);
 
-	glfwSwapBuffers(window);
 	long long drawEnd = getMillis();
 	#pragma endregion
 
@@ -920,18 +919,21 @@ void DE4Start(bool debug, int resx, int resy, bool profile, int framerate, void 
 		logFile << getMillis() << " | Audio context created" << std::endl;
 	}
 
-	setGlobalVolume(1);
+	setMusicVolume(1);
+	setSFXVolume(1);
 
 	//execute assigned init function
 	init();
 	int tempx, tempy;
 	glfwGetFramebufferSize(window, &tempx, &tempy);
 	windowResize(window, tempx, tempy);
+	glfwSwapInterval(1);
 	engineRunning = true;
 	while (!glfwWindowShouldClose(window) && engineRunning)
 	{
 		frameUpdate();
 		glfwPollEvents();
+		glfwSwapBuffers(window);
 	}
 
 	glfwTerminate();
@@ -1061,19 +1063,32 @@ void DE4SetScene(unsigned int sceneID)
 	}
 }
 
-void DE4SetVolume(float volume) {
-	setGlobalVolume(volume);
+void DE4SetSFXVolume(float volume) {
+	setSFXVolume(volume);
 	for (Sound & sound : Sounds) {
 		sound.setVolume(sound.getVolume());
 	}
 }
 
-float DE4GetVolume() {
-	return getGlobalVolume();
+float DE4GetSFXVolume() {
+	return getSFXVolume();
+}
+
+void DE4SetMusicVolume(float volume) {
+	setMusicVolume(volume);
+	for (Sound& sound : Sounds) {
+		sound.setVolume(sound.getVolume());
+	}
+}
+
+float DE4GetMusicVolume() {
+	return getMusicVolume();
 }
 
 void DE4SetFullScreen(bool fullScreen) {
-	glfwSetWindowMonitor(window, fullScreen ? glfwGetPrimaryMonitor() : NULL, 0, 0, resolutionX, resolutionY, GLFW_DONT_CARE);
+	glfwSetWindowAttrib(window, GLFW_DECORATED, GLFW_TRUE);
+	glfwSetWindowMonitor(window, fullScreen ? glfwGetPrimaryMonitor() : NULL, 0, 100, resolutionX, resolutionY, FrameRate);
+	
 }
 
 void DE4SetGlobalScale(float scale) {
