@@ -376,7 +376,7 @@ void frameUpdate() {
 	//gravity
 	if (physicsMode == DE4_PLATFORMER) {
 		for (entry e : scene.Entities) {
-			if (Entities[e.index].dir[1] < terminalVelocity) {
+			if (Entities[e.index].dir[1] > -terminalVelocity) {
 				Entities[e.index].dir[1] -= gravity * Entities[e.index].getMass();
 			}
 		}
@@ -412,31 +412,75 @@ void frameUpdate() {
 						-call collision detection if hit
 						-change moving's x or y velocity to not hit solid
 					*/
-					//moving rectangle
-					float ax1 = e1.x - ((e1.getWidth() * globalScale / 2) * clamp(e1.dir[0] * 1000, -1.0, 1.0));
-					float ay1 = e1.y + ((e1.getHeight() * globalScale / 2) * clamp(e1.dir[1] * 1000, -1.0, 1.0));
-					float ax2 = e1.dir[0];
-					float ay2 = e1.dir[1];
-					//solid rectangle
-					float bx1 = e2.x - (e2.getWidth() * globalScale / 2);
-					float by1 = e2.y + (e2.getHeight() * globalScale / 2);
-					float bx2 = e2.x + (e2.getWidth() * globalScale / 2);
-					float by2 = e2.y - (e2.getHeight() * globalScale / 2);
+					float ax1;
+					float ay1;
+					float ax2;
+					float ay2;
 
+					float bx1;
+					float by1;
+					float bx2;
+					float by2;
+
+					bool intersect = false;
+					
+					//solid rectangle
+					bx1 = e2.x - (e2.getWidth() / 2);
+					by1 = e2.y + (e2.getHeight() / 2);
+					bx2 = e2.x + (e2.getWidth() / 2);
+					by2 = e2.y - (e2.getHeight() / 2);
+
+					//x intersect
+					//moving rectangle
+					if (e1.dir[0] > 0) {
+						ax1 = e1.x - (e1.getWidth() / 2);
+						ax2 = e1.x + (e1.getWidth() / 2) + e1.dir[0];
+					} else {
+						ax1 = e1.x - (e1.getWidth() / 2) + e1.dir[0];
+						ax2 = e1.x + (e1.getWidth() / 2);
+					}
+					ay1 = e1.y + (e1.getHeight() / 2);
+					ay2 = e1.y - (e1.getHeight() / 2);
+					//compare rectangles
 					if (ax1 < bx2 && ax2 > bx1 && ay1 > by2 && ay2 < by1) {
 						//intersect detected
-						fCollision(e1.codeID, e2.codeID);
-						if (e1.x > e2.x) {
-							e1.dir[0] = clamp(e1.dir[0], e2.x + (e2.getWidth() * globalScale / 2), FLT_MAX);
-						}else if (e1.x < e2.x) {
-							e1.dir[0] = clamp(e1.dir[0], -FLT_MAX, e2.x - (e2.getWidth() * globalScale / 2));
+						intersect = true;
+						if ((e1.x > e2.x)) {
+							e1.dir[0] = -((e1.x - (e1.getWidth() / 2)) - (e2.x + (e2.getWidth() / 2)));
+						} else if ((e1.x < e2.x)) {
+							e1.dir[0] = (e2.x - (e2.getWidth() / 2)) - (e1.x + (e1.getWidth() / 2));
 						}
+					}
+
+					//y intersect
+					if (e1.dir[1] > 0) {
+						ay1 = e1.y + (e1.getHeight() / 2) + e1.dir[1];
+						ay2 = e1.y - (e1.getHeight() / 2);
+					} else {
+						ay1 = e1.y + (e1.getHeight() / 2);
+						ay2 = e1.y - (e1.getHeight() / 2) + e1.dir[1];
+					}
+					ax1 = e1.x - (e1.getWidth() / 2);
+					ax2 = e1.x + (e1.getWidth() / 2);
+					//compare rectangles
+					if (ax1 < bx2 && ax2 > bx1 && ay1 > by2 && ay2 < by1) {
+						//intersect detected
+						intersect = true;
 						if (e1.y > e2.y) {
-							e1.dir[1] = clamp(e1.dir[1], e2.y + (e2.getHeight() * globalScale / 2), FLT_MAX);
+							e1.dir[1] = -((e1.y - (e1.getHeight() / 2)) - (e2.y + (e2.getHeight() / 2)));
 						}
 						else if (e1.y < e2.y) {
-							e1.dir[1] = clamp(e1.dir[1], -FLT_MAX, e2.y - (e2.getHeight() * globalScale / 2));
+							e1.dir[1] = (e2.y - (e2.getHeight() / 2)) - (e1.y + (e1.getHeight() / 2));
 						}
+					}
+
+					//apply modified directions to original entity
+					Entities[ent1.index].dir[0] = e1.dir[0];
+					Entities[ent1.index].dir[1] = e1.dir[1];
+
+					//event if intersect
+					if (fCollision != nullptr && intersect) {
+						fCollision(e1.codeID, e2.codeID);
 					}
 				}
 			}
