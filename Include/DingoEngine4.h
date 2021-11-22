@@ -12,7 +12,7 @@
 #define DE4_LIGHT_AMBIENT 1
 #define DE4_LIGHT_POINT 2
 #define DE4_MAX_INFOLOG_LENGTH 1024
-#define DE4_VERSION "0.4.1b"
+#define DE4_VERSION "0.4.3b"
 
 //DE4 key defines
 #define DE4_MSE_RCLICK			   0
@@ -291,13 +291,13 @@ DE4_API void EVTSetCollision(void (*func)(unsigned int idA, unsigned int idB));
 DE4_API void EVTSetKeyPressed(void (*func)(const char ID[]));
 DE4_API void EVTSetKeyReleased(void (*func)(const char ID[]));
 DE4_API void EVTSetKeyboardEvent(void (*func)());
-DE4_API void EVTSetMousePressed(void (*func)(unsigned int button, int x, int y));
-DE4_API void EVTSetMouseReleased(void (*func)(unsigned int button, int x, int y));
+DE4_API void EVTSetMousePressed(void (*func)(unsigned int button, float x, float y));
+DE4_API void EVTSetMouseReleased(void (*func)(unsigned int button, float x, float y));
 DE4_API void EVTSetPostPhysicsTick(void (*func)());
 DE4_API void EVTAddKey(const char name[], int key);
 DE4_API void EVTRemoveKey(const char name[]);
 DE4_API void EVTClearKeys();
-DE4_API void EVTGetMousePos(int pos[]);
+DE4_API void EVTGetMousePos(float pos[]);
 DE4_API void EVTSetTriggerCallback(void (*func)(const char ID[], unsigned int entityID));
 //DE4_API void EVT
 
@@ -305,9 +305,9 @@ DE4_API void EVTSetTriggerCallback(void (*func)(const char ID[], unsigned int en
 DE4_API void TRGAssign(unsigned int codeID);
 DE4_API unsigned int TRGCreate();
 DE4_API void TRGDestroy(unsigned int codeID);
-DE4_API void TRGSetSize(unsigned int width, unsigned int height);
-DE4_API void TRGSetX(unsigned int x);
-DE4_API void TRGSetY(unsigned int y);
+DE4_API void TRGSetSize(float width, float height);
+DE4_API void TRGSetX(float x);
+DE4_API void TRGSetY(float y);
 DE4_API void TRGSetPosition(float x, float y);
 DE4_API void TRGSetID(const char id[]);
 DE4_API float TRGGetX();
@@ -353,5 +353,5 @@ DE4_API void MAPVariableCallback(void(*func)(const char id[], const char value[]
 DE4_API void MAPEntityCreationCallback(void(*func)(unsigned int codeID));
 DE4_API void MAPTriggerCreationCallback(void(*func)(unsigned int codeID));
 DE4_API void MAPLightCreationCallback(void(*func)(unsigned int codeID));
-DE4_API int MAPGenerate(const char path[]);
+DE4_API void MAPGenerate(const char path[], unsigned int sceneID);
 //DE4_API void MAP

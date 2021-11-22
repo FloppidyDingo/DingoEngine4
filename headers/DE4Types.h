@@ -39,7 +39,7 @@ private:
 
 public:
 	unsigned int codeID;
-	unsigned int type;
+	float type;
 	float radius = 1;
 	float brightness = 1;
 	float x = 0;

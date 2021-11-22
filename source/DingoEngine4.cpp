@@ -156,16 +156,17 @@ void (*fCollision)(unsigned int idA, unsigned int idB);
 void (*fKeyPressed)(const char ID[]);
 void (*fKeyReleased)(const char ID[]);
 void (*fKeyboardEvent)();
-void (*fMousePressed)(unsigned int button, int x, int y);
-void (*fMouseReleased)(unsigned int button, int x, int y);
+void (*fMousePressed)(unsigned int button, float x, float y);
+void (*fMouseReleased)(unsigned int button, float x, float y);
 void (*fPostPhysicsTick)();
-int msex;
-int msey;
+float msex;
+float msey;
 bool msepress;
 bool mserelease;
 int msebtn;
 int kbdpresses;
 int kbdreleases;
+bool keyBreak;
 unsigned char kbdkey[128]; //list of the indexes of activated registered keys
 unsigned char kbdreleasekey[128];
 std::vector<KbdEvent*> keys;
@@ -244,6 +245,9 @@ void frameUpdate() {
 		for (int i = 0; i < kbdtmppresses; i++) {
 			if (fKeyPressed != nullptr) {
 				fKeyPressed(keys[kbdtmpprs[i]]->id.c_str());
+				if (keyBreak) {
+					break;
+				}
 				if (deepDebug) {
 					logFile << getMillis() << " | Key Pressed: " << keys[kbdtmpprs[i]]->id.c_str() << std::endl;
 				}
@@ -254,6 +258,9 @@ void frameUpdate() {
 		for (int i = 0; i < kbdtmpreleases; i++) {
 			if (fKeyReleased != nullptr) {
 				fKeyReleased(keys[kbdtmprls[i]]->id.c_str());
+				if (keyBreak) {
+					break;
+				}
 				if (deepDebug) {
 					logFile << getMillis() << " | Key Released:" << keys[kbdtmprls[i]]->id.c_str() << std::endl;
 				}
@@ -269,11 +276,12 @@ void frameUpdate() {
 			fMouseReleased(msebtn, msex, msey);
 		}
 	}
+	keyBreak = false;
 
 	double msdx, msdy;
 	glfwGetCursorPos(window, &msdx, &msdy);
-	msex = (msdx - (windowX / 2)) * ((float)resolutionX / (float)windowX) / globalScale;
-	msey = -(msdy - (windowY / 2)) * ((float)resolutionY / (float)windowY) / globalScale;
+	msex = ((float)msdx - (windowX / 2)) * ((float)resolutionX / (float)windowX) / globalScale;
+	msey = -((float)msdy - (windowY / 2)) * ((float)resolutionY / (float)windowY) / globalScale;
 
 	//call update function
 	fUpdate();
@@ -294,8 +302,8 @@ void frameUpdate() {
 
 	if (rebuildGUI > 0) {
 		Scene scene;
-		for (int i = rebuildGUI; i < Entities.size(); i++) {
-			for (int i2 = 0; i2 < Scenes[sceneIndex].GUI.size(); i2++) {
+		for (unsigned int i = rebuildGUI; i < Entities.size(); i++) {
+			for (unsigned int i2 = 0; i2 < Scenes[sceneIndex].GUI.size(); i2++) {
 				if (Scenes[sceneIndex].GUI[i2].id == Entities[i].codeID) {
 					Scenes[sceneIndex].GUI[i2].index = i;
 				}
@@ -304,8 +312,8 @@ void frameUpdate() {
 		rebuildGUI = -1;
 	}
 	if (rebuildEntities > 0) {
-		for (int i = rebuildEntities; i < Entities.size(); i++) {
-			for (int i2 = 0; i2 < Scenes[sceneIndex].Entities.size(); i2++) {
+		for (unsigned int i = rebuildEntities; i < Entities.size(); i++) {
+			for (unsigned int i2 = 0; i2 < Scenes[sceneIndex].Entities.size(); i2++) {
 				if (Scenes[sceneIndex].Entities[i2].id == Entities[i].codeID) {
 					Scenes[sceneIndex].Entities[i2].index = i;
 				}
@@ -314,8 +322,8 @@ void frameUpdate() {
 		rebuildEntities = -1;
 	}
 	if (rebuildLights > 0) {
-		for (int i = rebuildLights; i < Lights.size(); i++) {
-			for (int i2 = 0; i2 < Scenes[sceneIndex].Lights.size(); i2++) {
+		for (unsigned int i = rebuildLights; i < Lights.size(); i++) {
+			for (unsigned int i2 = 0; i2 < Scenes[sceneIndex].Lights.size(); i2++) {
 				if (Scenes[sceneIndex].Lights[i2].id == Lights[i].codeID) {
 					Scenes[sceneIndex].Lights[i2].index = i;
 				}
@@ -324,8 +332,8 @@ void frameUpdate() {
 		rebuildLights = -1;
 	}
 	if (rebuildTriggers > 0) {
-		for (int i = rebuildTriggers; i < Triggers.size(); i++) {
-			for (int i2 = 0; i2 < Scenes[sceneIndex].Triggers.size(); i2++) {
+		for (unsigned int i = rebuildTriggers; i < Triggers.size(); i++) {
+			for (unsigned int i2 = 0; i2 < Scenes[sceneIndex].Triggers.size(); i2++) {
 				if (Scenes[sceneIndex].Triggers[i2].id == Triggers[i].codeID) {
 					Scenes[sceneIndex].Triggers[i2].index = i;
 				}
@@ -773,6 +781,7 @@ void DE4Start(bool debug, int resx, int resy, bool profile, int framerate, void 
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+	glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
 
 	window = glfwCreateWindow(resx, resy, "", NULL, NULL);
 
@@ -1086,9 +1095,14 @@ float DE4GetMusicVolume() {
 }
 
 void DE4SetFullScreen(bool fullScreen) {
-	glfwSetWindowAttrib(window, GLFW_DECORATED, GLFW_TRUE);
-	glfwSetWindowMonitor(window, fullScreen ? glfwGetPrimaryMonitor() : NULL, 0, 100, resolutionX, resolutionY, FrameRate);
-	
+	//glfwSetWindowAttrib(window, GLFW_DECORATED, GLFW_TRUE);
+	glfwSetWindowMonitor(window, fullScreen ? glfwGetPrimaryMonitor() : NULL, 0, 30, resolutionX, resolutionY, FrameRate);
+	if (!fullScreen) {
+		glfwSetWindowAttrib(window, GLFW_MAXIMIZED, GLFW_TRUE);
+		glfwSwapInterval(60 / FrameRate);
+	} else {
+		glfwSwapInterval(1);
+	}
 }
 
 void DE4SetGlobalScale(float scale) {
@@ -1846,12 +1860,12 @@ void LGTSetPosition(float x, float y) {
 
 void LGTSetType(unsigned int type)
 {
-	Lights[activeLight].type = type;
+	Lights[activeLight].type = (float)type;
 }
 
 unsigned int LGTGetType()
 {
-	return Lights[activeLight].type;
+	return (unsigned int)Lights[activeLight].type;
 }
 
 void LGTSetRadius(float radius)
@@ -1919,12 +1933,12 @@ void EVTSetKeyboardEvent(void (*func)())
 	fKeyboardEvent = func;
 }
 
-void EVTSetMousePressed(void(*func)(unsigned int button, int x, int y))
+void EVTSetMousePressed(void(*func)(unsigned int button, float x, float y))
 {
 	fMousePressed = func;
 }
 
-void EVTSetMouseReleased(void(*func)(unsigned int button, int x, int y))
+void EVTSetMouseReleased(void(*func)(unsigned int button, float x, float y))
 {
 	fMouseReleased = func;
 }
@@ -1957,9 +1971,10 @@ void EVTRemoveKey(const char name[])
 void EVTClearKeys()
 {
 	keys.clear();
+	keyBreak = true;
 }
 
-void EVTGetMousePos(int pos[])
+void EVTGetMousePos(float pos[])
 {
 	pos[0] = msex;
 	pos[1] = msey;
@@ -2007,18 +2022,18 @@ void TRGDestroy(unsigned int codeID)
 	}
 }
 
-void TRGSetSize(unsigned int width, unsigned int height)
+void TRGSetSize(float width, float height)
 {
 	Triggers[activeTrigger].width = width;
 	Triggers[activeTrigger].height = height;
 }
 
-void TRGSetX(unsigned int x)
+void TRGSetX(float x)
 {
 	Triggers[activeTrigger].x = x;
 }
 
-void TRGSetY(unsigned int y)
+void TRGSetY(float y)
 {
 	Triggers[activeTrigger].y = y;
 }
@@ -2308,13 +2323,13 @@ void MAPLightCreationCallback(void(*func)(unsigned int codeID)) {
 	fLightCreated = func;
 }
 
-int MAPGenerate(const char path[]) {
+void MAPGenerate(const char path[], unsigned int sceneID) {
 	//create and open map file
 	std::ifstream inputFile;
 	inputFile.open(path);
 	if (!inputFile.is_open()) {
 		logFile << getMillis() << " | Map file failed to open: " << path << std::endl;
-		return -1;
+		return;
 	}
 
 	//create map generation data
@@ -2322,7 +2337,7 @@ int MAPGenerate(const char path[]) {
 	std::vector<std::string> data;
 	std::vector<std::string> tags;
 	std::vector<std::string> tagVars;
-	unsigned int sceneID = SCNCreate();
+	SCNAssign(sceneID);
 	unsigned int mode = 0; //read mode: 0 = tag scan, 1 = text mode
 	objectData object;
 	bool customTag = false;
@@ -2410,11 +2425,11 @@ int MAPGenerate(const char path[]) {
 								} else if (vars[0] == "brightness") {
 									object.brightness = std::stof(vars[1]);
 								} else if (vars[0] == "red") {
-									object.red = std::stoi(vars[1]) / 255.0;
+									object.red = std::stoi(vars[1]) / 255.0f;
 								} else if (vars[0] == "green") {
-									object.green = std::stoi(vars[1]) / 255.0;
+									object.green = std::stoi(vars[1]) / 255.0f;
 								} else if (vars[0] == "blue") {
-									object.blue = std::stoi(vars[1]) / 255.0;
+									object.blue = std::stoi(vars[1]) / 255.0f;
 								} else if (vars[0] == "radius") {
 									object.radius = std::stof(vars[1]);
 								} else if (vars[0] == "width") {
@@ -2532,6 +2547,4 @@ int MAPGenerate(const char path[]) {
 			}
 		}
 	}
-
-	return sceneID;
 }

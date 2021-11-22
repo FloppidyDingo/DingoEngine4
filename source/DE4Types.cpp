@@ -432,8 +432,8 @@ void TileSheet::createSheet(std::string url_base, std::string url_def)
 	int phase = 0;
 	int stx; //subimage starting x coord
 	int sty; //subimage starting y coord
-	for (int y1 = 0; y1 < height; y1++) {
-		for (int x1 = 0; x1 < width; x1++) {
+	for (unsigned int y1 = 0; y1 < height; y1++) {
+		for (unsigned int x1 = 0; x1 < width; x1++) {
 			switch (phase) {
 				case 0: { //initial search phase
 					if (boundsData[(y1 * width) + x1] > 0) {
@@ -452,7 +452,7 @@ void TileSheet::createSheet(std::string url_base, std::string url_def)
 						boundsData[(y1 * width) + x1] = 0;
 						int edx = x1; //save ending x value
 						int edy = 0;
-						for (int y2 = 0; y2 < height; y2++) {//Search down Y axis for last point
+						for (unsigned int y2 = 0; y2 < height; y2++) {//Search down Y axis for last point
 							if (boundsData[(y2 * width) + x1] > 0) {
 								edy = y2; //save ending y value
 								boundsData[(y2 * width) + x1] = 0;

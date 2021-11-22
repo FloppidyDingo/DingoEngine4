@@ -22,15 +22,15 @@ void DE4Button::setEntity(unsigned int entID, unsigned int idle, unsigned int ho
 
 void DE4Button::update()
 {
-	int mousePos[2];
+	float mousePos[2];
 	EVTGetMousePos(mousePos);
 	ENTAssign(entityID);
-	int mseX = mousePos[0];
-	int mseY = mousePos[1];
+	float mseX = mousePos[0];
+	float mseY = mousePos[1];
 	int entWidth = ENTGetWidth();
 	int entHeight = ENTGetHeight();
-	int entX = ENTGetX();
-	int entY = ENTGetY();
+	float entX = ENTGetX();
+	float entY = ENTGetY();
 	if ((mseX < (entX + (entWidth / 2))) && (mseX > (entX - (entWidth / 2))) && (mseY > (entY - (entHeight / 2))) && (mseY < (entY + (entHeight / 2))) && ENTIsVisible()) {
 		if (!click) {
 			ENTSetFrame(hoverFrame);
@@ -156,7 +156,7 @@ void DE4Text::update() {
 		entityList.clear();
 
 		//loop through string
-		for (int index = 0; index < text.size(); index++) {
+		for (unsigned int index = 0; index < text.size(); index++) {
 			//extract tile ID from character
 			int c = text.data()[index];
 
@@ -214,10 +214,10 @@ void DE4UIManager::registerButton(DE4Button& button) {
 }
 
 void DE4UIManager::update() {
-	for (int i = 0; i < buttonList.size(); i++) {
+	for (unsigned int i = 0; i < buttonList.size(); i++) {
 		buttonList[i]->update();
 	}
-	for (int i = 0; i < textList.size(); i++) {
+	for (unsigned int i = 0; i < textList.size(); i++) {
 		textList[i]->update();
 	}
 }
