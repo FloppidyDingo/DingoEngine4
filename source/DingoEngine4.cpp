@@ -8,6 +8,8 @@ Things to Add/change/fix:
 	Add particle system
 	Add dynamic textures (drawing surface)
 	Add parent nodes
+	Integrate GUI library into engine core
+	Integrate game state management into engine core
 */
 
 #pragma once
@@ -551,9 +553,6 @@ void frameUpdate() {
 		lighting.push_back(l.radius); //Radius
 	}
 	lighting.push_back(3);//end lighting
-	//inversion variables
-	int invX = 1;
-	int invY = 1;
 	
 	#pragma endregion
 	//assign shader
@@ -572,28 +571,39 @@ void frameUpdate() {
 				prevID = ent.getTextureID();
 				textureSwaps++;
 			}
-			//compute invert x and invert y scales
-			if (ent.isInvertX()) {
-				invX = -1;
-			}
-			else {
-				invX = 1;
-			}
-			if (ent.isInvertX()) {
-				invY = -1;
-			}
-			else {
-				invY = 1;
-			}
 			//add tile data to pass to the shader
 			//send vertex data
 			vertData = {
 				//position
-				(((ent.x * globalScale) - (ent.getWidth() * globalScale * ent.getScale() / 2)) * invX), (((ent.y * globalScale) + (ent.getHeight() * globalScale * ent.getScale() / 2)) * invY), 0,
-				(((ent.x * globalScale) + (ent.getWidth() * globalScale * ent.getScale() / 2)) * invX), (((ent.y * globalScale) + (ent.getHeight() * globalScale * ent.getScale() / 2)) * invY), 0,
-				(((ent.x * globalScale) + (ent.getWidth() * globalScale * ent.getScale() / 2)) * invX), (((ent.y * globalScale) - (ent.getHeight() * globalScale * ent.getScale() / 2)) * invY), 0,
-				(((ent.x * globalScale) - (ent.getWidth() * globalScale * ent.getScale() / 2)) * invX), (((ent.y * globalScale) - (ent.getHeight() * globalScale * ent.getScale() / 2)) * invY), 0,
-			};	
+				0, 0, 0,
+				0, 0, 0,
+				0, 0, 0,
+				0, 0, 0,
+			};
+			// x inversion
+			if (ent.isInvertX()) {
+				vertData[0] = (ent.x * globalScale) + (ent.getWidth() * globalScale * ent.getScale() / 2);
+				vertData[3] = (ent.x * globalScale) - (ent.getWidth() * globalScale * ent.getScale() / 2);
+				vertData[6] = (ent.x * globalScale) - (ent.getWidth() * globalScale * ent.getScale() / 2);
+				vertData[9] = (ent.x * globalScale) + (ent.getWidth() * globalScale * ent.getScale() / 2);
+			} else {
+				vertData[0] = (ent.x * globalScale) - (ent.getWidth() * globalScale * ent.getScale() / 2);
+				vertData[3] = (ent.x * globalScale) + (ent.getWidth() * globalScale * ent.getScale() / 2);
+				vertData[6] = (ent.x * globalScale) + (ent.getWidth() * globalScale * ent.getScale() / 2);
+				vertData[9] = (ent.x * globalScale) - (ent.getWidth() * globalScale * ent.getScale() / 2);
+			}
+			//y inversion
+			if (ent.isInvertY()) {
+				vertData[1] = (ent.y * globalScale) - (ent.getHeight() * globalScale * ent.getScale() / 2);
+				vertData[4] = (ent.y * globalScale) - (ent.getHeight() * globalScale * ent.getScale() / 2);
+				vertData[7] = (ent.y * globalScale) + (ent.getHeight() * globalScale * ent.getScale() / 2);
+				vertData[10] = (ent.y * globalScale) + (ent.getHeight() * globalScale * ent.getScale() / 2);
+			} else {
+				vertData[1] = (ent.y * globalScale) + (ent.getHeight() * globalScale * ent.getScale() / 2);
+				vertData[4] = (ent.y * globalScale) + (ent.getHeight() * globalScale * ent.getScale() / 2);
+				vertData[7] = (ent.y * globalScale) - (ent.getHeight() * globalScale * ent.getScale() / 2);
+				vertData[10] = (ent.y * globalScale) - (ent.getHeight() * globalScale * ent.getScale() / 2);
+			}
 			//rescale to screen coords
 			vertData[0] = vertData[0] / resolutionX * 2;
 			vertData[1] = vertData[1] / resolutionY * 2;
@@ -646,10 +656,10 @@ void frameUpdate() {
 			//send vertex data
 			vertData = {
 				//position
-				(((ent.x * globalScale) - (ent.getWidth() * globalScale * ent.getScale() / 2)) * invX), (((ent.y * globalScale) + (ent.getHeight() * globalScale * ent.getScale() / 2)) * invY), 0,
-				(((ent.x * globalScale) + (ent.getWidth() * globalScale * ent.getScale() / 2)) * invX), (((ent.y * globalScale) + (ent.getHeight() * globalScale * ent.getScale() / 2)) * invY), 0,
-				(((ent.x * globalScale) + (ent.getWidth() * globalScale * ent.getScale() / 2)) * invX), (((ent.y * globalScale) - (ent.getHeight() * globalScale * ent.getScale() / 2)) * invY), 0,
-				(((ent.x * globalScale) - (ent.getWidth() * globalScale * ent.getScale() / 2)) * invX), (((ent.y * globalScale) - (ent.getHeight() * globalScale * ent.getScale() / 2)) * invY), 0,
+				(((ent.x * globalScale) - (ent.getWidth() * globalScale * ent.getScale() / 2))), (((ent.y * globalScale) + (ent.getHeight() * globalScale * ent.getScale() / 2))), 0,
+				(((ent.x * globalScale) + (ent.getWidth() * globalScale * ent.getScale() / 2))), (((ent.y * globalScale) + (ent.getHeight() * globalScale * ent.getScale() / 2))), 0,
+				(((ent.x * globalScale) + (ent.getWidth() * globalScale * ent.getScale() / 2))), (((ent.y * globalScale) - (ent.getHeight() * globalScale * ent.getScale() / 2))), 0,
+				(((ent.x * globalScale) - (ent.getWidth() * globalScale * ent.getScale() / 2))), (((ent.y * globalScale) - (ent.getHeight() * globalScale * ent.getScale() / 2))), 0,
 			};
 			//rescale to screen coords
 			vertData[0] = vertData[0] / resolutionX * 2;
