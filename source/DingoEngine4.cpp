@@ -1362,6 +1362,14 @@ void ENTSetDir(float vec[])
 	Entities[activeEntity].setDirection(vec);
 }
 
+void ENTSetDirX(float dirx) {
+	Entities[activeEntity].dir[0] = dirx;
+}
+
+void ENTSetDirY(float diry) {
+	Entities[activeEntity].dir[1] = diry;
+}
+
 void ENTSetTileSheet()
 {
 	Entities[activeEntity].setTileSheet(Tilesheets[activeSheet]);

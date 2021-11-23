@@ -182,6 +182,8 @@ DE4_API void ENTSetY(float y);
 DE4_API void ENTSetPosition(float x, float y);
 DE4_API void ENTGetDir(float vec[]);
 DE4_API void ENTSetDir(float vec[]);
+DE4_API void ENTSetDirX(float dirx);
+DE4_API void ENTSetDirY(float diry);
 DE4_API void ENTSetTileSheet(unsigned int tileid);
 DE4_API void ENTSetTileSheet();
 DE4_API void ENTAddAnimation(unsigned int aniid);
