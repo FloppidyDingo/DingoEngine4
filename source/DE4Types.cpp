@@ -221,6 +221,7 @@ void Entity::update()
 		ANIAssign(Animations[i]);
 		if (ANIIsRunning()) {
 			setFrame(ANIGetCurrentTile());
+			break;
 		}
 	}
 }

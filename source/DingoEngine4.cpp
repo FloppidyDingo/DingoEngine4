@@ -2,6 +2,8 @@
 Things to do:
 	finish and implement Utils
 	optimize and complete logging
+	optimize physics
+	*add priority to animation system (first animation added takes highest priority)
 
 Things to Add/change/fix:
 	Create a support library (Animation timer)
@@ -10,6 +12,7 @@ Things to Add/change/fix:
 	Add parent nodes
 	Integrate GUI library into engine core
 	Integrate game state management into engine core
+	move renderer to separate thread
 */
 
 #pragma once
@@ -110,7 +113,7 @@ int fps; //Frames per second
 int fpsTemp;
 long long fpsStart; //FPS counter timer start
 long long fpsTimer; //fps timer
-int physObjects; //Number of objects with physics
+int physObjects; //Number of physics checks
 int drawCalls; //Number of draw calls
 int textureSwaps; //Number of texture swaps
 bool Profile; //Profiler enable
@@ -229,6 +232,7 @@ When updating:
 void frameUpdate() {
 	//reset profiler
 	profilerInfo = "";
+	physObjects = 0;
 	long long totalStart = getMillis();
 
 	//run event hander
@@ -366,14 +370,6 @@ void frameUpdate() {
 	//physics calculations
 	#pragma region physics
 	long long physicsStart = getMillis();
-	if (Profile) {
-		physObjects = 0;
-		for (entry e : scene.Entities) {
-			if (Entities[e.index].getMass() != 0 || Entities[e.index].isSolid()) {
-				physObjects++;
-			}
-		}
-	}
 
 	//gravity
 	if (physicsMode == DE4_PLATFORMER) {
@@ -385,14 +381,15 @@ void frameUpdate() {
 	}
 	
 	//collisions
-	for (entry ent1 : scene.Entities) {
-		if ((Entities[ent1.index].dir[0] != 0) || (Entities[ent1.index].dir[1] != 0)) {
-			for (entry ent2 : scene.Entities) {
+	for (entry &ent1 : scene.Entities) {
+		if (((Entities[ent1.index].dir[0] != 0) || (Entities[ent1.index].dir[1] != 0)) && Entities[ent1.index].isSolid()) {
+			for (entry &ent2 : scene.Entities) {
 				Entity e1 = Entities[ent1.index];  //moving entity
 				Entity e2 = Entities[ent2.index]; //solid entity
+
 				/*
 				Conditions for collision:
-					-the solid block is within a radius that is equal to the moving vector
+					-the solid block is within a certain radius
 					-moving entity has a velocity > 0 (checked previously)
 					-the code IDs do not match
 					-the combination of collision groups are not in a no-collide
@@ -402,10 +399,13 @@ void frameUpdate() {
 				bool noCollide = false;
 				for (std::array<unsigned int, 3> group : noCollides) {
 					noCollide = ((group[1] == e1.getCollisionGroup()) && (group[2] == e2.getCollisionGroup())) || ((group[1] == e2.getCollisionGroup()) && (group[2] == e1.getCollisionGroup()));
+					if (noCollide) {
+						break;
+					}
 				}
+				float moveFactor = (fabs(e1.getDirX()) + fabs(e1.getDirY())) + e1.getWidth() + e1.getHeight() + e2.getWidth() + e2.getHeight();
 				//Check and exexute physics calculations
-				if ((e1.codeID != e2.codeID) && !noCollide && e1.isSolid() && e2.isSolid() && 
-					(range(e1, e2) < (fabsf(e1.x) + e1.getWidth() * 2)) && (range(e1, e2) < (fabsf(e1.y) + e1.getWidth() * 2))) {
+				if ((e1.codeID != e2.codeID) && !noCollide && e2.isSolid() && range(e1, e2) < moveFactor) {
 					/*
 					Collision detection
 						-Generate rectangle using moving's velocity
@@ -414,6 +414,8 @@ void frameUpdate() {
 						-call collision detection if hit
 						-change moving's x or y velocity to not hit solid
 					*/
+					physObjects++;
+
 					float ax1;
 					float ay1;
 					float ax2;
@@ -1362,12 +1364,24 @@ void ENTSetDir(float vec[])
 	Entities[activeEntity].setDirection(vec);
 }
 
+void ENTSetDir(float dx, float dy) {
+	Entities[activeEntity].setDirection(dx, dy);
+}
+
 void ENTSetDirX(float dirx) {
 	Entities[activeEntity].dir[0] = dirx;
 }
 
 void ENTSetDirY(float diry) {
 	Entities[activeEntity].dir[1] = diry;
+}
+
+void ENTApplyForce(float dx, float dy) {
+	Entities[activeEntity].setDirection(Entities[activeEntity].getDirX() + dx, Entities[activeEntity].getDirY() + dy);
+}
+
+void ENTApplyForce(float vec[]) {
+	Entities[activeEntity].setDirection(Entities[activeEntity].getDirX() + vec[0], Entities[activeEntity].getDirY() + vec[1]);
 }
 
 void ENTSetTileSheet()
@@ -2361,6 +2375,7 @@ bool AUDisSpatial()
 }
 #pragma endregion
 
+#pragma region Map Import
 void MAPSetTileFolder(const char path[]) {
 	tilePath = std::string(path);
 }
@@ -2609,4 +2624,29 @@ void MAPGenerate(const char path[], unsigned int sceneID) {
 			}
 		}
 	}
+}
+#pragma endregion
+
+float UTILRange(unsigned int idA, unsigned int idB) {
+	unsigned int i = 0;
+	unsigned int entA = 0;
+	unsigned int entB = 0;
+
+	while (i < Entities.size()) {
+		if (Entities.at(i).codeID == idA) {
+			entA = i;
+			break;
+		}
+		i++;
+	}
+	i = 0;
+	while (i < Entities.size()) {
+		if (Entities.at(i).codeID == idB) {
+			entB = i;
+			break;
+		}
+		i++;
+	}
+
+	return range(Entities[entA], Entities[entB]);
 }
