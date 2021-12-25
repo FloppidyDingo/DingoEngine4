@@ -12,7 +12,7 @@
 #define DE4_LIGHT_AMBIENT 1
 #define DE4_LIGHT_POINT 2
 #define DE4_MAX_INFOLOG_LENGTH 1024
-#define DE4_VERSION "0.5.0b"
+#define DE4_VERSION "0.6.0b"
 
 //DE4 key defines
 #define DE4_MSE_RCLICK			   0
@@ -182,8 +182,11 @@ DE4_API void ENTSetY(float y);
 DE4_API void ENTSetPosition(float x, float y);
 DE4_API void ENTGetDir(float vec[]);
 DE4_API void ENTSetDir(float vec[]);
+DE4_API void ENTSetDir(float dx, float dy);
 DE4_API void ENTSetDirX(float dirx);
 DE4_API void ENTSetDirY(float diry);
+DE4_API void ENTApplyForce(float dx, float dy);
+DE4_API void ENTApplyForce(float vec[]);
 DE4_API void ENTSetTileSheet(unsigned int tileid);
 DE4_API void ENTSetTileSheet();
 DE4_API void ENTAddAnimation(unsigned int aniid);
@@ -357,3 +360,7 @@ DE4_API void MAPTriggerCreationCallback(void(*func)(unsigned int codeID));
 DE4_API void MAPLightCreationCallback(void(*func)(unsigned int codeID));
 DE4_API void MAPGenerate(const char path[], unsigned int sceneID);
 //DE4_API void MAP
+
+//Utilities----------------------------------------------------------------------------------------------------------
+DE4_API float UTILRange(unsigned int idA, unsigned int idB);
+//DE4_API void UTIL

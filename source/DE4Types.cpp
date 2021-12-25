@@ -45,6 +45,14 @@ void Entity::getDirection(float vec[])
 	vec[1] = dir[1];
 }
 
+float Entity::getDirX() {
+	return dir[0];
+}
+
+float Entity::getDirY() {
+	return dir[1];
+}
+
 float Entity::getMass()
 {
 	return mass;
