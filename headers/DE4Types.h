@@ -85,16 +85,16 @@ class Entity {
 private:
 	TileSheet sheet;
 	std::string ID;
-	float mass;
+	float mass = 0;
 	bool visible = true;
-	bool solid;
+	bool solid = false;
 	bool active = true;
-	int frame;
+	int frame = 0;
 	int width;
 	int height;
 	float scale = 1;
 	float opacity = 1;
-	int collisionGroup;
+	int collisionGroup = 0;
 	bool invertX = false;
 	bool invertY = false;
 	std::vector<unsigned int> Animations;
@@ -111,6 +111,8 @@ public:
 	TileSheet getTileSheet();
 	std::string getID();
 	void getDirection(float vec[]);
+	float getDirX();
+	float getDirY();
 	float getMass();
 	int getFrame();
 	int getWidth();
