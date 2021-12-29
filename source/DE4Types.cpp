@@ -441,6 +441,7 @@ void TileSheet::createSheet(std::string url_base, std::string url_def)
 	int phase = 0;
 	int stx; //subimage starting x coord
 	int sty; //subimage starting y coord
+	int spriteCount = 0; //sprite count, used for logging only
 	for (unsigned int y1 = 0; y1 < height; y1++) {
 		for (unsigned int x1 = 0; x1 < width; x1++) {
 			switch (phase) {
@@ -469,8 +470,10 @@ void TileSheet::createSheet(std::string url_base, std::string url_def)
 							}
 						}
 						if (edy == 0) { //validate final point was actually found
-							std::cerr << "Error in bounds file, Point 3 not found. Sprites not generated" <<std::endl;
-							error("Error in bounds file, Point 3 not found. Sprites not generated");
+							std::string message = "Error in bounds file, Point 3 not found (Sprite ";
+							message += std::to_string(spriteCount);
+							message += "), sprites not generated";
+							error(message);
 							return;
 						}
 						else { //crop base image using starting and ending coordinates
@@ -507,6 +510,7 @@ void TileSheet::createSheet(std::string url_base, std::string url_def)
 							widthList.push_back(subWidth);
 							heightList.push_back(subHeight);
 							log("Texture generated " + this->ID + " ID " + std::to_string(textureID));
+							spriteCount++;
 						}
 					}
 					break;
@@ -514,7 +518,10 @@ void TileSheet::createSheet(std::string url_base, std::string url_def)
 			}
 		}
 		if (phase == 1) { //Throw error if reach the end of X coord while in second phase (Second point obviously missing)
-			error("Error in bounds file, Point 2 not found. Sprites not generated");
+			std::string message = "Error in bounds file, Point 2 not found (Sprite ";
+			message += std::to_string(spriteCount);
+			message += "), sprites not generated";
+			error(message);
 			return;
 		}
 		
