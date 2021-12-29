@@ -239,3 +239,16 @@ bool load_wav(const std::string& filename, std::uint8_t& channels, std::int32_t&
 
     return true;
 }
+
+bool intersects(Entity e1, Entity e2) {
+    float e1top = e1.y + (e1.getHeight() / 2);
+    float e1bottom = e1.y - (e1.getHeight() / 2);
+    float e1left = e1.x - (e1.getWidth() / 2);
+    float e1right = e1.x + (e1.getWidth() / 2);
+    float e2top = e2.y + (e2.getHeight() / 2);
+    float e2bottom = e2.y - (e2.getHeight() / 2);
+    float e2left = e2.x - (e2.getWidth() / 2);
+    float e2right = e2.x + (e2.getWidth() / 2);
+
+    return e1left < e2right && e1right > e2left && e1top > e2bottom && e1bottom < e2top;
+}

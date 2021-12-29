@@ -2650,3 +2650,27 @@ float UTILRange(unsigned int idA, unsigned int idB) {
 
 	return range(Entities[entA], Entities[entB]);
 }
+
+bool UTILIntersect(unsigned int idA, unsigned int idB) {
+	unsigned int i = 0;
+	unsigned int entA = 0;
+	unsigned int entB = 0;
+
+	while (i < Entities.size()) {
+		if (Entities.at(i).codeID == idA) {
+			entA = i;
+			break;
+		}
+		i++;
+	}
+	i = 0;
+	while (i < Entities.size()) {
+		if (Entities.at(i).codeID == idB) {
+			entB = i;
+			break;
+		}
+		i++;
+	}
+
+	return intersects(Entities[entA], Entities[entB]);
+}
