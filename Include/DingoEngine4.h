@@ -12,7 +12,7 @@
 #define DE4_LIGHT_AMBIENT 1
 #define DE4_LIGHT_POINT 2
 #define DE4_MAX_INFOLOG_LENGTH 1024
-#define DE4_VERSION "0.7.0b"
+#define DE4_VERSION "0.9.1b"
 
 //DE4 key defines
 #define DE4_MSE_RCLICK			   0
@@ -181,6 +181,8 @@ DE4_API void ENTSetX(float x);
 DE4_API void ENTSetY(float y);
 DE4_API void ENTSetPosition(float x, float y);
 DE4_API void ENTGetDir(float vec[]);
+DE4_API float ENTGetDirX();
+DE4_API float ENTGetDirY();
 DE4_API void ENTSetDir(float vec[]);
 DE4_API void ENTSetDir(float dx, float dy);
 DE4_API void ENTSetDirX(float dirx);
@@ -194,6 +196,7 @@ DE4_API void ENTAddAnimation();
 DE4_API void ENTRemoveAnimation(unsigned int aniid);
 DE4_API void ENTRemoveAnimation();
 DE4_API void ENTClearAnimations();
+DE4_API void ENTStopAllAnimations();
 DE4_API void ENTSetFrame(unsigned int frame);
 DE4_API void ENTSetCollisionGroup(unsigned int group);
 DE4_API unsigned int ENTGetCollisionGroup();

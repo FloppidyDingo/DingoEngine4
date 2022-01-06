@@ -1,11 +1,12 @@
 /*
-Things to do:
+Things to do/fix:
 	finish and implement Utils
 	optimize and complete logging
 	optimize physics
-	*add priority to animation system (first animation added takes highest priority)
+	fix bug where framerate runs faster than 60 in windowed mode on some monitors
+	fix bug with animations not ending in time on their last frame
 
-Things to Add/change/fix:
+Things to Add/change:
 	Create a support library (Animation timer)
 	Add particle system
 	Add dynamic textures (drawing surface)
@@ -1359,6 +1360,14 @@ void ENTGetDir(float vec[])
 	Entities[activeEntity].getDirection(vec);
 }
 
+float ENTGetDirX() {
+	return Entities[activeEntity].getDirX();
+}
+
+float ENTGetDirY() {
+	return Entities[activeEntity].getDirY();
+}
+
 void ENTSetDir(float vec[])
 {
 	Entities[activeEntity].setDirection(vec);
@@ -1438,6 +1447,10 @@ void ENTRemoveAnimation()
 void ENTClearAnimations()
 {
 	Entities[activeEntity].clearAnimations();
+}
+
+void ENTStopAllAnimations() {
+	Entities[activeEntity].stopAllAnimations();
 }
 
 void ENTSetFrame(unsigned int frame)

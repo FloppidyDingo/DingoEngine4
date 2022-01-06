@@ -123,6 +123,7 @@ public:
 	bool isInvertX();
 	bool isInvertY();
 	unsigned int getAnimation(int index);
+	void stopAllAnimations();
 
 	void setActive(bool act);
 	void setVisible(bool vis);

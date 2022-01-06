@@ -103,6 +103,13 @@ unsigned int Entity::getAnimation(int index)
 	return Animations.at(index);
 }
 
+void Entity::stopAllAnimations() {
+	for (unsigned int i = 0; i < Animations.size(); i++) {
+		ANIAssign(Animations[i]);
+		ANISetRunning(false);
+	}
+}
+
 void Entity::setActive(bool act){
 	this->active = act;
 }
@@ -221,7 +228,7 @@ void Entity::update()
 		ANIAssign(Animations[i]);
 		if (ANIIsRunning()) {
 			setFrame(ANIGetCurrentTile());
-			break;
+			return;
 		}
 	}
 }
@@ -247,7 +254,14 @@ void Animation::setFrameSpacing(int space)
 
 void Animation::setRunning(bool running)
 {
+	if (this->running == running) {
+		return;
+	}
 	this->running = running;
+	if (running && this->singlePlay) {
+		this->currentFrame = currentFrame;
+		this->currentTile = 0;
+	}
 }
 
 void Animation::setSinglePlay(bool singlePlay)
@@ -301,10 +315,9 @@ int Animation::update()
 		if (currentFrame == frameSpacing) {
 			currentFrame = -1;
 			currentTile++;
-			if (currentTile > idList.size() - 1) {
-				if (singlePlay) {
-					running = false;
-				}
+			if (singlePlay && currentTile == idList.size() - 1) {
+				running = false;
+			} else if (!singlePlay && currentTile == idList.size()) {
 				currentTile = 0;
 			}
 			return idList.at(currentTile);
