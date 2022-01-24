@@ -93,6 +93,8 @@ private:
 	int width;
 	int height;
 	float scale = 1;
+	float scaleX = 1;
+	float scaleY = 1;
 	float opacity = 1;
 	int collisionGroup = 0;
 	bool invertX = false;
@@ -118,6 +120,8 @@ public:
 	int getWidth();
 	int getHeight();
 	float getScale();
+	float getScaleX();
+	float getScaleY();
 	float getOpacity();
 	int getCollisionGroup();
 	bool isInvertX();
@@ -135,6 +139,8 @@ public:
 	void setDirection(float vec[]);
 	void setDirection(float x, float y);
 	void setScale(float scale);
+	void setScaleX(float scale);
+	void setScaleY(float scale);
 	void setOpacity(float opacity);
 	void setCollisionGroup(int group);
 	void addAnimation(Animation ani);

@@ -65,17 +65,25 @@ int Entity::getFrame()
 
 int Entity::getWidth()
 {
-	return width;
+	return width * scale * scaleX;
 }
 
 int Entity::getHeight()
 {
-	return height;
+	return height * scale * scaleY;
 }
 
 float Entity::getScale()
 {
 	return scale;
+}
+
+float Entity::getScaleX() {
+	return this->scaleX;
+}
+
+float Entity::getScaleY() {
+	return this->scaleY;
 }
 
 float Entity::getOpacity()
@@ -161,6 +169,14 @@ void Entity::setDirection(float x, float y)
 void Entity::setScale(float scale)
 {
 	this->scale = scale;
+}
+
+void Entity::setScaleX(float scale) {
+	this->scaleX = scale;
+}
+
+void Entity::setScaleY(float scale) {
+	this->scaleY = scale;
 }
 
 void Entity::setOpacity(float opacity)

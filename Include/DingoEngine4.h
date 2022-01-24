@@ -12,7 +12,7 @@
 #define DE4_LIGHT_AMBIENT 1
 #define DE4_LIGHT_POINT 2
 #define DE4_MAX_INFOLOG_LENGTH 1024
-#define DE4_VERSION "0.9.1b"
+#define DE4_VERSION "0.10.2b"
 
 //DE4 key defines
 #define DE4_MSE_RCLICK			   0
@@ -151,6 +151,7 @@ DE4_API void DE4SetGlobalScale(float scale);
 DE4_API float DE4GetGlobalScale();
 DE4_API void DE4SetTitle(const char title[]);
 DE4_API void DE4Exit();
+DE4_API void DE4SetPhysicsEnabled(bool enabled);
 //DE4_API void DE4
 
 //Pysics Functions-----------------------------------------------------------------------------------------------------
@@ -207,7 +208,11 @@ DE4_API bool ENTIsVisible();
 DE4_API void ENTSetSolid(bool solid);
 DE4_API bool ENTIsSolid();
 DE4_API void ENTSetScale(float scale);
+DE4_API void ENTSetScaleX(float scale);
+DE4_API void ENTSetScaleY(float scale);
 DE4_API float ENTGetScale();
+DE4_API float ENTGetScaleX();
+DE4_API float ENTGetScaleY();
 DE4_API void ENTSetOpacity(float opac);
 DE4_API float ENTGetOpacity();
 DE4_API char* ENTGetID();

@@ -1,19 +1,23 @@
 /*
 Things to do/fix:
-	finish and implement Utils
 	optimize and complete logging
 	optimize physics
 	fix bug where framerate runs faster than 60 in windowed mode on some monitors
-	fix bug with animations not ending in time on their last frame
 
 Things to Add/change:
-	Create a support library (Animation timer)
+	Add rotation
+	Add temporary assignment functions
+	Add scaling and rotation to animations
 	Add particle system
+	add background and foreground coloring
+	add controller support
+	Create a support library (Animation timer)
 	Add dynamic textures (drawing surface)
 	Add parent nodes
 	Integrate GUI library into engine core
 	Integrate game state management into engine core
 	move renderer to separate thread
+	Add friction and bounce
 */
 
 #pragma once
@@ -67,6 +71,7 @@ bool getAlError();
 #pragma region variables
 //engine variables
 bool engineRunning;
+bool physicsEnabled;
 
 //object management
 std::vector<Entity> Entities;
@@ -372,135 +377,136 @@ void frameUpdate() {
 	#pragma region physics
 	long long physicsStart = getMillis();
 
-	//gravity
-	if (physicsMode == DE4_PLATFORMER) {
-		for (entry e : scene.Entities) {
-			if (Entities[e.index].dir[1] > -terminalVelocity) {
-				Entities[e.index].dir[1] -= gravity * Entities[e.index].getMass();
+	if (physicsEnabled) {
+		//gravity
+		if (physicsMode == DE4_PLATFORMER) {
+			for (entry e : scene.Entities) {
+				if (Entities[e.index].dir[1] > -terminalVelocity) {
+					Entities[e.index].dir[1] -= gravity * Entities[e.index].getMass();
+				}
 			}
 		}
-	}
-	
-	//collisions
-	for (entry &ent1 : scene.Entities) {
-		if (((Entities[ent1.index].dir[0] != 0) || (Entities[ent1.index].dir[1] != 0)) && Entities[ent1.index].isSolid()) {
-			for (entry &ent2 : scene.Entities) {
-				Entity e1 = Entities[ent1.index];  //moving entity
-				Entity e2 = Entities[ent2.index]; //solid entity
 
-				/*
-				Conditions for collision:
-					-the solid block is within a certain radius
-					-moving entity has a velocity > 0 (checked previously)
-					-the code IDs do not match
-					-the combination of collision groups are not in a no-collide
-					-both entities are solid
-				*/
-				//check the noCollide list
-				bool noCollide = false;
-				for (std::array<unsigned int, 3> group : noCollides) {
-					noCollide = ((group[1] == e1.getCollisionGroup()) && (group[2] == e2.getCollisionGroup())) || ((group[1] == e2.getCollisionGroup()) && (group[2] == e1.getCollisionGroup()));
-					if (noCollide) {
-						break;
-					}
-				}
-				float moveFactor = (fabs(e1.getDirX()) + fabs(e1.getDirY())) + e1.getWidth() + e1.getHeight() + e2.getWidth() + e2.getHeight();
-				//Check and exexute physics calculations
-				if ((e1.codeID != e2.codeID) && !noCollide && e2.isSolid() && range(e1, e2) < moveFactor) {
+		//collisions
+		for (entry& ent1 : scene.Entities) {
+			if (((Entities[ent1.index].dir[0] != 0) || (Entities[ent1.index].dir[1] != 0)) && Entities[ent1.index].isSolid()) {
+				for (entry& ent2 : scene.Entities) {
+					Entity e1 = Entities[ent1.index];  //moving entity
+					Entity e2 = Entities[ent2.index]; //solid entity
+
 					/*
-					Collision detection
-						-Generate rectangle using moving's velocity
-						-generate recatngle with solid's dimensions
-						-compare to see if they intersect
-						-call collision detection if hit
-						-change moving's x or y velocity to not hit solid
+					Conditions for collision:
+						-the solid block is within a certain radius
+						-moving entity has a velocity > 0 (checked previously)
+						-the code IDs do not match
+						-the combination of collision groups are not in a no-collide
+						-both entities are solid
 					*/
-					physObjects++;
-
-					float ax1;
-					float ay1;
-					float ax2;
-					float ay2;
-
-					float bx1;
-					float by1;
-					float bx2;
-					float by2;
-
-					bool intersect = false;
-					
-					//solid rectangle
-					bx1 = e2.x - (e2.getWidth() / 2);
-					by1 = e2.y + (e2.getHeight() / 2);
-					bx2 = e2.x + (e2.getWidth() / 2);
-					by2 = e2.y - (e2.getHeight() / 2);
-
-					//x intersect
-					//moving rectangle
-					if (e1.dir[0] > 0) {
-						ax1 = e1.x - (e1.getWidth() / 2);
-						ax2 = e1.x + (e1.getWidth() / 2) + e1.dir[0];
-					} else {
-						ax1 = e1.x - (e1.getWidth() / 2) + e1.dir[0];
-						ax2 = e1.x + (e1.getWidth() / 2);
-					}
-					ay1 = e1.y + (e1.getHeight() / 2);
-					ay2 = e1.y - (e1.getHeight() / 2);
-					//compare rectangles
-					if (ax1 < bx2 && ax2 > bx1 && ay1 > by2 && ay2 < by1) {
-						//intersect detected
-						intersect = true;
-						if ((e1.x > e2.x)) {
-							e1.dir[0] = -((e1.x - (e1.getWidth() / 2)) - (e2.x + (e2.getWidth() / 2)));
-						} else if ((e1.x < e2.x)) {
-							e1.dir[0] = (e2.x - (e2.getWidth() / 2)) - (e1.x + (e1.getWidth() / 2));
+					//check the noCollide list
+					bool noCollide = false;
+					for (std::array<unsigned int, 3> group : noCollides) {
+						noCollide = ((group[1] == e1.getCollisionGroup()) && (group[2] == e2.getCollisionGroup())) || ((group[1] == e2.getCollisionGroup()) && (group[2] == e1.getCollisionGroup()));
+						if (noCollide) {
+							break;
 						}
 					}
+					float moveFactor = (fabs(e1.getDirX()) + fabs(e1.getDirY())) + e1.getWidth() + e1.getHeight() + e2.getWidth() + e2.getHeight();
+					//Check and exexute physics calculations
+					if ((e1.codeID != e2.codeID) && !noCollide && e2.isSolid() && range(e1, e2) < moveFactor) {
+						/*
+						Collision detection
+							-Generate rectangle using moving's velocity
+							-generate recatngle with solid's dimensions
+							-compare to see if they intersect
+							-call collision detection if hit
+							-change moving's x or y velocity to not hit solid
+						*/
+						physObjects++;
 
-					//y intersect
-					if (e1.dir[1] > 0) {
-						ay1 = e1.y + (e1.getHeight() / 2) + e1.dir[1];
-						ay2 = e1.y - (e1.getHeight() / 2);
-					} else {
+						float ax1;
+						float ay1;
+						float ax2;
+						float ay2;
+
+						float bx1;
+						float by1;
+						float bx2;
+						float by2;
+
+						bool intersect = false;
+
+						//solid rectangle
+						bx1 = e2.x - (e2.getWidth() / 2);
+						by1 = e2.y + (e2.getHeight() / 2);
+						bx2 = e2.x + (e2.getWidth() / 2);
+						by2 = e2.y - (e2.getHeight() / 2);
+
+						//x intersect
+						//moving rectangle
+						if (e1.dir[0] > 0) {
+							ax1 = e1.x - (e1.getWidth() / 2);
+							ax2 = e1.x + (e1.getWidth() / 2) + e1.dir[0];
+						} else {
+							ax1 = e1.x - (e1.getWidth() / 2) + e1.dir[0];
+							ax2 = e1.x + (e1.getWidth() / 2);
+						}
 						ay1 = e1.y + (e1.getHeight() / 2);
-						ay2 = e1.y - (e1.getHeight() / 2) + e1.dir[1];
-					}
-					ax1 = e1.x - (e1.getWidth() / 2);
-					ax2 = e1.x + (e1.getWidth() / 2);
-					//compare rectangles
-					if (ax1 < bx2 && ax2 > bx1 && ay1 > by2 && ay2 < by1) {
-						//intersect detected
-						intersect = true;
-						if (e1.y > e2.y) {
-							e1.dir[1] = -((e1.y - (e1.getHeight() / 2)) - (e2.y + (e2.getHeight() / 2)));
+						ay2 = e1.y - (e1.getHeight() / 2);
+						//compare rectangles
+						if (ax1 < bx2 && ax2 > bx1 && ay1 > by2 && ay2 < by1) {
+							//intersect detected
+							intersect = true;
+							if ((e1.x > e2.x)) {
+								e1.dir[0] = -((e1.x - (e1.getWidth() / 2)) - (e2.x + (e2.getWidth() / 2)));
+							} else if ((e1.x < e2.x)) {
+								e1.dir[0] = (e2.x - (e2.getWidth() / 2)) - (e1.x + (e1.getWidth() / 2));
+							}
 						}
-						else if (e1.y < e2.y) {
-							e1.dir[1] = (e2.y - (e2.getHeight() / 2)) - (e1.y + (e1.getHeight() / 2));
+
+						//y intersect
+						if (e1.dir[1] > 0) {
+							ay1 = e1.y + (e1.getHeight() / 2) + e1.dir[1];
+							ay2 = e1.y - (e1.getHeight() / 2);
+						} else {
+							ay1 = e1.y + (e1.getHeight() / 2);
+							ay2 = e1.y - (e1.getHeight() / 2) + e1.dir[1];
 						}
-					}
+						ax1 = e1.x - (e1.getWidth() / 2);
+						ax2 = e1.x + (e1.getWidth() / 2);
+						//compare rectangles
+						if (ax1 < bx2 && ax2 > bx1 && ay1 > by2 && ay2 < by1) {
+							//intersect detected
+							intersect = true;
+							if (e1.y > e2.y) {
+								e1.dir[1] = -((e1.y - (e1.getHeight() / 2)) - (e2.y + (e2.getHeight() / 2)));
+							} else if (e1.y < e2.y) {
+								e1.dir[1] = (e2.y - (e2.getHeight() / 2)) - (e1.y + (e1.getHeight() / 2));
+							}
+						}
 
-					//apply modified directions to original entity
-					Entities[ent1.index].dir[0] = e1.dir[0];
-					Entities[ent1.index].dir[1] = e1.dir[1];
+						//apply modified directions to original entity
+						Entities[ent1.index].dir[0] = e1.dir[0];
+						Entities[ent1.index].dir[1] = e1.dir[1];
 
-					//event if intersect
-					if (fCollision != nullptr && intersect) {
-						fCollision(e1.codeID, e2.codeID);
+						//event if intersect
+						if (fCollision != nullptr && intersect) {
+							fCollision(e1.codeID, e2.codeID);
+						}
 					}
 				}
 			}
 		}
-	}
-	
-	//movement
-	for (entry e : scene.Entities) {
-		Entities[e.index].x += Entities[e.index].dir[0];
-		Entities[e.index].y += Entities[e.index].dir[1];
-	}
 
-	//post physics tick
-	if (fPostPhysicsTick != nullptr) {
-		fPostPhysicsTick();
+		//movement
+		for (entry e : scene.Entities) {
+			Entities[e.index].x += Entities[e.index].dir[0];
+			Entities[e.index].y += Entities[e.index].dir[1];
+		}
+
+		//post physics tick
+		if (fPostPhysicsTick != nullptr) {
+			fPostPhysicsTick();
+		}
 	}
 	
 	long long physicsEnd = getMillis();
@@ -585,27 +591,27 @@ void frameUpdate() {
 			};
 			// x inversion
 			if (ent.isInvertX()) {
-				vertData[0] = (ent.x * globalScale) + (ent.getWidth() * globalScale * ent.getScale() / 2);
-				vertData[3] = (ent.x * globalScale) - (ent.getWidth() * globalScale * ent.getScale() / 2);
-				vertData[6] = (ent.x * globalScale) - (ent.getWidth() * globalScale * ent.getScale() / 2);
-				vertData[9] = (ent.x * globalScale) + (ent.getWidth() * globalScale * ent.getScale() / 2);
+				vertData[0] = (ent.x * globalScale) + (ent.getWidth() * globalScale / 2);
+				vertData[3] = (ent.x * globalScale) - (ent.getWidth() * globalScale / 2);
+				vertData[6] = (ent.x * globalScale) - (ent.getWidth() * globalScale / 2);
+				vertData[9] = (ent.x * globalScale) + (ent.getWidth() * globalScale / 2);
 			} else {
-				vertData[0] = (ent.x * globalScale) - (ent.getWidth() * globalScale * ent.getScale() / 2);
-				vertData[3] = (ent.x * globalScale) + (ent.getWidth() * globalScale * ent.getScale() / 2);
-				vertData[6] = (ent.x * globalScale) + (ent.getWidth() * globalScale * ent.getScale() / 2);
-				vertData[9] = (ent.x * globalScale) - (ent.getWidth() * globalScale * ent.getScale() / 2);
+				vertData[0] = (ent.x * globalScale) - (ent.getWidth() * globalScale / 2);
+				vertData[3] = (ent.x * globalScale) + (ent.getWidth() * globalScale / 2);
+				vertData[6] = (ent.x * globalScale) + (ent.getWidth() * globalScale / 2);
+				vertData[9] = (ent.x * globalScale) - (ent.getWidth() * globalScale / 2);
 			}
 			//y inversion
 			if (ent.isInvertY()) {
-				vertData[1] = (ent.y * globalScale) - (ent.getHeight() * globalScale * ent.getScale() / 2);
-				vertData[4] = (ent.y * globalScale) - (ent.getHeight() * globalScale * ent.getScale() / 2);
-				vertData[7] = (ent.y * globalScale) + (ent.getHeight() * globalScale * ent.getScale() / 2);
-				vertData[10] = (ent.y * globalScale) + (ent.getHeight() * globalScale * ent.getScale() / 2);
+				vertData[1] = (ent.y * globalScale) - (ent.getHeight() * globalScale / 2);
+				vertData[4] = (ent.y * globalScale) - (ent.getHeight() * globalScale / 2);
+				vertData[7] = (ent.y * globalScale) + (ent.getHeight() * globalScale / 2);
+				vertData[10] = (ent.y * globalScale) + (ent.getHeight() * globalScale / 2);
 			} else {
-				vertData[1] = (ent.y * globalScale) + (ent.getHeight() * globalScale * ent.getScale() / 2);
-				vertData[4] = (ent.y * globalScale) + (ent.getHeight() * globalScale * ent.getScale() / 2);
-				vertData[7] = (ent.y * globalScale) - (ent.getHeight() * globalScale * ent.getScale() / 2);
-				vertData[10] = (ent.y * globalScale) - (ent.getHeight() * globalScale * ent.getScale() / 2);
+				vertData[1] = (ent.y * globalScale) + (ent.getHeight() * globalScale / 2);
+				vertData[4] = (ent.y * globalScale) + (ent.getHeight() * globalScale / 2);
+				vertData[7] = (ent.y * globalScale) - (ent.getHeight() * globalScale / 2);
+				vertData[10] = (ent.y * globalScale) - (ent.getHeight() * globalScale / 2);
 			}
 			//rescale to screen coords
 			vertData[0] = vertData[0] / resolutionX * 2;
@@ -659,10 +665,10 @@ void frameUpdate() {
 			//send vertex data
 			vertData = {
 				//position
-				(((ent.x * globalScale) - (ent.getWidth() * globalScale * ent.getScale() / 2))), (((ent.y * globalScale) + (ent.getHeight() * globalScale * ent.getScale() / 2))), 0,
-				(((ent.x * globalScale) + (ent.getWidth() * globalScale * ent.getScale() / 2))), (((ent.y * globalScale) + (ent.getHeight() * globalScale * ent.getScale() / 2))), 0,
-				(((ent.x * globalScale) + (ent.getWidth() * globalScale * ent.getScale() / 2))), (((ent.y * globalScale) - (ent.getHeight() * globalScale * ent.getScale() / 2))), 0,
-				(((ent.x * globalScale) - (ent.getWidth() * globalScale * ent.getScale() / 2))), (((ent.y * globalScale) - (ent.getHeight() * globalScale * ent.getScale() / 2))), 0,
+				(((ent.x * globalScale) - (ent.getWidth() * globalScale / 2))), (((ent.y * globalScale) + (ent.getHeight() * globalScale / 2))), 0,
+				(((ent.x * globalScale) + (ent.getWidth() * globalScale / 2))), (((ent.y * globalScale) + (ent.getHeight() * globalScale / 2))), 0,
+				(((ent.x * globalScale) + (ent.getWidth() * globalScale / 2))), (((ent.y * globalScale) - (ent.getHeight() * globalScale / 2))), 0,
+				(((ent.x * globalScale) - (ent.getWidth() * globalScale / 2))), (((ent.y * globalScale) - (ent.getHeight() * globalScale / 2))), 0,
 			};
 			//rescale to screen coords
 			vertData[0] = vertData[0] / resolutionX * 2;
@@ -995,6 +1001,7 @@ void DE4Start(bool debug, int resx, int resy, bool profile, int framerate, void 
 	windowResize(window, tempx, tempy);
 	glfwSwapInterval(1);
 	engineRunning = true;
+	physicsEnabled = true;
 	while (!glfwWindowShouldClose(window) && engineRunning)
 	{
 		frameUpdate();
@@ -1178,6 +1185,10 @@ void DE4SetTitle(const char title[]) {
 
 void DE4Exit() {
 	engineRunning = false;
+}
+
+void DE4SetPhysicsEnabled(bool enabled) {
+	physicsEnabled = enabled;
 }
 
 #pragma region Physics Functions
@@ -1503,9 +1514,25 @@ void ENTSetScale(float scale)
 	Entities[activeEntity].setScale(scale);
 }
 
+void ENTSetScaleX(float scale) {
+	Entities[activeEntity].setScaleX(scale);
+}
+
+void ENTSetScaleY(float scale) {
+	Entities[activeEntity].setScaleY(scale);
+}
+
 float ENTGetScale()
 {
 	return Entities[activeEntity].getScale();
+}
+
+float ENTGetScaleX() {
+	return Entities[activeEntity].getScaleX();
+}
+
+float ENTGetScaleY() {
+	return Entities[activeEntity].getScaleY();
 }
 
 void ENTSetOpacity(float opac)
