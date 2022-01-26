@@ -205,11 +205,11 @@ void DE4Text::registerScene(unsigned int scene) {
 	this->scene = scene;
 }
 
-void DE4UIManager::registerText(DE4Text& text) {
+void DE4UIManager::registerItem(DE4Text& text) {
 	textList.push_back(&text);
 }
 
-void DE4UIManager::registerButton(DE4Button& button) {
+void DE4UIManager::registerItem(DE4Button& button) {
 	buttonList.push_back(&button);
 }
 

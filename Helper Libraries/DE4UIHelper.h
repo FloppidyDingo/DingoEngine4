@@ -69,8 +69,8 @@ class DE4Text {
 
 class DE4UIManager {
 	public:
-		void registerText(DE4Text& text);
-		void registerButton(DE4Button& button);
+		void registerItem(DE4Text& text);
+		void registerItem(DE4Button& button);
 		void update();
 
 	private:

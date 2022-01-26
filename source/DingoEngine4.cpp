@@ -1,25 +1,3 @@
-/*
-Things to do/fix:
-	optimize and complete logging
-	optimize physics
-	fix bug where framerate runs faster than 60 in windowed mode on some monitors
-
-Things to Add/change:
-	Add rotation
-	Add temporary assignment functions
-	Add scaling and rotation to animations
-	Add particle system
-	add background and foreground coloring
-	add controller support
-	Create a support library (Animation timer)
-	Add dynamic textures (drawing surface)
-	Add parent nodes
-	Integrate GUI library into engine core
-	Integrate game state management into engine core
-	move renderer to separate thread
-	Add friction and bounce
-*/
-
 #pragma once
 
 #define GLEW_STATIC
@@ -214,13 +192,6 @@ struct objectData {
 	float height;
 };
 #pragma endregion
-
-/*
-if (deepDebug) {
-	logFile << getMillis() << " | " << std::endl;
-	std::cout << " " << std::endl;
-}
-*/
 
 //Update each frame
 /*
