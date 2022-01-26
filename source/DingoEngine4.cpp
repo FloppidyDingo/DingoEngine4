@@ -22,6 +22,8 @@ Things to Add/change:
 
 #pragma once
 
+#define GLEW_STATIC
+
 #include "DingoEngine4.h"
 #include "DE4Types.h"
 #include "Utils.h"
