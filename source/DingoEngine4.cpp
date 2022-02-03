@@ -52,6 +52,8 @@ bool getAlError();
 //engine variables
 bool engineRunning;
 bool physicsEnabled;
+bool releaseContext;
+bool attachContext;
 
 //object management
 std::vector<Entity> Entities;
@@ -711,6 +713,16 @@ void frameUpdate() {
 		glfwSetWindowTitle(window, profilerInfo.c_str());
 	}
 	#pragma endregion
+
+	//thread control
+	if (attachContext) {
+		glfwMakeContextCurrent(window);
+		attachContext = false;
+	}
+	if (releaseContext) {
+		glfwMakeContextCurrent(NULL);
+		releaseContext = false;
+	}
 }
 
 #pragma region event handler backend
@@ -832,6 +844,8 @@ void DE4Start(bool debug, int resx, int resy, bool profile, int framerate, void 
 	}
 
 	glfwMakeContextCurrent(window);
+	attachContext = false;
+	releaseContext = false;
 	glfwSwapInterval(1);
 
 	GLuint err = glewInit();
@@ -1162,6 +1176,16 @@ void DE4Exit() {
 
 void DE4SetPhysicsEnabled(bool enabled) {
 	physicsEnabled = enabled;
+}
+
+void DE4AssignThreadContext() {
+	releaseContext = true;
+	while (releaseContext) {} //wait until context released
+	glfwMakeContextCurrent(window);
+}
+
+void DE4ReleaseThreadContext() {
+	attachContext = true;
 }
 
 #pragma region Physics Functions

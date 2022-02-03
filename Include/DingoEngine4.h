@@ -12,7 +12,7 @@
 #define DE4_LIGHT_AMBIENT 1
 #define DE4_LIGHT_POINT 2
 #define DE4_MAX_INFOLOG_LENGTH 1024
-#define DE4_VERSION "0.10.2b"
+#define DE4_VERSION "0.11.2b"
 
 //DE4 key defines
 #define DE4_MSE_RCLICK			   0
@@ -152,6 +152,8 @@ DE4_API float DE4GetGlobalScale();
 DE4_API void DE4SetTitle(const char title[]);
 DE4_API void DE4Exit();
 DE4_API void DE4SetPhysicsEnabled(bool enabled);
+DE4_API void DE4AssignThreadContext();
+DE4_API void DE4ReleaseThreadContext();
 //DE4_API void DE4
 
 //Pysics Functions-----------------------------------------------------------------------------------------------------
