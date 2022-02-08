@@ -2999,9 +2999,9 @@ bool TXTIsVisible() {
 }
 
 float TXTGetWidth() {
-	return Texts[activeText].width;
+	return Texts[activeText].width * Texts[activeText].scale;
 }
 
 float TXTGetHeight() {
-	return Texts[activeText].height;
+	return Texts[activeText].height * Texts[activeText].scale;
 }
