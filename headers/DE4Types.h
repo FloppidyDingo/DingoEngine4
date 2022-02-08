@@ -14,6 +14,18 @@ struct entry {
 	unsigned int index;
 };
 
+struct atlasTile {
+	float tlu;
+	float tlv;
+	float tru;
+	float trv;
+	float blu;
+	float blv;
+	float bru;
+	float brv;
+};
+
+
 //Common data types used in DE4
 #pragma region Tilesheet
 class TileSheet {
@@ -24,9 +36,10 @@ private:
 
 public:
 	unsigned int codeID;
+	unsigned int textureID;
 	std::string getID();
 	void createSheet(std::string url_base, std::string url_def);
-	std::vector<unsigned int> idList;
+	std::vector<atlasTile> atlas;
 	std::vector<unsigned int> widthList;
 	std::vector<unsigned int> heightList;
 };

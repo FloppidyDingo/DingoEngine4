@@ -556,7 +556,7 @@ void frameUpdate() {
 				textureSwaps++;
 			}
 			//add tile data to pass to the shader
-			//send vertex data
+			//process vertex data
 			vertData = {
 				//position
 				0, 0, 0,
@@ -598,6 +598,16 @@ void frameUpdate() {
 			vertData[9] = vertData[9] / resolutionX * 2;
 			vertData[10] = vertData[10] / resolutionY * 2;
 
+			//process texture atlas
+			atlasTile tile = ent.getTileSheet().atlas[ent.getFrame()];
+			texData = {
+				tile.tlu, tile.tlv,
+				tile.tru, tile.trv,
+				tile.bru, tile.brv,
+				tile.blu, tile.blv
+				
+			};
+
 			glEnableVertexAttribArray(LOC_POS);
 			glBindBuffer(GL_ARRAY_BUFFER, VBO);
 			glBufferData(GL_ARRAY_BUFFER, vertData.size() * sizeof(GLfloat), &vertData[0], GL_DYNAMIC_DRAW);
@@ -637,7 +647,7 @@ void frameUpdate() {
 				textureSwaps++;
 			}
 			//add tile data to pass to the shader
-			//send vertex data
+			//process vertex data
 			vertData = {
 				//position
 				(((ent.x * globalScale) - (ent.getWidth() * globalScale / 2))), (((ent.y * globalScale) + (ent.getHeight() * globalScale / 2))), 0,
@@ -654,6 +664,16 @@ void frameUpdate() {
 			vertData[7] = vertData[7] / resolutionY * 2;
 			vertData[9] = vertData[9] / resolutionX * 2;
 			vertData[10] = vertData[10] / resolutionY * 2;
+
+			//process texture atlas
+			atlasTile tile = ent.getTileSheet().atlas[ent.getFrame()];
+			texData = {
+				tile.tlu, tile.tlv,
+				tile.tru, tile.trv,
+				tile.bru, tile.brv,
+				tile.blu, tile.blv
+
+			};
 
 			glEnableVertexAttribArray(LOC_POS);
 			glBindBuffer(GL_ARRAY_BUFFER, VBO);

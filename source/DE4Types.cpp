@@ -251,7 +251,7 @@ void Entity::update()
 
 int Entity::getTextureID()
 {
-	return sheet.idList[frame];
+	return sheet.textureID;
 }
 
 #pragma endregion
@@ -466,7 +466,19 @@ void TileSheet::createSheet(std::string url_base, std::string url_def)
 	unsigned int height = 0;
 	loadImage(imageData, width, height, url_base.c_str(), false);
 	loadImage(boundsData, width, height, url_def.c_str(), true);
-	unsigned char* subImage;
+
+	//register image as an OPENGL texture
+	unsigned int textureID;
+	glGenTextures(1, &textureID);
+	glBindTexture(GL_TEXTURE_2D, textureID);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
+	log("Building atlas " + this->ID + " ID " + std::to_string(textureID));
+	this->textureID = textureID;
+
 	int phase = 0;
 	int stx; //subimage starting x coord
 	int sty; //subimage starting y coord
@@ -501,44 +513,33 @@ void TileSheet::createSheet(std::string url_base, std::string url_def)
 						if (edy == 0) { //validate final point was actually found
 							std::string message = "Error in bounds file, Point 3 not found (Sprite ";
 							message += std::to_string(spriteCount);
-							message += "), sprites not generated";
+							message += "), sprites may be missing";
 							error(message);
-							return;
-						}
-						else { //crop base image using starting and ending coordinates
 							phase = 0;
-							//multiply x coordinates by 4 to scale to the base and subimages RGBA format
-							//stx = stx * 4;
-							//edx = edx * 4;
+						}
+						else { //create frame coordinates
+							phase = 0;
+
+							//calulate frame width and height
 							int subWidth = (edx - stx) + 1;
 							int subHeight = (edy - sty) + 1;
-							subImage = new unsigned char[subWidth * subHeight * 4];
-							for (int y2 = 0; y2 < subHeight; y2++) { //copy image data from main image to subimage
-								for (int x2 = 0; x2 < subWidth; x2 ++) {
-									int mainIndex = (((stx + (x2)) + (width * (sty + y2)))) * 4;
-									int subIndex = ((x2 * 4) + (subWidth * y2 * 4));
-									subImage[subIndex] = imageData[mainIndex];
-									subImage[subIndex + 1] = imageData[mainIndex + 1];
-									subImage[subIndex + 2] = imageData[mainIndex + 2];
-									subImage[subIndex + 3] = imageData[mainIndex + 3];
-								}
-							}
+							edy++;
+
+							//calculate frame UV coordinates
+							atlasTile tile;
+							tile.tlu = (float)stx / (float)width;
+							tile.tlv = (float)sty / (float)height;
+							tile.tru = (float)edx / (float)width;
+							tile.trv = (float)sty / (float)height;
+							tile.blu = (float)stx / (float)width;
+							tile.blv = (float)edy / (float)height;
+							tile.bru = (float)edx / (float)width;
+							tile.brv = (float)edy / (float)height;
 							
-							//register subimage as an OPENGL texture
-							unsigned int  textureID;
-							glGenTextures(1, &textureID);
-							glBindTexture(GL_TEXTURE_2D, textureID);
-							glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-							glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-							glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-							glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-							glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, subWidth, subHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, subImage);
-							delete[] subImage;
-							//add ID to ID list
-							idList.push_back(textureID);
+							//add frame to atlas
+							this->atlas.push_back(tile);
 							widthList.push_back(subWidth);
 							heightList.push_back(subHeight);
-							log("Texture generated " + this->ID + " ID " + std::to_string(textureID));
 							spriteCount++;
 						}
 					}
@@ -549,14 +550,15 @@ void TileSheet::createSheet(std::string url_base, std::string url_def)
 		if (phase == 1) { //Throw error if reach the end of X coord while in second phase (Second point obviously missing)
 			std::string message = "Error in bounds file, Point 2 not found (Sprite ";
 			message += std::to_string(spriteCount);
-			message += "), sprites not generated";
+			message += "), sprites may be missing";
 			error(message);
-			return;
+			phase = 0;
 		}
 		
 	}
 	delete[] imageData;
 	delete[] boundsData;
+	log(std::to_string(spriteCount) + " sprites made");
 }
 #pragma endregion
 
