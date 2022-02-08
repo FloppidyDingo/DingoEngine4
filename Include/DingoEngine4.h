@@ -12,7 +12,7 @@
 #define DE4_LIGHT_AMBIENT 1
 #define DE4_LIGHT_POINT 2
 #define DE4_MAX_INFOLOG_LENGTH 1024
-#define DE4_VERSION "0.12.3b"
+#define DE4_VERSION "0.12.4b"
 
 //DE4 key defines
 #define DE4_MSE_RCLICK			   0
@@ -401,4 +401,6 @@ DE4_API float TXTGetY();
 DE4_API float TXTGetScale();
 DE4_API unsigned int TXTGetFont();
 DE4_API bool TXTIsVisible();
+DE4_API float TXTGetWidth();
+DE4_API float TXTGetHeight();
 //DE4_API void TXT

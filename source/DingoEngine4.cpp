@@ -18,6 +18,8 @@
 #include <al.h>
 #include <alc.h>
 #include <Windows.h>
+#include <mutex>
+#include <condition_variable>
 
 //DLL Main
 #pragma region DLL Main
@@ -54,6 +56,8 @@ bool engineRunning;
 bool physicsEnabled;
 bool releaseContext;
 bool attachContext;
+std::mutex mtx;
+std::condition_variable cv;
 
 //object management
 std::vector<Entity> Entities;
@@ -728,8 +732,8 @@ void frameUpdate() {
 	for (entry e : scene.Texts) {
 		Text t = Texts[e.index];
 		//check if texture ID is already in use, if not set it to the correct one
-		if (ent.getTextureID() != prevID) {
-			prevID = ent.getTextureID();
+		if (t.sheet.textureID != prevID) {
+			prevID = t.sheet.textureID;
 			textureSwaps++;
 		}
 
@@ -861,8 +865,10 @@ void frameUpdate() {
 		attachContext = false;
 	}
 	if (releaseContext) {
+		std::unique_lock<std::mutex> lck(mtx);
 		glfwMakeContextCurrent(NULL);
 		releaseContext = false;
+		cv.notify_all();
 	}
 }
 
@@ -1321,7 +1327,10 @@ void DE4SetPhysicsEnabled(bool enabled) {
 
 void DE4AssignThreadContext() {
 	releaseContext = true;
-	while (releaseContext) {} //wait until context released
+	std::unique_lock<std::mutex> lck(mtx);
+	while (releaseContext) { //wait until context released
+		cv.wait(lck);
+	}
 	glfwMakeContextCurrent(window);
 }
 
@@ -2987,4 +2996,12 @@ unsigned int TXTGetFont() {
 
 bool TXTIsVisible() {
 	return Texts[activeText].visible;
+}
+
+float TXTGetWidth() {
+	return Texts[activeText].width;
+}
+
+float TXTGetHeight() {
+	return Texts[activeText].height;
 }
