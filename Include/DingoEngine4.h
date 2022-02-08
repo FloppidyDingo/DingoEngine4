@@ -12,7 +12,7 @@
 #define DE4_LIGHT_AMBIENT 1
 #define DE4_LIGHT_POINT 2
 #define DE4_MAX_INFOLOG_LENGTH 1024
-#define DE4_VERSION "0.11.3b"
+#define DE4_VERSION "0.12.3b"
 
 //DE4 key defines
 #define DE4_MSE_RCLICK			   0
@@ -172,7 +172,6 @@ DE4_API void PHYClearNoCollides();
 
 //Entity Methods-----------------------------------------------------------------------------------------------------
 DE4_API void ENTAssign(unsigned int code);
-DE4_API void ENTAssign(const char id[]);
 DE4_API unsigned int ENTCreate();
 DE4_API void ENTDestroy(unsigned int code);
 DE4_API void ENTDestroyAll();
@@ -235,16 +234,20 @@ DE4_API void SCNAddEntity();
 DE4_API void SCNAddEntity(unsigned int entCode);
 DE4_API void SCNAddLight();
 DE4_API void SCNAddLight(unsigned int lightCode);
-DE4_API void SCNAddGUI();
-DE4_API void SCNAddGUI(unsigned int entCode);
+DE4_API void SCNAddGUIEntity();
+DE4_API void SCNAddGUIEntity(unsigned int entCode);
+DE4_API void SCNAddGUIText(unsigned int textCode);
+DE4_API void SCNAddGUIText();
 DE4_API void SCNAddTrigger();
 DE4_API void SCNAddTrigger(unsigned int trigCode);
 DE4_API void SCNRemoveEntity();
 DE4_API void SCNRemoveEntity(unsigned int entCode);
 DE4_API void SCNRemoveLight();
 DE4_API void SCNRemoveLight(unsigned int lightCode);
-DE4_API void SCNRemoveGUI();
-DE4_API void SCNRemoveGUI(unsigned int entCode);
+DE4_API void SCNRemoveGUIEntity();
+DE4_API void SCNRemoveGUIEntity(unsigned int entCode);
+DE4_API void SCNRemoveGUIText(unsigned int textCode);
+DE4_API void SCNRemoveGUIText();
 DE4_API void SCNRemoveTrigger();
 DE4_API void SCNRemoveTrigger(unsigned int trigCode);
 DE4_API void SCNClearEntities();
@@ -320,6 +323,7 @@ DE4_API void EVTSetTriggerCallback(void (*func)(const char ID[], unsigned int en
 DE4_API void TRGAssign(unsigned int codeID);
 DE4_API unsigned int TRGCreate();
 DE4_API void TRGDestroy(unsigned int codeID);
+DE4_API void TRGDestroyAll();
 DE4_API void TRGSetSize(float width, float height);
 DE4_API void TRGSetX(float x);
 DE4_API void TRGSetY(float y);
@@ -375,3 +379,26 @@ DE4_API void MAPGenerate(const char path[], unsigned int sceneID);
 DE4_API float UTILRange(unsigned int idA, unsigned int idB);
 DE4_API bool UTILIntersect(unsigned int idA, unsigned int idB);
 //DE4_API void UTIL
+
+//Text----------------------------------------------------------------------------------------------------------------
+DE4_API void TXTAssign(unsigned int id);
+DE4_API unsigned int TXTCreate();
+DE4_API void TXTDestroy(unsigned int id);
+DE4_API void TXTDestroyAll();
+DE4_API void TXTSetText(const char text[]);
+DE4_API void TXTSetSheet(unsigned int sheet);
+DE4_API void TXTSetID(const char id[]);
+DE4_API void TXTSetX(float x);
+DE4_API void TXTSetY(float y);
+DE4_API void TXTSetPosition(float x, float y);
+DE4_API void TXTSetScale(float scale);
+DE4_API void TXTSetFont(unsigned int font);
+DE4_API void TXTSetVisible(bool visible);
+DE4_API char* TXTGetText();
+DE4_API char* TXTGetID();
+DE4_API float TXTGetX();
+DE4_API float TXTGetY();
+DE4_API float TXTGetScale();
+DE4_API unsigned int TXTGetFont();
+DE4_API bool TXTIsVisible();
+//DE4_API void TXT

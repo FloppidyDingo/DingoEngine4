@@ -78,6 +78,9 @@ std::vector<Sound> Sounds;
 unsigned int soundCount = 0;
 unsigned int activeSound;
 std::vector<ALuint> Buffers;
+std::vector<Text> Texts;
+unsigned int textCount = 0;
+unsigned int activeText;
 
 //scene management
 unsigned int engineScene;
@@ -85,6 +88,7 @@ int rebuildGUI;
 int rebuildEntities;
 int rebuildLights;
 int rebuildTriggers;
+int rebuildTexts;
 
 //physics variables
 unsigned int physicsMode;
@@ -328,6 +332,16 @@ void frameUpdate() {
 		}
 		rebuildTriggers = -1;
 	}
+	if (rebuildTexts > 0) {
+		for (unsigned int i = rebuildTexts; i < Texts.size(); i++) {
+			for (unsigned int i2 = 0; i2 < Scenes[sceneIndex].Texts.size(); i2++) {
+				if (Scenes[sceneIndex].Texts[i2].id == Texts[i].codeID) {
+					Scenes[sceneIndex].Texts[i2].index = i;
+				}
+			}
+		}
+		rebuildTexts = -1;
+	}
 
 	//get current scene
 	Scene scene = Scenes.at(sceneIndex);
@@ -540,10 +554,12 @@ void frameUpdate() {
 	
 	#pragma endregion
 	//assign shader
+	
 	glUseProgram(ENTShader);
 	int prevID = -1;
+	Entity ent;
 	for (entry e : scene.Entities) {
-		Entity ent = Entities[e.index];
+		ent = Entities[e.index];
 		//check if entity is in the screen and visible
 		bool render = (((ent.x - gcx) + (ent.getWidth() * globalScale / 2)) > -(resolutionX / 2) && ((ent.x - gcx) + (ent.getWidth() * globalScale / 2)) < (resolutionX / 2) &&
 			((ent.y - gcy) + (ent.getHeight() * globalScale / 2)) > -(resolutionY / 2) && ((ent.y - gcy) + (ent.getHeight() * globalScale / 2)) < (resolutionY / 2)) && ent.isVisible();
@@ -630,13 +646,13 @@ void frameUpdate() {
 			glDrawArrays(GL_QUADS, 0, 4);
 		}
 	}
+
 	//render GUI Layer
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
 	glDisableVertexAttribArray(2);
 	glUseProgram(GUIShader);
 	prevID = -1;
-	Entity ent;
 	for (entry e : scene.GUI) {
 		ent = Entities[e.index];
 		if (ent.isVisible()) {
@@ -695,6 +711,111 @@ void frameUpdate() {
 			glDrawArrays(GL_QUADS, 0, 4);
 		}
 	}
+
+	//render Text Layer
+	glDisableVertexAttribArray(0);
+	glDisableVertexAttribArray(1);
+	glDisableVertexAttribArray(2);
+	glUseProgram(GUIShader);
+	prevID = -1;
+	float curx;
+	float cury;
+	float width;
+	float height;
+	float tx;
+	float ty;
+	unsigned int charIndex;
+	for (entry e : scene.Texts) {
+		Text t = Texts[e.index];
+		//check if texture ID is already in use, if not set it to the correct one
+		if (ent.getTextureID() != prevID) {
+			prevID = ent.getTextureID();
+			textureSwaps++;
+		}
+
+		//update text data
+		Texts[e.index].lineHeight = t.sheet.heightList[0];
+		Texts[e.index].width = 0;
+		Texts[e.index].height = t.sheet.heightList[0];
+
+		//process each character
+		curx = t.x;
+		cury = t.y;
+		Texts[e.index].lineCount = 1;
+		for (unsigned int index = 0; index < t.text.size(); index++) {
+			char c = t.text.data()[index];
+			if (c == '\n') {
+				//newline if character is newline
+				curx = t.x;
+				cury -= t.lineHeight * t.scale;
+				Texts[e.index].lineCount++;
+				Texts[e.index].height += t.sheet.heightList[0];
+			} else {
+				//convert character to tile ID and determine tile attributes
+				c -= 0x20;
+				c += (t.font * 95);
+				width = t.sheet.widthList[c] * t.scale;
+				height = t.sheet.heightList[c] * t.scale;
+
+				//draw tile
+				//process verex data
+				vertData = {
+					//position
+					(((curx * globalScale) - (width * globalScale / 2))), (((cury * globalScale) + (height * globalScale / 2))), 0,
+					(((curx * globalScale) + (width * globalScale / 2))), (((cury * globalScale) + (height * globalScale / 2))), 0,
+					(((curx * globalScale) + (width * globalScale / 2))), (((cury * globalScale) - (height * globalScale / 2))), 0,
+					(((curx * globalScale) - (width * globalScale / 2))), (((cury * globalScale) - (height * globalScale / 2))), 0,
+				};
+				//rescale to screen coords
+				vertData[0] = vertData[0] / resolutionX * 2;
+				vertData[1] = vertData[1] / resolutionY * 2;
+				vertData[3] = vertData[3] / resolutionX * 2;
+				vertData[4] = vertData[4] / resolutionY * 2;
+				vertData[6] = vertData[6] / resolutionX * 2;
+				vertData[7] = vertData[7] / resolutionY * 2;
+				vertData[9] = vertData[9] / resolutionX * 2;
+				vertData[10] = vertData[10] / resolutionY * 2;
+				//process texture atlas
+				atlasTile tile = t.sheet.atlas[c];
+				texData = {
+					tile.tlu, tile.tlv,
+					tile.tru, tile.trv,
+					tile.bru, tile.brv,
+					tile.blu, tile.blv
+				};
+				Texts[e.index].width += t.sheet.widthList[c];
+				curx += t.sheet.widthList[c] * t.scale;
+				if (t.visible) {
+					//send data to GPU
+					drawCalls++;
+					glEnableVertexAttribArray(LOC_POS);
+					glBindBuffer(GL_ARRAY_BUFFER, VBO);
+					glBufferData(GL_ARRAY_BUFFER, vertData.size() * sizeof(GLfloat), &vertData[0], GL_DYNAMIC_DRAW);
+					glVertexAttribPointer(LOC_POS, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+					//tex coords
+					glEnableVertexAttribArray(LOC_TEX);
+					glBindBuffer(GL_ARRAY_BUFFER, texbuffer);
+					glBufferData(GL_ARRAY_BUFFER, texData.size() * sizeof(GLfloat), &texData[0], GL_DYNAMIC_DRAW);
+					glVertexAttribPointer(LOC_TEX, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
+					//opacity
+					float opacData = ent.getOpacity();
+					glVertexAttrib1f(LOC_OPAC, opacData);
+					//bind the texture
+					glActiveTexture(GL_TEXTURE0); // activate the texture unit first before binding texture (for compatibility with intel graphics)
+					glBindTexture(GL_TEXTURE_2D, prevID);
+					glBindVertexArray(VAO);
+					//send draw call
+					glDrawArrays(GL_QUADS, 0, 4);
+				}
+			}
+		}
+
+		//update width and height data for scale
+		Texts[e.index].width *= Texts[e.index].scale;
+		Texts[e.index].height *= Texts[e.index].scale;
+		
+	}
+
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
 	glDisableVertexAttribArray(2);
@@ -1307,17 +1428,6 @@ void ENTAssign(unsigned int code)
 	}
 }
 
-void ENTAssign(const char id[]) {
-	unsigned int i = 0;
-	while (i < Entities.size()) {
-		if (strcmp(Entities.at(i).getID().c_str(), id)) {
-			activeEntity = i;
-			break;
-		}
-		i++;
-	}
-}
-
 unsigned int ENTCreate()
 {
 	Entity e;
@@ -1683,12 +1793,12 @@ void SCNAddLight(unsigned int lightCode)
 	}
 }
 
-void SCNAddGUI()
+void SCNAddGUIEntity()
 {
 	Scenes[activeScene].addGUI(Entities[activeEntity].codeID, activeEntity);
 }
 
-void SCNAddGUI(unsigned int entCode)
+void SCNAddGUIEntity(unsigned int entCode)
 {
 	unsigned int i = 0;
 	while (i < Entities.size()) {
@@ -1698,6 +1808,21 @@ void SCNAddGUI(unsigned int entCode)
 		}
 		i++;
 	}
+}
+
+void SCNAddGUIText(unsigned int textCode) {
+	unsigned int i = 0;
+	while (i < Texts.size()) {
+		if (Texts.at(i).codeID == textCode) {
+			Scenes[activeScene].addGUIText(textCode, i);
+			break;
+		}
+		i++;
+	}
+}
+
+void SCNAddGUIText() {
+	Scenes[activeText].addGUIText(Texts[activeText].codeID, activeText);
 }
 
 void SCNAddTrigger()
@@ -1737,14 +1862,22 @@ void SCNRemoveLight(unsigned int lightCode)
 	Scenes[activeScene].removeLight(lightCode);
 }
 
-void SCNRemoveGUI()
+void SCNRemoveGUIEntity()
 {
 	Scenes[activeScene].removeGUI(Entities[activeEntity].codeID);
 }
 
-void SCNRemoveGUI(unsigned int entCode)
+void SCNRemoveGUIEntity(unsigned int entCode)
 {
 	Scenes[activeScene].removeGUI(entCode);
+}
+
+void SCNRemoveGUIText(unsigned int textCode) {
+	Scenes[activeScene].removeGUIText(textCode);
+}
+
+void SCNRemoveGUIText() {
+	Scenes[activeScene].removeGUIText(Texts[activeText].codeID);
 }
 
 void SCNRemoveTrigger()
@@ -2153,6 +2286,11 @@ void TRGDestroy(unsigned int codeID)
 		}
 		i++;
 	}
+}
+
+void TRGDestroyAll() {
+	Triggers.clear();
+	triggerCount = 0;
 }
 
 void TRGSetSize(float width, float height)
@@ -2684,6 +2822,7 @@ void MAPGenerate(const char path[], unsigned int sceneID) {
 }
 #pragma endregion
 
+#pragma region Utils
 float UTILRange(unsigned int idA, unsigned int idB) {
 	unsigned int i = 0;
 	unsigned int entA = 0;
@@ -2730,4 +2869,122 @@ bool UTILIntersect(unsigned int idA, unsigned int idB) {
 	}
 
 	return intersects(Entities[entA], Entities[entB]);
+}
+#pragma endregion
+
+void TXTAssign(unsigned int id) {
+	unsigned int i = 0;
+	while (i < Texts.size()) {
+		if (Texts[i].codeID == id) {
+			activeText = i;
+			break;
+		}
+		i++;
+	}
+}
+
+unsigned int TXTCreate() {
+	Text e;
+	e.codeID = textCount;
+	e.x = 0;
+	e.y = 0;
+	e.font = 0;
+	e.scale = 1;
+	e.visible = true;
+	Texts.push_back(e);
+	textCount++;
+	TXTAssign(e.codeID);
+	return e.codeID;
+}
+
+void TXTDestroy(unsigned int id) {
+	unsigned int i = 0;
+	while (i < Texts.size()) {
+		if (Texts.at(i).codeID == id) {
+			Texts.erase(Texts.begin() + i);
+			break;
+		}
+		i++;
+	}
+}
+
+void TXTDestroyAll() {
+	Texts.clear();
+	textCount = 0;
+}
+
+void TXTSetText(const char text[]) {
+	Texts[activeText].text = (std::string(text));
+}
+
+void TXTSetSheet(unsigned int sheet) {
+	unsigned int i = 0;
+	while (i < Tilesheets.size()) {
+		if (Tilesheets.at(i).codeID == sheet) {
+			Texts[activeText].sheet = Tilesheets.at(i);
+			break;
+		}
+		i++;
+	}
+}
+
+void TXTSetID(const char id[]) {
+	Texts[activeText].ID = (std::string(id));
+}
+
+void TXTSetX(float x) {
+	Texts[activeText].x = x;
+}
+
+void TXTSetY(float y) {
+	Texts[activeText].y = y;
+}
+
+void TXTSetPosition(float x, float y) {
+	Texts[activeText].x = x;
+	Texts[activeText].y = y;
+}
+
+void TXTSetScale(float scale) {
+	Texts[activeText].scale = scale;
+}
+
+void TXTSetFont(unsigned int font) {
+	Texts[activeText].font = font;
+}
+
+void TXTSetVisible(bool visible) {
+	Texts[activeText].visible = visible;
+}
+
+char* TXTGetText() {
+	char* charText = new char[Texts[activeText].text.size() + 1];
+	strcpy_s(charText, Texts[activeText].text.size() + 1, Texts[activeText].text.c_str());
+	return charText;
+}
+
+char* TXTGetID() {
+	char* charID = new char[Texts[activeText].ID.size() + 1];
+	strcpy_s(charID, Texts[activeText].ID.size() + 1, Texts[activeText].ID.c_str());
+	return charID;
+}
+
+float TXTGetX() {
+	return Texts[activeText].x;
+}
+
+float TXTGetY() {
+	return Texts[activeText].y;
+}
+
+float TXTGetScale() {
+	return Texts[activeText].scale;
+}
+
+unsigned int TXTGetFont() {
+	return Texts[activeText].font;
+}
+
+bool TXTIsVisible() {
+	return Texts[activeText].visible;
 }

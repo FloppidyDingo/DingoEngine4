@@ -446,6 +446,28 @@ void Scene::clearTriggers()
 	Triggers.clear();
 }
 
+void Scene::addGUIText(unsigned int id, unsigned int index) {
+	entry t;
+	t.id = id;
+	t.index = index;
+	Texts.push_back(t);
+}
+
+void Scene::removeGUIText(unsigned int id) {
+	unsigned int i = 0;
+	while (i < Texts.size()) {
+		if (Texts.at(i).id == id) {
+			Texts.erase(Texts.begin() + i);
+			break;
+		}
+		i++;
+	}
+}
+
+void Scene::clearGUIText() {
+	Texts.clear();
+}
+
 #pragma endregion
 
 //Tilesheet-----------------------------------------------------------------------------------

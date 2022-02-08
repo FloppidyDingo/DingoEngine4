@@ -194,6 +194,7 @@ public:
 	std::vector<entry> GUI;
 	std::vector<entry> Lights;
 	std::vector<entry> Triggers;
+	std::vector<entry> Texts;
 	unsigned int codeID;
 	void addEntity(unsigned int id, unsigned int index);
 	void removeEntity(unsigned int id);
@@ -207,6 +208,9 @@ public:
 	void addTrigger(unsigned int id, unsigned int index);
 	void removeTrigger(unsigned int id);
 	void clearTriggers();
+	void addGUIText(unsigned int id, unsigned int index);
+	void removeGUIText(unsigned int id);
+	void clearGUIText();
 
 };
 #pragma endregion
@@ -252,4 +256,26 @@ void setSFXVolume(float volume);
 float getSFXVolume();
 void setMusicVolume(float volume);
 float getMusicVolume();
+#pragma endregion
+
+#pragma region Text
+class Text {
+	public:
+		unsigned int codeID;
+		float x;
+		float y;
+		unsigned int font;
+		float scale;
+		TileSheet sheet;
+		std::string ID;
+		std::string text;
+		float lineHeight;
+		unsigned int lineCount;
+		unsigned int width;
+		unsigned int height;
+		bool visible;
+		
+	private:
+		
+};
 #pragma endregion
