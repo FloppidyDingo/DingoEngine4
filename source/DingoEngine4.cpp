@@ -2076,6 +2076,14 @@ void TLSGenSheet(const char url_base[], const char url_def[])
 {
 	Tilesheets[activeSheet].createSheet(std::string(url_base), std::string(url_def));
 }
+
+float TLSGetFrameWidth(unsigned int frame) {
+	return Tilesheets[activeSheet].widthList[frame];
+}
+
+float TLSGetFrameHeight(unsigned int frame) {
+	return Tilesheets[activeSheet].heightList[frame];
+}
 #pragma endregion
 
 #pragma region Light functions

@@ -12,7 +12,7 @@
 #define DE4_LIGHT_AMBIENT 1
 #define DE4_LIGHT_POINT 2
 #define DE4_MAX_INFOLOG_LENGTH 1024
-#define DE4_VERSION "0.12.4b"
+#define DE4_VERSION "0.13.4b"
 
 //DE4 key defines
 #define DE4_MSE_RCLICK			   0
@@ -282,6 +282,8 @@ DE4_API unsigned int TLSCreate();
 DE4_API void TLSDestroy(unsigned int codeID);
 DE4_API void TLSDestroyAll();
 DE4_API void TLSGenSheet(const char url_base[], const char url_def[]);
+DE4_API float TLSGetFrameWidth(unsigned int frame);
+DE4_API float TLSGetFrameHeight(unsigned int frame);
 //DE4_API void TLS
 
 //Lights-------------------------------------------------------------------------------------------------------------
