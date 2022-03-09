@@ -12,7 +12,7 @@
 #define DE4_LIGHT_AMBIENT 1
 #define DE4_LIGHT_POINT 2
 #define DE4_MAX_INFOLOG_LENGTH 1024
-#define DE4_VERSION "0.13.4b"
+#define DE4_VERSION "0.14.4b"
 
 //DE4 key defines
 #define DE4_MSE_RCLICK			   0
@@ -382,7 +382,26 @@ DE4_API float UTILRange(unsigned int idA, unsigned int idB);
 DE4_API bool UTILIntersect(unsigned int idA, unsigned int idB);
 //DE4_API void UTIL
 
-//Text----------------------------------------------------------------------------------------------------------------
+//Game States--------------------------------------------------------------------------------------------------------
+DE4_API void GMSTAssign(unsigned int id);
+DE4_API unsigned int GMSTCreate();
+DE4_API unsigned int GMSTCreate(void (*func)());
+DE4_API void GMSTDestroy(unsigned int id);
+DE4_API void GMSTDestroyAll();
+DE4_API void GMSTSetUpdate(void (*func)());
+DE4_API void GMSTSetKeyPress(void (*func)(const char* id));
+DE4_API void GMSTSetKeyRelease(void (*func)(const char* id));
+DE4_API void GMSTSetCollision(void (*func)(unsigned int ida, unsigned int idb));
+DE4_API void GMSTSetKeyboardEvent(void (*func)());
+DE4_API void GMSTSetMousePressed(void (*func)(unsigned int button, float x, float y));
+DE4_API void GMSTSetMouseReleased(void (*func)(unsigned int button, float x, float y));
+DE4_API void GMSTSeTrigger(void (*func)(const char* id, unsigned int codeID));
+DE4_API void GMSTSetOnEnabledChange(void (*func)(bool enabled));
+DE4_API void GMSTSetEnabled(bool enabled);
+DE4_API void GMSTDisableAll();
+//DE4_API void GMST
+
+//Text---------------------------------------------------------------------------------------------------------------
 DE4_API void TXTAssign(unsigned int id);
 DE4_API unsigned int TXTCreate();
 DE4_API void TXTDestroy(unsigned int id);

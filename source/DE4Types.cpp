@@ -766,3 +766,15 @@ void Trigger::setID(std::string id) {
 	this->ID = id;
 }
 #pragma endregion
+
+//Game State----------------------------------------------------------------------------------
+void GameState::setEnabled(bool enabled) {
+	if (this->fOnEnableChange != nullptr) {
+		fOnEnableChange(enabled);
+	}
+	this->enabled = enabled;
+}
+
+bool GameState::isEnabled() {
+	return this->enabled;
+}

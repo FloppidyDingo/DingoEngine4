@@ -279,3 +279,24 @@ class Text {
 		
 };
 #pragma endregion
+
+class GameState {
+private:
+	bool enabled = false;
+
+public:
+	unsigned int codeID;
+
+	void (*fUpdate)();
+	void (*fKeyPressed)(const char* id);
+	void (*fKeyReleased)(const char* id);
+	void (*fCollide)(unsigned int ida, unsigned int idb);
+	void (*fKeyboardEvent)();
+	void (*fMousePressed)(unsigned int button, float x, float y);
+	void (*fMouseReleased)(unsigned int button, float x, float y);
+	void (*fTrigger)(const char* id, unsigned int codeID);
+	void (*fOnEnableChange)(bool enabled);
+
+	void setEnabled(bool enabled);
+	bool isEnabled();
+};

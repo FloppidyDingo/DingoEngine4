@@ -85,6 +85,9 @@ std::vector<ALuint> Buffers;
 std::vector<Text> Texts;
 unsigned int textCount = 0;
 unsigned int activeText;
+std::vector<GameState> GameStates;
+unsigned int stateCount = 0;
+unsigned int activeState;
 
 //scene management
 unsigned int engineScene;
@@ -237,15 +240,28 @@ void frameUpdate() {
 	std::copy(std::begin(kbdreleasekey), std::end(kbdreleasekey), std::begin(kbdtmprls));
 
 	if (kbdtmppresses > 0) {
+		//parse through detected key presses
 		for (int i = 0; i < kbdtmppresses; i++) {
+			//pass key press to event handler
 			if (fKeyPressed != nullptr) {
 				fKeyPressed(keys[kbdtmpprs[i]]->id.c_str());
+			}
+			//break if key tables have been modified
+			if (keyBreak) {
+				break;
+			}
+			//pass key press to game state
+			for (unsigned int i2 = 0; i2 < GameStates.size(); i2++) {
+				if (GameStates[i2].fKeyPressed != nullptr && GameStates[i2].isEnabled()) {
+					GameStates[i2].fKeyPressed(keys[kbdtmpprs[i]]->id.c_str());
+				}
 				if (keyBreak) {
 					break;
 				}
-				if (deepDebug) {
-					logFile << getMillis() << " | Key Pressed: " << keys[kbdtmpprs[i]]->id.c_str() << std::endl;
-				}
+			}
+			//log key event
+			if (deepDebug) {
+				logFile << getMillis() << " | Key Pressed: " << keys[kbdtmpprs[i]]->id.c_str() << std::endl;
 			}
 		}
 	}
@@ -253,12 +269,20 @@ void frameUpdate() {
 		for (int i = 0; i < kbdtmpreleases; i++) {
 			if (fKeyReleased != nullptr) {
 				fKeyReleased(keys[kbdtmprls[i]]->id.c_str());
+			}
+			if (keyBreak) {
+				break;
+			}
+			for (unsigned int i2 = 0; i2 < GameStates.size(); i2++) {
+				if (GameStates[i2].fKeyReleased != nullptr && GameStates[i2].isEnabled()) {
+					GameStates[i2].fKeyReleased(keys[kbdtmprls[i]]->id.c_str());
+				}
 				if (keyBreak) {
 					break;
 				}
-				if (deepDebug) {
-					logFile << getMillis() << " | Key Released:" << keys[kbdtmprls[i]]->id.c_str() << std::endl;
-				}
+			}
+			if (deepDebug) {
+				logFile << getMillis() << " | Key Released:" << keys[kbdtmprls[i]]->id.c_str() << std::endl;
 			}
 		}
 	}
@@ -266,9 +290,19 @@ void frameUpdate() {
 		if (fMousePressed != nullptr) {
 			fMousePressed(msebtn, msex, msey);
 		}
+		for (unsigned int i = 0; i < GameStates.size(); i++) {
+			if (GameStates[i].fMousePressed != nullptr && GameStates[i].isEnabled()) {
+				GameStates[i].fMousePressed(msebtn, msex, msey);
+			}
+		}
 	} else if (mserelease) {
 		if (fMouseReleased != nullptr) {
 			fMouseReleased(msebtn, msex, msey);
+		}
+		for (unsigned int i = 0; i < GameStates.size(); i++) {
+			if (GameStates[i].fMouseReleased != nullptr && GameStates[i].isEnabled()) {
+				GameStates[i].fMouseReleased(msebtn, msex, msey);
+			}
 		}
 	}
 	keyBreak = false;
@@ -280,6 +314,11 @@ void frameUpdate() {
 
 	//call update function
 	fUpdate();
+	for (unsigned int i = 0; i < GameStates.size(); i++) {
+		if (GameStates[i].fUpdate != nullptr && GameStates[i].isEnabled()) {
+			GameStates[i].fUpdate();
+		}
+	}
 	long long userEnd = getMillis();
 	#pragma endregion
 
@@ -485,6 +524,11 @@ void frameUpdate() {
 						if (fCollision != nullptr && intersect) {
 							fCollision(e1.codeID, e2.codeID);
 						}
+						for (unsigned int i = 0; i < GameStates.size(); i++) {
+							if (GameStates[i].fCollide != nullptr && GameStates[i].isEnabled()) {
+								GameStates[i].fCollide(e1.codeID, e2.codeID);
+							}
+						}
 					}
 				}
 			}
@@ -516,10 +560,17 @@ void frameUpdate() {
 		for (entry ent : scene.Entities) {
 			Entity e = Entities[ent.index];
 			if (inBetween(e.x, t.x - (t.width / 2), t.x + (t.width / 2)) && 
-				inBetween(e.y, t.y - (t.height / 2), t.y + (t.height / 2)) && t.enabled) {
+					inBetween(e.y, t.y - (t.height / 2), t.y + (t.height / 2)) && t.enabled) {
 				char* charID = new char[t.getID().size() + 1];
 				strcpy_s(charID, t.getID().size() + 1, t.getID().c_str());
-				fTrigger(charID, e.codeID);
+				if (fTrigger != nullptr) {
+					fTrigger(charID, e.codeID);
+				}
+				for (unsigned int i = 0; i < GameStates.size(); i++) {
+					if (GameStates[i].fTrigger != nullptr && GameStates[i].isEnabled()) {
+						GameStates[i].fTrigger(charID, e.codeID);
+					}
+				}
 				delete[] charID;
 			}
 		}
@@ -876,6 +927,11 @@ void frameUpdate() {
 void kbdhandle(GLFWwindow* window, int key, int scancode, int action, int mods) {
 	if (fKeyboardEvent != nullptr) {
 		fKeyboardEvent();
+	}
+	for (unsigned int i = 0; i < GameStates.size(); i++) {
+		if (GameStates[i].fKeyboardEvent != nullptr && GameStates[i].isEnabled()) {
+			GameStates[i].fKeyboardEvent();
+		}
 	}
 	if (action == GLFW_PRESS) {
 		//search through registered keys
@@ -2889,6 +2945,100 @@ bool UTILIntersect(unsigned int idA, unsigned int idB) {
 }
 #pragma endregion
 
+void GMSTAssign(unsigned int id) {
+	unsigned int i = 0;
+	while (i < GameStates.size()) {
+		if (GameStates[i].codeID == id) {
+			activeState = i;
+			break;
+		}
+		i++;
+	}
+}
+
+unsigned int GMSTCreate() {
+	GameState e;
+	e.codeID = stateCount;
+	GameStates.push_back(e);
+	stateCount++;
+	GMSTAssign(e.codeID);
+	return e.codeID;
+}
+
+unsigned int GMSTCreate(void(*func)()) {
+	GameState e;
+	e.codeID = stateCount;
+	if (func != nullptr) {
+		func();
+	}
+	GameStates.push_back(e);
+	stateCount++;
+	GMSTAssign(e.codeID);
+	return e.codeID;
+}
+
+void GMSTDestroy(unsigned int id) {
+	unsigned int i = 0;
+	while (i < GameStates.size()) {
+		if (GameStates.at(i).codeID == id) {
+			GameStates.erase(GameStates.begin() + i);
+			break;
+		}
+		i++;
+	}
+}
+
+void GMSTDestroyAll() {
+	GameStates.clear();
+	stateCount = 0;
+}
+
+void GMSTSetUpdate(void(*func)()) {
+	GameStates[activeState].fUpdate = func;
+}
+
+void GMSTSetKeyPress(void(*func)(const char* id)) {
+	GameStates[activeState].fKeyPressed = func;
+}
+
+void GMSTSetKeyRelease(void(*func)(const char* id)) {
+	GameStates[activeState].fKeyReleased = func;
+}
+
+void GMSTSetCollision(void(*func)(unsigned int ida, unsigned int idb)) {
+	GameStates[activeState].fCollide = func;
+}
+
+void GMSTSetKeyboardEvent(void(*func)()) {
+	GameStates[activeState].fKeyboardEvent = func;
+}
+
+void GMSTSetMousePressed(void(*func)(unsigned int button, float x, float y)) {
+	GameStates[activeState].fMousePressed = func;
+}
+
+void GMSTSetMouseReleased(void(*func)(unsigned int button, float x, float y)) {
+	GameStates[activeState].fMouseReleased = func;
+}
+
+void GMSTSeTrigger(void(*func)(const char* id, unsigned int codeID)) {
+	GameStates[activeState].fTrigger = func;
+}
+
+void GMSTSetOnEnabledChange(void(*func)(bool enabled)) {
+	GameStates[activeState].fOnEnableChange = func;
+}
+
+void GMSTSetEnabled(bool enabled) {
+	GameStates[activeState].setEnabled(enabled);
+}
+
+void GMSTDisableAll() {
+	for (unsigned int i = 0; i < GameStates.size(); i++) {
+		GameStates[i].setEnabled(false);
+	}
+}
+
 void TXTAssign(unsigned int id) {
 	unsigned int i = 0;
 	while (i < Texts.size()) {
@@ -2919,6 +3069,7 @@ void TXTDestroy(unsigned int id) {
 	while (i < Texts.size()) {
 		if (Texts.at(i).codeID == id) {
 			Texts.erase(Texts.begin() + i);
+			rebuildTexts = i;
 			break;
 		}
 		i++;
