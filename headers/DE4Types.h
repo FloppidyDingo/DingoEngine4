@@ -119,6 +119,7 @@ public:
 	float x = 0;
 	float y = 0;
 	float dir[2];
+	float friction[4];
 	unsigned int codeID;
 	bool isActive();
 	bool isVisible();

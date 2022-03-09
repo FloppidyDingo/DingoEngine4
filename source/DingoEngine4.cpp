@@ -518,6 +518,67 @@ void frameUpdate() {
 							}
 						}
 
+						//x top friction
+						if (!xFrictionApplied) {
+							ax1 = e1.x - (e1.getWidth() / 2);
+							ax2 = e1.x + (e1.getWidth() / 2);
+							ay1 = e1.y + (e1.getHeight() / 2) + 1;
+							ay2 = e1.y - (e1.getHeight() / 2);
+							//check if tile is above
+							if (ax1 < bx2 && ax2 > bx1 && ay1 > by2 && ay2 < by1) {
+								//intersect detected
+								e1.dir[0] = e1.dir[0] * e1.friction[0] * e2.friction[1];
+								xFrictionApplied = true;
+							}
+						}
+						//x bottom friction
+						if (!xFrictionApplied) {
+							ax1 = e1.x - (e1.getWidth() / 2);
+							ax2 = e1.x + (e1.getWidth() / 2);
+							ay1 = e1.y + (e1.getHeight() / 2);
+							ay2 = e1.y - (e1.getHeight() / 2) - 1;
+							//check if tile is below
+							if (ax1 < bx2 && ax2 > bx1 && ay1 > by2 && ay2 < by1) {
+								//intersect detected
+								e1.dir[0] = e1.dir[0] * e1.friction[1] * e2.friction[0];
+								xFrictionApplied = true;
+							}
+						}
+						//y left friction
+						if (!yFrictionApplied) {
+							ax1 = e1.x - (e1.getWidth() / 2) - 1;
+							ax2 = e1.x + (e1.getWidth() / 2);
+							ay1 = e1.y + (e1.getHeight() / 2);
+							ay2 = e1.y - (e1.getHeight() / 2);
+							//check if tile is left
+							if (ax1 < bx2 && ax2 > bx1 && ay1 > by2 && ay2 < by1) {
+								//intersect detected
+								e1.dir[1] = e1.dir[1] * e1.friction[2] * e2.friction[3];
+								yFrictionApplied = true;
+							}
+						}
+						//y right friction
+						if (!yFrictionApplied) {
+							ax1 = e1.x - (e1.getWidth() / 2);
+							ax2 = e1.x + (e1.getWidth() / 2) + 1;
+							ay1 = e1.y + (e1.getHeight() / 2);
+							ay2 = e1.y - (e1.getHeight() / 2);
+							//check if tile is right
+							if (ax1 < bx2 && ax2 > bx1 && ay1 > by2 && ay2 < by1) {
+								//intersect detected
+								e1.dir[1] = e1.dir[1] * e1.friction[3] * e2.friction[2];
+								yFrictionApplied = true;
+							}
+						}
+
+						//apply movement clamp
+						if (fabs(e1.dir[0]) < 0.01f) {
+							e1.dir[0] = 0;
+						}
+						if (fabs(e1.dir[1]) < 0.01f) {
+							e1.dir[1] = 0;
+						}
+
 						//apply modified directions to original entity
 						Entities[ent1.index].dir[0] = e1.dir[0];
 						Entities[ent1.index].dir[1] = e1.dir[1];
@@ -1498,6 +1559,10 @@ unsigned int ENTCreate()
 {
 	Entity e;
 	e.codeID = entityCount;
+	e.friction[0] = 1;
+	e.friction[1] = 1;
+	e.friction[2] = 1;
+	e.friction[3] = 1;
 	e.dir[0] = 0;
 	e.dir[1] = 0;
 	Entities.push_back(e);
@@ -1592,6 +1657,13 @@ void ENTSetDirX(float dirx) {
 
 void ENTSetDirY(float diry) {
 	Entities[activeEntity].dir[1] = diry;
+}
+
+void ENTSetFrictionProfile(float top, float bottom, float left, float right) {
+	Entities[activeEntity].friction[0] = top;
+	Entities[activeEntity].friction[1] = bottom;
+	Entities[activeEntity].friction[2] = left;
+	Entities[activeEntity].friction[3] = right;
 }
 
 void ENTApplyForce(float dx, float dy) {

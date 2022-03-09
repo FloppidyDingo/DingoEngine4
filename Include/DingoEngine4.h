@@ -189,6 +189,7 @@ DE4_API void ENTSetDir(float vec[]);
 DE4_API void ENTSetDir(float dx, float dy);
 DE4_API void ENTSetDirX(float dirx);
 DE4_API void ENTSetDirY(float diry);
+DE4_API void ENTSetFrictionProfile(float top, float bottom, float left, float right);
 DE4_API void ENTApplyForce(float dx, float dy);
 DE4_API void ENTApplyForce(float vec[]);
 DE4_API void ENTSetTileSheet(unsigned int tileid);
