@@ -185,24 +185,24 @@ void(*fLightCreated)(unsigned int codeID);
 struct objectData {
 	std::string objectID;
 	std::string tileID;
-	unsigned int frame;
-	bool solid;
-	float mass;
-	bool visible;
-	float opacity;
-	int collision;
-	bool invertX;
-	bool invertY;
+	unsigned int frame = 0;
+	bool solid = true;
+	float mass = 0;
+	bool visible = true;
+	float opacity = 1;
+	int collision = 0;
+	bool invertX = false;
+	bool invertY = false;
 
-	bool ambient;
-	float brightness;
-	float red;
-	float green;
-	float blue;
-	float radius;
+	bool ambient = true;
+	float brightness = 1;
+	float red = 1;
+	float green = 1;
+	float blue = 1;
+	float radius = 0;
 
-	float width;
-	float height;
+	float width = 0;
+	float height = 0;
 };
 #pragma endregion
 
@@ -419,7 +419,9 @@ void frameUpdate() {
 			}
 		}
 
-		//collisions
+		//collisions and friction
+		bool xFrictionApplied = false;
+		bool yFrictionApplied = false;
 		for (entry& ent1 : scene.Entities) {
 			if (((Entities[ent1.index].dir[0] != 0) || (Entities[ent1.index].dir[1] != 0)) && Entities[ent1.index].isSolid()) {
 				for (entry& ent2 : scene.Entities) {
@@ -442,7 +444,7 @@ void frameUpdate() {
 							break;
 						}
 					}
-					float moveFactor = (fabs(e1.getDirX()) + fabs(e1.getDirY())) + e1.getWidth() + e1.getHeight() + e2.getWidth() + e2.getHeight();
+					float moveFactor = (fabs(e1.dir[0]) + fabs(e1.dir[1])) + e1.getWidth() + e1.getHeight() + e2.getWidth() + e2.getHeight();
 					//Check and exexute physics calculations
 					if ((e1.codeID != e2.codeID) && !noCollide && e2.isSolid() && range(e1, e2) < moveFactor) {
 						/*
@@ -455,14 +457,14 @@ void frameUpdate() {
 						*/
 						physObjects++;
 
-						float ax1;
+						float ax1; //moving top left
 						float ay1;
-						float ax2;
+						float ax2; //moving bottom right
 						float ay2;
 
-						float bx1;
+						float bx1; //solid top left
 						float by1;
-						float bx2;
+						float bx2; //solid bottom right
 						float by2;
 
 						bool intersect = false;
@@ -777,9 +779,6 @@ void frameUpdate() {
 	float cury;
 	float width;
 	float height;
-	float tx;
-	float ty;
-	unsigned int charIndex;
 	for (entry e : scene.Texts) {
 		Text t = Texts[e.index];
 		//check if texture ID is already in use, if not set it to the correct one
@@ -789,7 +788,7 @@ void frameUpdate() {
 		}
 
 		//update text data
-		Texts[e.index].lineHeight = t.sheet.heightList[0];
+		Texts[e.index].lineHeight = (float)t.sheet.heightList[0];
 		Texts[e.index].width = 0;
 		Texts[e.index].height = t.sheet.heightList[0];
 
@@ -1313,6 +1312,7 @@ void error(std::string error) {
 #pragma endregion
 
 //DLL Implimentation ---------------------------------------------------------------------------------------
+#pragma region Engine Configuration
 void DE4SetScene(unsigned int sceneID)
 {
 	unsigned int i = 0;
@@ -1393,6 +1393,7 @@ void DE4AssignThreadContext() {
 void DE4ReleaseThreadContext() {
 	attachContext = true;
 }
+#pragma endregion
 
 #pragma region Physics Functions
 void PHYSetMode(unsigned int mode)
@@ -1497,6 +1498,8 @@ unsigned int ENTCreate()
 {
 	Entity e;
 	e.codeID = entityCount;
+	e.dir[0] = 0;
+	e.dir[1] = 0;
 	Entities.push_back(e);
 	entityCount++;
 	ENTAssign(e.codeID);
@@ -1533,12 +1536,12 @@ float ENTGetY()
 	return Entities[activeEntity].y;
 }
 
-int ENTGetWidth()
+float ENTGetWidth()
 {
 	return Entities[activeEntity].getWidth();
 }
 
-int ENTGetHeight()
+float ENTGetHeight()
 {
 	return Entities[activeEntity].getHeight();
 }
@@ -1560,24 +1563,27 @@ void ENTSetPosition(float x, float y) {
 
 void ENTGetDir(float vec[])
 {
-	Entities[activeEntity].getDirection(vec);
+	vec[0] = Entities[activeEntity].dir[0];
+	vec[1] = Entities[activeEntity].dir[1];
 }
 
 float ENTGetDirX() {
-	return Entities[activeEntity].getDirX();
+	return Entities[activeEntity].dir[0];
 }
 
 float ENTGetDirY() {
-	return Entities[activeEntity].getDirY();
+	return Entities[activeEntity].dir[1];
 }
 
 void ENTSetDir(float vec[])
 {
-	Entities[activeEntity].setDirection(vec);
+	Entities[activeEntity].dir[0] = vec[0];
+	Entities[activeEntity].dir[1] = vec[1];
 }
 
 void ENTSetDir(float dx, float dy) {
-	Entities[activeEntity].setDirection(dx, dy);
+	Entities[activeEntity].dir[0] = dx;
+	Entities[activeEntity].dir[1] = dy;
 }
 
 void ENTSetDirX(float dirx) {
@@ -1589,11 +1595,13 @@ void ENTSetDirY(float diry) {
 }
 
 void ENTApplyForce(float dx, float dy) {
-	Entities[activeEntity].setDirection(Entities[activeEntity].getDirX() + dx, Entities[activeEntity].getDirY() + dy);
+	Entities[activeEntity].dir[0] = Entities[activeEntity].dir[0] + dx;
+	Entities[activeEntity].dir[1] = Entities[activeEntity].dir[1] + dy;
 }
 
 void ENTApplyForce(float vec[]) {
-	Entities[activeEntity].setDirection(Entities[activeEntity].getDirX() + vec[0], Entities[activeEntity].getDirY() + vec[1]);
+	Entities[activeEntity].dir[0] = Entities[activeEntity].dir[0] + vec[0];
+	Entities[activeEntity].dir[1] = Entities[activeEntity].dir[1] + vec[1];
 }
 
 void ENTSetTileSheet()
@@ -2945,6 +2953,7 @@ bool UTILIntersect(unsigned int idA, unsigned int idB) {
 }
 #pragma endregion
 
+#pragma region Game State
 void GMSTAssign(unsigned int id) {
 	unsigned int i = 0;
 	while (i < GameStates.size()) {
@@ -3038,7 +3047,9 @@ void GMSTDisableAll() {
 		GameStates[i].setEnabled(false);
 	}
 }
+#pragma endregion
 
+#pragma region Text
 void TXTAssign(unsigned int id) {
 	unsigned int i = 0;
 	while (i < Texts.size()) {
@@ -3164,3 +3175,4 @@ float TXTGetWidth() {
 float TXTGetHeight() {
 	return Texts[activeText].height * Texts[activeText].scale;
 }
+#pragma endregion

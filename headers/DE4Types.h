@@ -30,8 +30,8 @@ struct atlasTile {
 #pragma region Tilesheet
 class TileSheet {
 private:
-	unsigned char* imageData;
-	unsigned char* boundsData;
+	unsigned char* imageData = 0;
+	unsigned char* boundsData = 0;
 	std::string ID;
 
 public:
@@ -40,8 +40,8 @@ public:
 	std::string getID();
 	void createSheet(std::string url_base, std::string url_def);
 	std::vector<atlasTile> atlas;
-	std::vector<unsigned int> widthList;
-	std::vector<unsigned int> heightList;
+	std::vector<float> widthList;
+	std::vector<float> heightList;
 };
 #pragma endregion
 
@@ -103,8 +103,8 @@ private:
 	bool solid = false;
 	bool active = true;
 	int frame = 0;
-	int width;
-	int height;
+	float width;
+	float height;
 	float scale = 1;
 	float scaleX = 1;
 	float scaleY = 1;
@@ -125,13 +125,10 @@ public:
 	bool isSolid();
 	TileSheet getTileSheet();
 	std::string getID();
-	void getDirection(float vec[]);
-	float getDirX();
-	float getDirY();
 	float getMass();
 	int getFrame();
-	int getWidth();
-	int getHeight();
+	float getWidth();
+	float getHeight();
 	float getScale();
 	float getScaleX();
 	float getScaleY();
@@ -149,8 +146,6 @@ public:
 	void setFrame(int tileFrame);
 	void setMass(float mass);
 	void setID(std::string id);
-	void setDirection(float vec[]);
-	void setDirection(float x, float y);
 	void setScale(float scale);
 	void setScaleX(float scale);
 	void setScaleY(float scale);
@@ -271,8 +266,8 @@ class Text {
 		std::string text;
 		float lineHeight;
 		unsigned int lineCount;
-		unsigned int width;
-		unsigned int height;
+		float width;
+		float height;
 		bool visible;
 		
 	private:

@@ -39,20 +39,6 @@ std::string Entity::getID()
 	return ID;
 }
 
-void Entity::getDirection(float vec[])
-{
-	vec[0] = dir[0];
-	vec[1] = dir[1];
-}
-
-float Entity::getDirX() {
-	return dir[0];
-}
-
-float Entity::getDirY() {
-	return dir[1];
-}
-
 float Entity::getMass()
 {
 	return mass;
@@ -63,12 +49,12 @@ int Entity::getFrame()
 	return frame;
 }
 
-int Entity::getWidth()
+float Entity::getWidth()
 {
 	return width * scale * scaleX;
 }
 
-int Entity::getHeight()
+float Entity::getHeight()
 {
 	return height * scale * scaleY;
 }
@@ -152,18 +138,6 @@ void Entity::setMass(float mass)
 void Entity::setID(std::string id)
 {
 	this->ID = id;
-}
-
-void Entity::setDirection(float vec[])
-{
-	dir[0] = vec[0];
-	dir[1] = vec[1];
-}
-
-void Entity::setDirection(float x, float y)
-{
-	dir[0] = x;
-	dir[1] = y;
 }
 
 void Entity::setScale(float scale)
@@ -560,8 +534,8 @@ void TileSheet::createSheet(std::string url_base, std::string url_def)
 							
 							//add frame to atlas
 							this->atlas.push_back(tile);
-							widthList.push_back(subWidth);
-							heightList.push_back(subHeight);
+							widthList.push_back((float)subWidth);
+							heightList.push_back((float)subHeight);
 							spriteCount++;
 						}
 					}

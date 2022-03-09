@@ -12,7 +12,7 @@
 #define DE4_LIGHT_AMBIENT 1
 #define DE4_LIGHT_POINT 2
 #define DE4_MAX_INFOLOG_LENGTH 1024
-#define DE4_VERSION "0.14.4b"
+#define DE4_VERSION "0.15.5b"
 
 //DE4 key defines
 #define DE4_MSE_RCLICK			   0
@@ -177,8 +177,8 @@ DE4_API void ENTDestroy(unsigned int code);
 DE4_API void ENTDestroyAll();
 DE4_API float ENTGetX();
 DE4_API float ENTGetY();
-DE4_API int ENTGetWidth();
-DE4_API int ENTGetHeight();
+DE4_API float ENTGetWidth();
+DE4_API float ENTGetHeight();
 DE4_API void ENTSetX(float x);
 DE4_API void ENTSetY(float y);
 DE4_API void ENTSetPosition(float x, float y);
