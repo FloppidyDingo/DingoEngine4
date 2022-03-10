@@ -588,7 +588,7 @@ void frameUpdate() {
 							fCollision(e1.codeID, e2.codeID);
 						}
 						for (unsigned int i = 0; i < GameStates.size(); i++) {
-							if (GameStates[i].fCollide != nullptr && GameStates[i].isEnabled()) {
+							if (GameStates[i].fCollide != nullptr && GameStates[i].isEnabled() && intersect) {
 								GameStates[i].fCollide(e1.codeID, e2.codeID);
 							}
 						}
