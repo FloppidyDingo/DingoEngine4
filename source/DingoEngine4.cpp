@@ -420,9 +420,9 @@ void frameUpdate() {
 		}
 
 		//collisions and friction
-		bool xFrictionApplied = false;
-		bool yFrictionApplied = false;
 		for (entry& ent1 : scene.Entities) {
+			bool xFrictionApplied = false;
+			bool yFrictionApplied = false;
 			if (((Entities[ent1.index].dir[0] != 0) || (Entities[ent1.index].dir[1] != 0)) && Entities[ent1.index].isSolid()) {
 				for (entry& ent2 : scene.Entities) {
 					Entity e1 = Entities[ent1.index];  //moving entity
