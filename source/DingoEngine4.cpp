@@ -179,9 +179,9 @@ std::vector<KbdEvent*> keys;
 std::string tilePath;
 void (*fTagStart)(const char tag[]);
 void (*fTagVariable)(const char id[], const char value[]);
-void(*fEntityCreated)(unsigned int codeID);
-void(*fTriggerCreated)(unsigned int codeID);
-void(*fLightCreated)(unsigned int codeID);
+bool(*fEntityCreated)(unsigned int codeID);
+bool(*fTriggerCreated)(unsigned int codeID);
+bool(*fLightCreated)(unsigned int codeID);
 struct objectData {
 	std::string objectID;
 	std::string tileID;
@@ -2736,15 +2736,15 @@ void MAPVariableCallback(void(*func)(const char id[], const char value[])) {
 	fTagVariable = func;
 }
 
-void MAPEntityCreationCallback(void(*func)(unsigned int codeID)) {
+void MAPEntityCreationCallback(bool(*func)(unsigned int codeID)) {
 	fEntityCreated = func;
 }
 
-void MAPTriggerCreationCallback(void(*func)(unsigned int codeID)) {
+void MAPTriggerCreationCallback(bool(*func)(unsigned int codeID)) {
 	fTriggerCreated = func;
 }
 
-void MAPLightCreationCallback(void(*func)(unsigned int codeID)) {
+void MAPLightCreationCallback(bool(*func)(unsigned int codeID)) {
 	fLightCreated = func;
 }
 
@@ -2905,7 +2905,7 @@ void MAPGenerate(const char path[], unsigned int sceneID) {
 					
 					//use placeholder object to create object (use tag in tags vector to determine witch object to create)
 					if (tags[0] == "tile") {
-						ENTCreate();
+						unsigned int ent = ENTCreate();
 						ENTSetID(object.objectID.data());
 						//scan tilesheet id
 						for (TileSheet sheet : Tilesheets) {
@@ -2925,28 +2925,36 @@ void MAPGenerate(const char path[], unsigned int sceneID) {
 						ENTSetInvertY(object.invertY);
 						ENTSetPosition(x, y);
 
-						SCNAddEntity();
-
 						if (fEntityCreated != nullptr) {
-							fEntityCreated(Entities[activeEntity].codeID);
+							if (fEntityCreated(Entities[activeEntity].codeID)) {
+								SCNAddEntity();
+							} else {
+								ENTDestroy(ent);
+							}
+						} else {
+							SCNAddEntity();
 						}
 
 						log("Entity created " + Entities[activeEntity].getID());
 					} else if (tags[0] == "trigger") {
-						TRGCreate();
+						unsigned int trg = TRGCreate();
 						TRGSetID(object.objectID.data());
 						TRGSetSize(object.width, object.height);
 						TRGSetPosition(x, y);
 
-						SCNAddTrigger();
-
 						if (fTriggerCreated != nullptr) {
-							fTriggerCreated(Triggers[activeTrigger].codeID);
+							if (fTriggerCreated(Triggers[activeTrigger].codeID)) {
+								SCNAddTrigger();
+							} else {
+								TRGDestroy(trg);
+							}
+						} else {
+							SCNAddTrigger();
 						}
 
 						log("Trigger created " + Triggers[activeTrigger].getID());
 					} else if (tags[0] == "light") {
-						LGTCreate();
+						unsigned int lgt = LGTCreate();
 						LGTSetID(object.objectID.data());
 						if (object.ambient) {
 							LGTSetType(DE4_LIGHT_AMBIENT);
@@ -2958,10 +2966,14 @@ void MAPGenerate(const char path[], unsigned int sceneID) {
 						LGTSetColor(object.red, object.green, object.blue);
 						LGTSetPosition(x, y);
 
-						SCNAddLight();
-
 						if (fLightCreated != nullptr) {
-							fLightCreated(Lights[activeLight].codeID);
+							if (fLightCreated(Lights[activeLight].codeID)) {
+								SCNAddLight();
+							} else {
+								LGTDestroy(lgt);
+							}
+						} else {
+							SCNAddLight();
 						}
 
 						log("Light created " + Lights[activeLight].getID());

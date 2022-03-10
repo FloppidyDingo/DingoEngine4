@@ -372,9 +372,9 @@ DE4_API bool AUDisSpatial();
 DE4_API void MAPSetTileFolder(const char path[]);
 DE4_API void MAPStartTagCallback(void(*func)(const char tag[]));
 DE4_API void MAPVariableCallback(void(*func)(const char id[], const char value[]));
-DE4_API void MAPEntityCreationCallback(void(*func)(unsigned int codeID));
-DE4_API void MAPTriggerCreationCallback(void(*func)(unsigned int codeID));
-DE4_API void MAPLightCreationCallback(void(*func)(unsigned int codeID));
+DE4_API void MAPEntityCreationCallback(bool(*func)(unsigned int codeID));
+DE4_API void MAPTriggerCreationCallback(bool(*func)(unsigned int codeID));
+DE4_API void MAPLightCreationCallback(bool(*func)(unsigned int codeID));
 DE4_API void MAPGenerate(const char path[], unsigned int sceneID);
 //DE4_API void MAP
 
