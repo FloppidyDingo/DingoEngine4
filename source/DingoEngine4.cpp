@@ -735,10 +735,10 @@ void frameUpdate() {
 			//process texture atlas
 			atlasTile tile = ent.getTileSheet().atlas[ent.getFrame()];
 			texData = {
-				tile.tlu, tile.tlv,
-				tile.tru, tile.trv,
-				tile.bru, tile.brv,
-				tile.blu, tile.blv
+				tile.tlu + 0.00001f, tile.tlv,
+				tile.tru + 0.00001f, tile.trv,
+				tile.bru - 0.00001f, tile.brv,
+				tile.blu - 0.00001f, tile.blv
 				
 			};
 

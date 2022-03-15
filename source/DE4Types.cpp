@@ -525,11 +525,11 @@ void TileSheet::createSheet(std::string url_base, std::string url_def)
 							atlasTile tile;
 							tile.tlu = (float)stx / (float)width;
 							tile.tlv = (float)sty / (float)height;
-							tile.tru = (float)edx / (float)width;
+							tile.tru = (float)(edx + 1) / (float)width;
 							tile.trv = (float)sty / (float)height;
 							tile.blu = (float)stx / (float)width;
 							tile.blv = (float)edy / (float)height;
-							tile.bru = (float)edx / (float)width;
+							tile.bru = (float)(edx + 1) / (float)width;
 							tile.brv = (float)edy / (float)height;
 							
 							//add frame to atlas
