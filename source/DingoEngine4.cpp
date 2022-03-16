@@ -239,7 +239,7 @@ void frameUpdate() {
 	kbdreleases = 0;
 	std::copy(std::begin(kbdreleasekey), std::end(kbdreleasekey), std::begin(kbdtmprls));
 
-	if (kbdtmppresses > 0) {
+	if (kbdtmppresses > 0 && keys.size() > 0) {
 		//parse through detected key presses
 		for (int i = 0; i < kbdtmppresses; i++) {
 			//pass key press to event handler
@@ -259,13 +259,16 @@ void frameUpdate() {
 					break;
 				}
 			}
+			if (keyBreak) {
+				break;
+			}
 			//log key event
 			if (deepDebug) {
 				logFile << getMillis() << " | Key Pressed: " << keys[kbdtmpprs[i]]->id.c_str() << std::endl;
 			}
 		}
 	}
-	if (kbdtmpreleases > 0) {
+	if (kbdtmpreleases > 0 && keys.size() > 0) {
 		for (int i = 0; i < kbdtmpreleases; i++) {
 			if (fKeyReleased != nullptr) {
 				fKeyReleased(keys[kbdtmprls[i]]->id.c_str());
@@ -280,6 +283,9 @@ void frameUpdate() {
 				if (keyBreak) {
 					break;
 				}
+			}
+			if (keyBreak) {
+				break;
 			}
 			if (deepDebug) {
 				logFile << getMillis() << " | Key Released:" << keys[kbdtmprls[i]]->id.c_str() << std::endl;
