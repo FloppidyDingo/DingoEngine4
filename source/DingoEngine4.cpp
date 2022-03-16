@@ -2934,14 +2934,14 @@ void MAPGenerate(const char path[], unsigned int sceneID) {
 						if (fEntityCreated != nullptr) {
 							if (fEntityCreated(Entities[activeEntity].codeID)) {
 								SCNAddEntity();
+								log("Entity created " + Entities[activeEntity].getID());
 							} else {
 								ENTDestroy(ent);
 							}
 						} else {
 							SCNAddEntity();
+							log("Entity created " + Entities[activeEntity].getID());
 						}
-
-						log("Entity created " + Entities[activeEntity].getID());
 					} else if (tags[0] == "trigger") {
 						unsigned int trg = TRGCreate();
 						TRGSetID(object.objectID.data());
@@ -2951,14 +2951,14 @@ void MAPGenerate(const char path[], unsigned int sceneID) {
 						if (fTriggerCreated != nullptr) {
 							if (fTriggerCreated(Triggers[activeTrigger].codeID)) {
 								SCNAddTrigger();
+								log("Trigger created " + Triggers[activeTrigger].getID());
 							} else {
 								TRGDestroy(trg);
 							}
 						} else {
 							SCNAddTrigger();
+							log("Trigger created " + Triggers[activeTrigger].getID());
 						}
-
-						log("Trigger created " + Triggers[activeTrigger].getID());
 					} else if (tags[0] == "light") {
 						unsigned int lgt = LGTCreate();
 						LGTSetID(object.objectID.data());
@@ -2975,14 +2975,14 @@ void MAPGenerate(const char path[], unsigned int sceneID) {
 						if (fLightCreated != nullptr) {
 							if (fLightCreated(Lights[activeLight].codeID)) {
 								SCNAddLight();
+								log("Light created " + Lights[activeLight].getID());
 							} else {
 								LGTDestroy(lgt);
 							}
 						} else {
 							SCNAddLight();
+							log("Light created " + Lights[activeLight].getID());
 						}
-
-						log("Light created " + Lights[activeLight].getID());
 					}
 				}
 
