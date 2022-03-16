@@ -2784,7 +2784,8 @@ void MAPGenerate(const char path[], unsigned int sceneID) {
 	log("Map file read successfully, compiling: " + std::string(path));
 
 	//scan tag data
-	for (std::string str : data) {
+	for (unsigned int i = 0; i < data.size(); i++) {
+		std::string str = data[i];
 		switch (mode) {
 			case 0: {
 				if (str.data()[0] == '<' && str.data()[1] != '/') { //check if string is an opening tag
@@ -2889,6 +2890,11 @@ void MAPGenerate(const char path[], unsigned int sceneID) {
 					}
 
 					//exit text mode and break
+					mode = 0;
+					break;
+				} else if (str.data()[0] == '<' && str.data()[1] != '/') { //check if next tag is an open tag
+					//rewind and process tag
+					i--;
 					mode = 0;
 					break;
 				}
