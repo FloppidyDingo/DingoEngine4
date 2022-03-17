@@ -706,27 +706,27 @@ void frameUpdate() {
 			};
 			// x inversion
 			if (ent.isInvertX()) {
-				vertData[0] = (ent.x * globalScale) + (ent.getWidth() * globalScale / 2);
-				vertData[3] = (ent.x * globalScale) - (ent.getWidth() * globalScale / 2);
-				vertData[6] = (ent.x * globalScale) - (ent.getWidth() * globalScale / 2);
-				vertData[9] = (ent.x * globalScale) + (ent.getWidth() * globalScale / 2);
+				vertData[0] = ((ent.x - gcx) * globalScale) + (ent.getWidth() * globalScale / 2);
+				vertData[3] = ((ent.x - gcx) * globalScale) - (ent.getWidth() * globalScale / 2);
+				vertData[6] = ((ent.x - gcx) * globalScale) - (ent.getWidth() * globalScale / 2);
+				vertData[9] = ((ent.x - gcx) * globalScale) + (ent.getWidth() * globalScale / 2);
 			} else {
-				vertData[0] = (ent.x * globalScale) - (ent.getWidth() * globalScale / 2);
-				vertData[3] = (ent.x * globalScale) + (ent.getWidth() * globalScale / 2);
-				vertData[6] = (ent.x * globalScale) + (ent.getWidth() * globalScale / 2);
-				vertData[9] = (ent.x * globalScale) - (ent.getWidth() * globalScale / 2);
+				vertData[0] = ((ent.x - gcx) * globalScale) - (ent.getWidth() * globalScale / 2);
+				vertData[3] = ((ent.x - gcx) * globalScale) + (ent.getWidth() * globalScale / 2);
+				vertData[6] = ((ent.x - gcx) * globalScale) + (ent.getWidth() * globalScale / 2);
+				vertData[9] = ((ent.x - gcx) * globalScale) - (ent.getWidth() * globalScale / 2);
 			}
 			//y inversion
 			if (ent.isInvertY()) {
-				vertData[1] = (ent.y * globalScale) - (ent.getHeight() * globalScale / 2);
-				vertData[4] = (ent.y * globalScale) - (ent.getHeight() * globalScale / 2);
-				vertData[7] = (ent.y * globalScale) + (ent.getHeight() * globalScale / 2);
-				vertData[10] = (ent.y * globalScale) + (ent.getHeight() * globalScale / 2);
+				vertData[1] = ((ent.y - gcy) * globalScale) - (ent.getHeight() * globalScale / 2);
+				vertData[4] = ((ent.y - gcy) * globalScale) - (ent.getHeight() * globalScale / 2);
+				vertData[7] = ((ent.y - gcy) * globalScale) + (ent.getHeight() * globalScale / 2);
+				vertData[10] = ((ent.y - gcy) * globalScale) + (ent.getHeight() * globalScale / 2);
 			} else {
-				vertData[1] = (ent.y * globalScale) + (ent.getHeight() * globalScale / 2);
-				vertData[4] = (ent.y * globalScale) + (ent.getHeight() * globalScale / 2);
-				vertData[7] = (ent.y * globalScale) - (ent.getHeight() * globalScale / 2);
-				vertData[10] = (ent.y * globalScale) - (ent.getHeight() * globalScale / 2);
+				vertData[1] = ((ent.y - gcy) * globalScale) + (ent.getHeight() * globalScale / 2);
+				vertData[4] = ((ent.y - gcy) * globalScale) + (ent.getHeight() * globalScale / 2);
+				vertData[7] = ((ent.y - gcy) * globalScale) - (ent.getHeight() * globalScale / 2);
+				vertData[10] = ((ent.y - gcy) * globalScale) - (ent.getHeight() * globalScale / 2);
 			}
 			//rescale to screen coords
 			vertData[0] = vertData[0] / resolutionX * 2;
@@ -741,10 +741,10 @@ void frameUpdate() {
 			//process texture atlas
 			atlasTile tile = ent.getTileSheet().atlas[ent.getFrame()];
 			texData = {
-				tile.tlu + 0.00001f, tile.tlv,
-				tile.tru + 0.00001f, tile.trv,
-				tile.bru - 0.00001f, tile.brv,
-				tile.blu - 0.00001f, tile.blv
+				tile.tlu, tile.tlv,
+				tile.tru, tile.trv,
+				tile.bru, tile.brv,
+				tile.blu, tile.blv
 				
 			};
 
@@ -1379,7 +1379,7 @@ void error(std::string error) {
 #pragma endregion
 
 //DLL Implimentation ---------------------------------------------------------------------------------------
-#pragma region Engine Configuration
+#pragma region Engine Configuration and control
 void DE4SetScene(unsigned int sceneID)
 {
 	unsigned int i = 0;
@@ -1462,6 +1462,60 @@ void DE4ReleaseThreadContext() {
 }
 #pragma endregion
 
+#pragma region camera controls
+void CAMSetPostion(float cam[]) {
+	camPos[0] = cam[0];
+	camPos[1] = cam[1];
+}
+
+void CAMGetPosition(float cam[]) {
+	cam[0] = camPos[0];
+	cam[1] = camPos[1];
+}
+
+void CAMSetVector(float vec[]) {
+	camDir[0] = vec[0];
+	camDir[1] = vec[1];
+}
+
+void CAMGetVector(float vec[]) {
+	vec[0] = camDir[0];
+	vec[1] = camDir[1];
+}
+
+float CAMGetX() {
+	return camPos[0];
+}
+
+float CAMGetY() {
+	return camPos[1];
+}
+
+void CAMSetX(float x) {
+	camPos[0] = x;
+}
+
+void CAMSetY(float y) {
+	camPos[1] = y;
+}
+
+void CAMMoveX(float vx) {
+	camPos[0] += vx;
+}
+
+void CAMMoveY(float vy) {
+	camPos[1] += vy;
+}
+
+void CAMSetDirX(float dx) {
+	camDir[0] = dx;
+}
+
+void CAMSetDirY(float dy) {
+	camDir[1] = dy;
+}
+#pragma endregion
+
 #pragma region Physics Functions
 void PHYSetMode(unsigned int mode)
 {
@@ -1476,30 +1530,6 @@ void PHYSetTerminalVelocity(float vel)
 void PHYSetGravity(float grav)
 {
 	gravity = grav;
-}
-
-DE4_API void PHYSetCamPostion(float cam[])
-{
-	camPos[0] = cam[0];
-	camPos[1] = cam[1];
-}
-
-void PHYGetCamPosition(float cam[])
-{
-	cam[0] = camPos[0];
-	cam[1] = camPos[1];
-}
-
-void PHYSetCamVector(float vec[])
-{
-	camDir[0] = vec[0];
-	camDir[1] = vec[1];
-}
-
-void PHYGetCamVector(float vec[])
-{
-	vec[0] = camDir[0];
-	vec[1] = camDir[1];
 }
 
 unsigned int PHYAddNoCollide(unsigned int groupA, unsigned int groupB)

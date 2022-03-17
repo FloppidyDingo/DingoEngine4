@@ -12,7 +12,7 @@
 #define DE4_LIGHT_AMBIENT 1
 #define DE4_LIGHT_POINT 2
 #define DE4_MAX_INFOLOG_LENGTH 1024
-#define DE4_VERSION "0.15.10b"
+#define DE4_VERSION "0.16.11b"
 
 //DE4 key defines
 #define DE4_MSE_RCLICK			   0
@@ -156,14 +156,25 @@ DE4_API void DE4AssignThreadContext();
 DE4_API void DE4ReleaseThreadContext();
 //DE4_API void DE4
 
-//Pysics Functions-----------------------------------------------------------------------------------------------------
+//Camera Functions---------------------------------------------------------------------------------------------------
+DE4_API void CAMSetPostion(float cam[]);
+DE4_API void CAMGetPosition(float cam[]);
+DE4_API void CAMSetVector(float vec[]);
+DE4_API void CAMGetVector(float vec[]);
+DE4_API float CAMGetX();
+DE4_API float CAMGetY();
+DE4_API void CAMSetX(float x);
+DE4_API void CAMSetY(float y);
+DE4_API void CAMMoveX(float vx);
+DE4_API void CAMMoveY(float vy);
+DE4_API void CAMSetDirX(float dx);
+DE4_API void CAMSetDirY(float dy);
+//DE4_API void CAM
+
+//Pysics Functions---------------------------------------------------------------------------------------------------
 DE4_API void PHYSetMode(unsigned int mode);
 DE4_API void PHYSetTerminalVelocity(float vel);
 DE4_API void PHYSetGravity(float grav);
-DE4_API void PHYSetCamPostion(float cam[]);
-DE4_API void PHYGetCamPosition(float cam[]);
-DE4_API void PHYSetCamVector(float vec[]);
-DE4_API void PHYGetCamVector(float vec[]);
 DE4_API unsigned int PHYAddNoCollide(unsigned int groupA, unsigned int groupB);
 DE4_API void PHYRemoveNoCollide(unsigned int id);
 DE4_API unsigned int* PHYGetNoCollide(unsigned int id);
