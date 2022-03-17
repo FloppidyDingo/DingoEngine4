@@ -523,13 +523,13 @@ void TileSheet::createSheet(std::string url_base, std::string url_def)
 
 							//calculate frame UV coordinates
 							atlasTile tile;
-							tile.tlu = (float)stx / (float)width;
+							tile.tlu = ((float)stx + 0.001) / (float)width;
 							tile.tlv = (float)sty / (float)height;
-							tile.tru = (float)(edx + 1) / (float)width;
+							tile.tru = ((float)(edx + 1) - 0.001) / (float)width;
 							tile.trv = (float)sty / (float)height;
-							tile.blu = (float)stx / (float)width;
+							tile.blu = ((float)stx + 0.001) / (float)width;
 							tile.blv = (float)edy / (float)height;
-							tile.bru = (float)(edx + 1) / (float)width;
+							tile.bru = ((float)(edx + 1) - 0.001) / (float)width;
 							tile.brv = (float)edy / (float)height;
 							
 							//add frame to atlas
