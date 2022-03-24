@@ -178,6 +178,7 @@ std::vector<KbdEvent*> keys;
 //Map generation
 std::string tilePath;
 void (*fTagStart)(const char tag[]);
+void (*fTagEnd)(const char tag[]);
 void (*fTagVariable)(const char id[], const char value[]);
 bool(*fEntityCreated)(unsigned int codeID);
 bool(*fTriggerCreated)(unsigned int codeID);
@@ -2768,6 +2769,10 @@ void MAPStartTagCallback(void(*func)(const char tag[])) {
 	fTagStart = func;
 }
 
+void MAPEndTagCallback(void(*func)(const char tag[])) {
+	fTagEnd = func;
+}
+
 void MAPVariableCallback(void(*func)(const char id[], const char value[])) {
 	fTagVariable = func;
 }
@@ -2915,6 +2920,9 @@ void MAPGenerate(const char path[], unsigned int sceneID) {
 					//check if closing tag is the same as opening tag, then remove
 					if (tags[0] == str) {
 						tags.erase(tags.begin());
+						if (fTagEnd != nullptr) {
+							fTagEnd(str.data());
+						}
 					} else {
 						error("Tag mismatch error!");
 					}

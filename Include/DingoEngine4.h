@@ -12,7 +12,7 @@
 #define DE4_LIGHT_AMBIENT 1
 #define DE4_LIGHT_POINT 2
 #define DE4_MAX_INFOLOG_LENGTH 1024
-#define DE4_VERSION "0.16.11b"
+#define DE4_VERSION "0.17.12b"
 
 //DE4 key defines
 #define DE4_MSE_RCLICK			   0
@@ -382,6 +382,7 @@ DE4_API bool AUDisSpatial();
 //Map Generation-----------------------------------------------------------------------------------------------------
 DE4_API void MAPSetTileFolder(const char path[]);
 DE4_API void MAPStartTagCallback(void(*func)(const char tag[]));
+DE4_API void MAPEndTagCallback(void(*func)(const char tag[]));
 DE4_API void MAPVariableCallback(void(*func)(const char id[], const char value[]));
 DE4_API void MAPEntityCreationCallback(bool(*func)(unsigned int codeID));
 DE4_API void MAPTriggerCreationCallback(bool(*func)(unsigned int codeID));
