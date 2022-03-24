@@ -27,19 +27,19 @@ void main(){
 				break;
 			}
 			case 1:{ //ambient
-				temp4.r = Lights[i + 1];
-				temp4.g = Lights[i + 2];
-				temp4.b = Lights[i + 3];
-				temp4.a = Lights[i + 4];
+				temp4.r = Lights[i + 1] * Lights[i + 4];
+				temp4.g = Lights[i + 2] * Lights[i + 4];
+				temp4.b = Lights[i + 3] * Lights[i + 4];
+				temp4.a = 1;
 				lightColor = mix(lightColor, temp4, temp4.a);
 				i += 7;
 				break;
 			}
 			case 2:{ //point light
-				temp4.r = Lights[i + 1];
-				temp4.g = Lights[i + 2];
-				temp4.b = Lights[i + 3];
-				temp4.a = Lights[i + 4];
+				temp4.r = Lights[i + 1] * Lights[i + 4];
+				temp4.g = Lights[i + 2] * Lights[i + 4];
+				temp4.b = Lights[i + 3] * Lights[i + 4];
+				temp4.a = 1;
 				temp2.x = Lights[i + 5];
 				temp2.y = Lights[i + 6];
 				tempf = Lights[i + 7];
