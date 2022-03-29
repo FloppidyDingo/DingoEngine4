@@ -454,7 +454,7 @@ void frameUpdate() {
 							break;
 						}
 					}
-					float moveFactor = (fabs(e1.dir[0]) + fabs(e1.dir[1])) + e1.getWidth() + e1.getHeight() + e2.getWidth() + e2.getHeight();
+					float moveFactor = (fabs(e1.dir[0]) + fabs(e1.dir[1])) + (e1.getWidth() / 2) + (e1.getHeight() / 2) + (e2.getWidth() / 2) + (e2.getHeight() / 2);
 					//Check and exexute physics calculations
 					if ((e1.codeID != e2.codeID) && !noCollide && e2.isSolid() && range(e1, e2) < moveFactor) {
 						/*

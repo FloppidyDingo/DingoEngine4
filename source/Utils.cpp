@@ -47,11 +47,7 @@ void loadImage(unsigned char*& buffer, unsigned int& iWidth, unsigned int& iHeig
 
 float range(Entity e1, Entity e2)
 {
-	float x1 = e1.x;
-	float x2 = e2.x;
-	float y1 = e1.y;
-	float y2 = e2.y;
-	return sqrtf(powf(x2 - x1, 2) + powf(y2 - y1, 2));
+	return sqrtf(powf(e2.x - e1.x, 2) + powf(e2.y - e1.y, 2));
 }
 
 float clamp(float val, float min, float max)
