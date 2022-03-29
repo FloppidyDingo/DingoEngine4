@@ -12,7 +12,7 @@
 #define DE4_LIGHT_AMBIENT 1
 #define DE4_LIGHT_POINT 2
 #define DE4_MAX_INFOLOG_LENGTH 1024
-#define DE4_VERSION "0.17.12b"
+#define DE4_VERSION "0.18.12b"
 
 //DE4 key defines
 #define DE4_MSE_RCLICK			   0
@@ -387,7 +387,10 @@ DE4_API void MAPVariableCallback(void(*func)(const char id[], const char value[]
 DE4_API void MAPEntityCreationCallback(bool(*func)(unsigned int codeID));
 DE4_API void MAPTriggerCreationCallback(bool(*func)(unsigned int codeID));
 DE4_API void MAPLightCreationCallback(bool(*func)(unsigned int codeID));
-DE4_API void MAPGenerate(const char path[], unsigned int sceneID);
+DE4_API void MAPGenerate(const char path[], unsigned int sceneID, bool cleanup);
+DE4_API void MAPAddCleanupEntity(unsigned int entID);
+DE4_API void MAPAddCleanupLight(unsigned int lightID);
+DE4_API void MAPAddCleanupTrigger(unsigned int trigID);
 //DE4_API void MAP
 
 //Utilities----------------------------------------------------------------------------------------------------------

@@ -183,6 +183,9 @@ void (*fTagVariable)(const char id[], const char value[]);
 bool(*fEntityCreated)(unsigned int codeID);
 bool(*fTriggerCreated)(unsigned int codeID);
 bool(*fLightCreated)(unsigned int codeID);
+std::vector<unsigned int> cleanupENTs;
+std::vector<unsigned int> cleanupLGTs;
+std::vector<unsigned int> cleanupTRGs;
 struct objectData {
 	std::string objectID;
 	std::string tileID;
@@ -2789,13 +2792,28 @@ void MAPLightCreationCallback(bool(*func)(unsigned int codeID)) {
 	fLightCreated = func;
 }
 
-void MAPGenerate(const char path[], unsigned int sceneID) {
+void MAPGenerate(const char path[], unsigned int sceneID, bool cleanup) {
 	//create and open map file
 	std::ifstream inputFile;
 	inputFile.open(path);
 	if (!inputFile.is_open()) {
 		logFile << getMillis() << " | Map file failed to open: " << path << std::endl;
 		return;
+	}
+
+	if (cleanup) {
+		for (unsigned int id : cleanupENTs) {
+			ENTDestroy(id);
+		}
+		for (unsigned int id : cleanupTRGs) {
+			TRGDestroy(id);
+		}
+		for (unsigned int id : cleanupLGTs) {
+			LGTDestroy(id);
+		}
+		cleanupENTs.clear();
+		cleanupTRGs.clear();
+		cleanupLGTs.clear();
 	}
 
 	//create map generation data
@@ -2978,12 +2996,14 @@ void MAPGenerate(const char path[], unsigned int sceneID) {
 						if (fEntityCreated != nullptr) {
 							if (fEntityCreated(Entities[activeEntity].codeID)) {
 								SCNAddEntity();
+								cleanupENTs.push_back(ent);
 								log("Entity created " + Entities[activeEntity].getID());
 							} else {
 								ENTDestroy(ent);
 							}
 						} else {
 							SCNAddEntity();
+							cleanupENTs.push_back(ent);
 							log("Entity created " + Entities[activeEntity].getID());
 						}
 					} else if (tags[0] == "trigger") {
@@ -2995,12 +3015,14 @@ void MAPGenerate(const char path[], unsigned int sceneID) {
 						if (fTriggerCreated != nullptr) {
 							if (fTriggerCreated(Triggers[activeTrigger].codeID)) {
 								SCNAddTrigger();
+								cleanupTRGs.push_back(trg);
 								log("Trigger created " + Triggers[activeTrigger].getID());
 							} else {
 								TRGDestroy(trg);
 							}
 						} else {
 							SCNAddTrigger();
+							cleanupTRGs.push_back(trg);
 							log("Trigger created " + Triggers[activeTrigger].getID());
 						}
 					} else if (tags[0] == "light") {
@@ -3019,12 +3041,14 @@ void MAPGenerate(const char path[], unsigned int sceneID) {
 						if (fLightCreated != nullptr) {
 							if (fLightCreated(Lights[activeLight].codeID)) {
 								SCNAddLight();
+								cleanupLGTs.push_back(lgt);
 								log("Light created " + Lights[activeLight].getID());
 							} else {
 								LGTDestroy(lgt);
 							}
 						} else {
 							SCNAddLight();
+							cleanupLGTs.push_back(lgt);
 							log("Light created " + Lights[activeLight].getID());
 						}
 					}
@@ -3034,6 +3058,18 @@ void MAPGenerate(const char path[], unsigned int sceneID) {
 			}
 		}
 	}
+}
+
+void MAPAddCleanupEntity(unsigned int entID) {
+	cleanupENTs.push_back(entID);
+}
+
+void MAPAddCleanupLight(unsigned int lightID) {
+	cleanupLGTs.push_back(lightID);
+}
+
+void MAPAddCleanupTrigger(unsigned int trigID) {
+	cleanupTRGs.push_back(trigID);
 }
 #pragma endregion
 
