@@ -480,60 +480,60 @@ void frameUpdate() {
 						bool intersect = false;
 
 						//solid rectangle
-						bx1 = e2.x - (e2.getWidth() / 2);
-						by1 = e2.y + (e2.getHeight() / 2);
-						bx2 = e2.x + (e2.getWidth() / 2);
-						by2 = e2.y - (e2.getHeight() / 2);
+						bx1 = e2.x - (e2.getPhysWidth() / 2);
+						by1 = e2.y + (e2.getPhysHeight() / 2);
+						bx2 = e2.x + (e2.getPhysWidth() / 2);
+						by2 = e2.y - (e2.getPhysHeight() / 2);
 
 						//x intersect
 						//moving rectangle
 						if (e1.dir[0] > 0) {
-							ax1 = e1.x - (e1.getWidth() / 2);
-							ax2 = e1.x + (e1.getWidth() / 2) + e1.dir[0];
+							ax1 = e1.x - (e1.getPhysWidth() / 2);
+							ax2 = e1.x + (e1.getPhysWidth() / 2) + e1.dir[0];
 						} else {
-							ax1 = e1.x - (e1.getWidth() / 2) + e1.dir[0];
-							ax2 = e1.x + (e1.getWidth() / 2);
+							ax1 = e1.x - (e1.getPhysWidth() / 2) + e1.dir[0];
+							ax2 = e1.x + (e1.getPhysWidth() / 2);
 						}
-						ay1 = e1.y + (e1.getHeight() / 2);
-						ay2 = e1.y - (e1.getHeight() / 2);
+						ay1 = e1.y + (e1.getPhysHeight() / 2);
+						ay2 = e1.y - (e1.getPhysHeight() / 2);
 						//compare rectangles
 						if (ax1 < bx2 && ax2 > bx1 && ay1 > by2 && ay2 < by1) {
 							//intersect detected
 							intersect = true;
 							if ((e1.x > e2.x)) {
-								e1.dir[0] = -((e1.x - (e1.getWidth() / 2)) - (e2.x + (e2.getWidth() / 2)));
+								e1.dir[0] = -((e1.x - (e1.getPhysWidth() / 2)) - (e2.x + (e2.getPhysWidth() / 2)));
 							} else if ((e1.x < e2.x)) {
-								e1.dir[0] = (e2.x - (e2.getWidth() / 2)) - (e1.x + (e1.getWidth() / 2));
+								e1.dir[0] = (e2.x - (e2.getPhysWidth() / 2)) - (e1.x + (e1.getPhysWidth() / 2));
 							}
 						}
 
 						//y intersect
 						if (e1.dir[1] > 0) {
-							ay1 = e1.y + (e1.getHeight() / 2) + e1.dir[1];
-							ay2 = e1.y - (e1.getHeight() / 2);
+							ay1 = e1.y + (e1.getPhysHeight() / 2) + e1.dir[1];
+							ay2 = e1.y - (e1.getPhysHeight() / 2);
 						} else {
-							ay1 = e1.y + (e1.getHeight() / 2);
-							ay2 = e1.y - (e1.getHeight() / 2) + e1.dir[1];
+							ay1 = e1.y + (e1.getPhysHeight() / 2);
+							ay2 = e1.y - (e1.getPhysHeight() / 2) + e1.dir[1];
 						}
-						ax1 = e1.x - (e1.getWidth() / 2);
-						ax2 = e1.x + (e1.getWidth() / 2);
+						ax1 = e1.x - (e1.getPhysWidth() / 2);
+						ax2 = e1.x + (e1.getPhysWidth() / 2);
 						//compare rectangles
 						if (ax1 < bx2 && ax2 > bx1 && ay1 > by2 && ay2 < by1) {
 							//intersect detected
 							intersect = true;
 							if (e1.y > e2.y) {
-								e1.dir[1] = -((e1.y - (e1.getHeight() / 2)) - (e2.y + (e2.getHeight() / 2)));
+								e1.dir[1] = -((e1.y - (e1.getPhysHeight() / 2)) - (e2.y + (e2.getPhysHeight() / 2)));
 							} else if (e1.y < e2.y) {
-								e1.dir[1] = (e2.y - (e2.getHeight() / 2)) - (e1.y + (e1.getHeight() / 2));
+								e1.dir[1] = (e2.y - (e2.getPhysHeight() / 2)) - (e1.y + (e1.getPhysHeight() / 2));
 							}
 						}
 
 						//x top friction
 						if (!xFrictionApplied) {
-							ax1 = e1.x - (e1.getWidth() / 2);
-							ax2 = e1.x + (e1.getWidth() / 2);
-							ay1 = e1.y + (e1.getHeight() / 2) + 1;
-							ay2 = e1.y - (e1.getHeight() / 2);
+							ax1 = e1.x - (e1.getPhysWidth() / 2);
+							ax2 = e1.x + (e1.getPhysWidth() / 2);
+							ay1 = e1.y + (e1.getPhysHeight() / 2) + 1;
+							ay2 = e1.y - (e1.getPhysHeight() / 2);
 							//check if tile is above
 							if (ax1 < bx2 && ax2 > bx1 && ay1 > by2 && ay2 < by1) {
 								//intersect detected
@@ -543,10 +543,10 @@ void frameUpdate() {
 						}
 						//x bottom friction
 						if (!xFrictionApplied) {
-							ax1 = e1.x - (e1.getWidth() / 2);
-							ax2 = e1.x + (e1.getWidth() / 2);
-							ay1 = e1.y + (e1.getHeight() / 2);
-							ay2 = e1.y - (e1.getHeight() / 2) - 1;
+							ax1 = e1.x - (e1.getPhysWidth() / 2);
+							ax2 = e1.x + (e1.getPhysWidth() / 2);
+							ay1 = e1.y + (e1.getPhysHeight() / 2);
+							ay2 = e1.y - (e1.getPhysHeight() / 2) - 1;
 							//check if tile is below
 							if (ax1 < bx2 && ax2 > bx1 && ay1 > by2 && ay2 < by1) {
 								//intersect detected
@@ -556,10 +556,10 @@ void frameUpdate() {
 						}
 						//y left friction
 						if (!yFrictionApplied) {
-							ax1 = e1.x - (e1.getWidth() / 2) - 1;
-							ax2 = e1.x + (e1.getWidth() / 2);
-							ay1 = e1.y + (e1.getHeight() / 2);
-							ay2 = e1.y - (e1.getHeight() / 2);
+							ax1 = e1.x - (e1.getPhysWidth() / 2) - 1;
+							ax2 = e1.x + (e1.getPhysWidth() / 2);
+							ay1 = e1.y + (e1.getPhysHeight() / 2);
+							ay2 = e1.y - (e1.getPhysHeight() / 2);
 							//check if tile is left
 							if (ax1 < bx2 && ax2 > bx1 && ay1 > by2 && ay2 < by1) {
 								//intersect detected
@@ -569,10 +569,10 @@ void frameUpdate() {
 						}
 						//y right friction
 						if (!yFrictionApplied) {
-							ax1 = e1.x - (e1.getWidth() / 2);
-							ax2 = e1.x + (e1.getWidth() / 2) + 1;
-							ay1 = e1.y + (e1.getHeight() / 2);
-							ay2 = e1.y - (e1.getHeight() / 2);
+							ax1 = e1.x - (e1.getPhysWidth() / 2);
+							ax2 = e1.x + (e1.getPhysWidth() / 2) + 1;
+							ay1 = e1.y + (e1.getPhysHeight() / 2);
+							ay2 = e1.y - (e1.getPhysHeight() / 2);
 							//check if tile is right
 							if (ax1 < bx2 && ax2 > bx1 && ay1 > by2 && ay2 < by1) {
 								//intersect detected
@@ -1892,6 +1892,22 @@ bool ENTIsInvertY()
 unsigned int ENTGetIDCode()
 {
 	return Entities[activeEntity].codeID;
+}
+
+void ENTOverridePhysicsSize(float width, float height) {
+	Entities[activeEntity].setPhysWidth(width);
+	Entities[activeEntity].setPhysHeight(height);
+	Entities[activeEntity].setPhysOverride(true);
+}
+
+void ENTOverridePhysicsSize() {
+	Entities[activeEntity].setPhysWidth(Entities[activeEntity].getWidth());
+	Entities[activeEntity].setPhysHeight(Entities[activeEntity].getHeight());
+	Entities[activeEntity].setPhysOverride(true);
+}
+
+void ENTDisablePhysicsOverride() {
+	Entities[activeEntity].setPhysOverride(false);
 }
 #pragma endregion
 

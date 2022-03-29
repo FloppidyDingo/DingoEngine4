@@ -123,9 +123,12 @@ private:
 	bool visible = true;
 	bool solid = false;
 	bool active = true;
+	bool physOverride = false;
 	int frame = 0;
 	float width;
 	float height;
+	float physWidth;
+	float physHeight;
 	float scale = 1;
 	float scaleX = 1;
 	float scaleY = 1;
@@ -151,6 +154,8 @@ public:
 	int getFrame();
 	float getWidth();
 	float getHeight();
+	float getPhysWidth();
+	float getPhysHeight();
 	float getScale();
 	float getScaleX();
 	float getScaleY();
@@ -180,6 +185,9 @@ public:
 	void setBehavior(void (*func)(unsigned int id));
 	void setInvertX(bool invert);
 	void setInvertY(bool invert);
+	void setPhysOverride(bool ov);
+	void setPhysWidth(float pw);
+	void setPhysHeight(float ph);
 
 	void update();
 	int getTextureID();

@@ -12,7 +12,7 @@
 #define DE4_LIGHT_AMBIENT 1
 #define DE4_LIGHT_POINT 2
 #define DE4_MAX_INFOLOG_LENGTH 1024
-#define DE4_VERSION "0.18.13b"
+#define DE4_VERSION "0.19.13b"
 
 //DE4 key defines
 #define DE4_MSE_RCLICK			   0
@@ -235,6 +235,9 @@ DE4_API void ENTSetInvertY(bool invert);
 DE4_API bool ENTIsInvertX();
 DE4_API bool ENTIsInvertY();
 DE4_API unsigned int ENTGetIDCode();
+DE4_API void ENTOverridePhysicsSize(float width, float height);
+DE4_API void ENTOverridePhysicsSize();
+DE4_API void ENTDisablePhysicsOverride();
 //DE4_API void ENT();
 
 //Scene--------------------------------------------------------------------------------------------------------------

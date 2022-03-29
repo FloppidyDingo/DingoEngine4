@@ -59,6 +59,22 @@ float Entity::getHeight()
 	return height * scale * scaleY;
 }
 
+float Entity::getPhysWidth() {
+	if (physOverride) {
+		return physWidth;
+	} else {
+		return width * scale * scaleX;
+	}
+}
+
+float Entity::getPhysHeight() {
+	if (physOverride) {
+		return physHeight;
+	} else {
+		return height * scale * scaleX;
+	}
+}
+
 float Entity::getScale()
 {
 	return scale;
@@ -203,6 +219,18 @@ void Entity::setInvertX(bool invert)
 void Entity::setInvertY(bool invert)
 {
 	invertY = invert;
+}
+
+void Entity::setPhysOverride(bool ov) {
+	physOverride = ov;
+}
+
+void Entity::setPhysWidth(float pw) {
+	this->physWidth = pw;
+}
+
+void Entity::setPhysHeight(float ph) {
+	this->physHeight = ph;
 }
 
 /*Update Entity
