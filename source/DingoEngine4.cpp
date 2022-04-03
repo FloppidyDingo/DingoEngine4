@@ -923,8 +923,7 @@ void frameUpdate() {
 					glBufferData(GL_ARRAY_BUFFER, texData.size() * sizeof(GLfloat), &texData[0], GL_DYNAMIC_DRAW);
 					glVertexAttribPointer(LOC_TEX, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
 					//opacity
-					float opacData = ent.getOpacity();
-					glVertexAttrib1f(LOC_OPAC, opacData);
+					glVertexAttrib1f(LOC_OPAC, 1.0f);
 					//bind the texture
 					glActiveTexture(GL_TEXTURE0); // activate the texture unit first before binding texture (for compatibility with intel graphics)
 					glBindTexture(GL_TEXTURE_2D, prevID);
