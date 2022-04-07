@@ -329,12 +329,16 @@ void Animation::clearFrames()
 
 int Animation::update()
 {
+	if (stop) {
+		stop = false;
+		running = false;
+	}
 	if (running) {
 		if (currentFrame == frameSpacing) {
 			currentFrame = -1;
 			currentTile++;
 			if (singlePlay && currentTile == idList.size() - 1) {
-				running = false;
+				stop = true;
 			} else if (!singlePlay && currentTile == idList.size()) {
 				currentTile = 0;
 			}

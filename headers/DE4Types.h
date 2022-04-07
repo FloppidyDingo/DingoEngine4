@@ -94,6 +94,7 @@ private:
 	unsigned int currentTile = 0;
 	bool running = false;
 	bool singlePlay = true;
+	bool stop = false;
 
 public:
 	unsigned int codeID;
