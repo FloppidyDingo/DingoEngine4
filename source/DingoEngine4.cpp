@@ -332,8 +332,8 @@ void frameUpdate() {
 	long long userEnd = getMillis();
 	#pragma endregion
 
-	//rebuild scene if needed
-	#pragma region scene rebuild
+	//rebuild scene if needed and setup data
+	#pragma region setup
 	long long tListStart = getMillis();
 
 	unsigned int sceneIndex = 0;
@@ -399,6 +399,13 @@ void frameUpdate() {
 	//get current scene
 	Scene scene = Scenes.at(sceneIndex);
 
+	std::vector<entry*> physicsObjects;
+	for (entry& ent : scene.Entities) {
+		if (Entities[ent.index].isSolid()) {
+			physicsObjects.push_back(&ent);
+		}
+	}
+
 	long long tListEnd = getMillis();
 	#pragma endregion
 
@@ -430,13 +437,13 @@ void frameUpdate() {
 		}
 
 		//collisions and friction
-		for (entry& ent1 : scene.Entities) {
+		for (entry* ent1 : physicsObjects) {
 			bool xFrictionApplied = false;
 			bool yFrictionApplied = false;
-			if (((Entities[ent1.index].dir[0] != 0) || (Entities[ent1.index].dir[1] != 0)) && Entities[ent1.index].isSolid()) {
-				for (entry& ent2 : scene.Entities) {
-					Entity e1 = Entities[ent1.index];  //moving entity
-					Entity e2 = Entities[ent2.index]; //solid entity
+			if (((Entities[ent1->index].dir[0] != 0) || (Entities[ent1->index].dir[1] != 0))) {
+				for (entry* ent2 : physicsObjects) {
+					Entity e1 = Entities[ent1->index];  //moving entity
+					Entity e2 = Entities[ent2->index]; //solid entity
 
 					/*
 					Conditions for collision:
@@ -444,7 +451,7 @@ void frameUpdate() {
 						-moving entity has a velocity > 0 (checked previously)
 						-the code IDs do not match
 						-the combination of collision groups are not in a no-collide
-						-both entities are solid
+						-both entities are solid (implied since only solid entities are added to the physics list
 					*/
 					//check the noCollide list
 					bool noCollide = false;
@@ -456,7 +463,7 @@ void frameUpdate() {
 					}
 					float moveFactor = (fabs(e1.dir[0]) + fabs(e1.dir[1])) + (e1.getWidth() / 2) + (e1.getHeight() / 2) + (e2.getWidth() / 2) + (e2.getHeight() / 2);
 					//Check and exexute physics calculations
-					if ((e1.codeID != e2.codeID) && !noCollide && e2.isSolid() && range(e1, e2) < moveFactor) {
+					if ((e1.codeID != e2.codeID) && !noCollide && range(e1, e2) < moveFactor) {
 						/*
 						Collision detection
 							-Generate rectangle using moving's velocity
@@ -590,8 +597,8 @@ void frameUpdate() {
 						}
 
 						//apply modified directions to original entity
-						Entities[ent1.index].dir[0] = e1.dir[0];
-						Entities[ent1.index].dir[1] = e1.dir[1];
+						Entities[ent1->index].dir[0] = e1.dir[0];
+						Entities[ent1->index].dir[1] = e1.dir[1];
 
 						//event if intersect
 						if (fCollision != nullptr && intersect) {
@@ -971,7 +978,7 @@ void frameUpdate() {
 			" ||| TTOT: " + std::to_string(totalEnd - totalStart) + //Total frame time
 			" | TPHYS: " + std::to_string(physicsEnd - physicsStart) + //Physics time
 			" | TUSE: " + std::to_string(userEnd - userStart) + //Update and event handler time
-			" | TRBD: " + std::to_string(tListEnd - tListStart) + //Scene rebuild
+			" | TSET: " + std::to_string(tListEnd - tListStart) + //data setup time
 			" | TDRAW: " + std::to_string(drawEnd - drawStart) + //Render time
 			" | FPS: " + std::to_string(fps) + //frames per second
 			" | MSE: " + std::to_string(msex) + ", " + std::to_string(msey); //mouse position
@@ -2115,6 +2122,8 @@ void SCNClearAll()
 	Scenes[activeScene].clearEntities();
 	Scenes[activeScene].clearGUI();
 	Scenes[activeScene].clearLights();
+	Scenes[activeScene].clearGUIText();
+
 }
 #pragma endregion
 
