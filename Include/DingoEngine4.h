@@ -333,7 +333,7 @@ DE4_API void EVTAddKey(const char name[], int key);
 DE4_API void EVTRemoveKey(const char name[]);
 DE4_API void EVTClearKeys();
 DE4_API void EVTGetMousePos(float pos[]);
-DE4_API void EVTSetTriggerCallback(void (*func)(const char ID[], unsigned int entityID));
+DE4_API void EVTSetTriggerCallback(void (*func)(unsigned int trigID, unsigned int entityID));
 //DE4_API void EVT
 
 //Triggers-----------------------------------------------------------------------------------------------------------
@@ -414,7 +414,7 @@ DE4_API void GMSTSetCollision(void (*func)(unsigned int ida, unsigned int idb));
 DE4_API void GMSTSetKeyboardEvent(void (*func)());
 DE4_API void GMSTSetMousePressed(void (*func)(unsigned int button, float x, float y));
 DE4_API void GMSTSetMouseReleased(void (*func)(unsigned int button, float x, float y));
-DE4_API void GMSTSeTrigger(void (*func)(const char* id, unsigned int codeID));
+DE4_API void GMSTSetTrigger(void (*func)(unsigned int trigID, unsigned int entID));
 DE4_API void GMSTSetOnEnabledChange(void (*func)(bool enabled));
 DE4_API void GMSTSetEnabled(bool enabled);
 DE4_API void GMSTDisableAll();

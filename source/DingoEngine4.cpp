@@ -155,7 +155,7 @@ ALCdevice* audioDevice;
 
 //event handler
 void (*fUpdate)();
-void (*fTrigger)(const char ID[], unsigned int entityID);
+void (*fTrigger)(unsigned int trigID, unsigned int entityID);
 void (*fCollision)(unsigned int idA, unsigned int idB);
 void (*fKeyPressed)(const char ID[]);
 void (*fKeyReleased)(const char ID[]);
@@ -641,17 +641,14 @@ void frameUpdate() {
 			Entity e = Entities[ent.index];
 			if (inBetween(e.x, t.x - (t.width / 2), t.x + (t.width / 2)) && 
 					inBetween(e.y, t.y - (t.height / 2), t.y + (t.height / 2)) && t.enabled) {
-				char* charID = new char[t.getID().size() + 1];
-				strcpy_s(charID, t.getID().size() + 1, t.getID().c_str());
 				if (fTrigger != nullptr) {
-					fTrigger(charID, e.codeID);
+					fTrigger(t.codeID, e.codeID);
 				}
 				for (unsigned int i = 0; i < GameStates.size(); i++) {
 					if (GameStates[i].fTrigger != nullptr && GameStates[i].isEnabled()) {
-						GameStates[i].fTrigger(charID, e.codeID);
+						GameStates[i].fTrigger(t.codeID, e.codeID);
 					}
 				}
-				delete[] charID;
 			}
 		}
 	}
@@ -2463,7 +2460,7 @@ void EVTGetMousePos(float pos[])
 	pos[1] = msey;
 }
 
-void EVTSetTriggerCallback(void(*func)(const char ID[], unsigned int entityID))
+void EVTSetTriggerCallback(void(*func)(unsigned int trigID, unsigned int entityID))
 {
 	fTrigger = func;
 }
@@ -3224,7 +3221,7 @@ void GMSTSetMouseReleased(void(*func)(unsigned int button, float x, float y)) {
 	GameStates[activeState].fMouseReleased = func;
 }
 
-void GMSTSeTrigger(void(*func)(const char* id, unsigned int codeID)) {
+void GMSTSetTrigger(void(*func)(unsigned int trigID, unsigned int entID)) {
 	GameStates[activeState].fTrigger = func;
 }
 

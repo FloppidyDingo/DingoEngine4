@@ -58,7 +58,7 @@ public:
 	void (*fKeyboardEvent)();
 	void (*fMousePressed)(unsigned int button, float x, float y);
 	void (*fMouseReleased)(unsigned int button, float x, float y);
-	void (*fTrigger)(const char* id, unsigned int codeID);
+	void (*fTrigger)(unsigned int trigID, unsigned int entID);
 	void (*fOnEnableChange)(bool enabled);
 
 	void setEnabled(bool enabled);
