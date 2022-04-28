@@ -2128,6 +2128,7 @@ void SCNClearAll()
 	Scenes[activeScene].clearEntities();
 	Scenes[activeScene].clearGUI();
 	Scenes[activeScene].clearLights();
+	Scenes[activeScene].clearTriggers();
 	Scenes[activeScene].clearGUIText();
 
 }
