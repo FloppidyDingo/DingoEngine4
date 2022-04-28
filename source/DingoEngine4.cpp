@@ -639,8 +639,17 @@ void frameUpdate() {
 		Trigger t = Triggers[ti.index];
 		for (entry ent : scene.Entities) {
 			Entity e = Entities[ent.index];
-			if (inBetween(e.x, t.x - (t.width / 2), t.x + (t.width / 2)) && 
-					inBetween(e.y, t.y - (t.height / 2), t.y + (t.height / 2)) && t.enabled) {
+			float el = e.x - (e.getWidth() / 2);
+			float er = e.x + (e.getWidth() / 2);
+			float et = e.y + (e.getHeight() / 2);
+			float eb = e.y - (e.getHeight() / 2);
+
+			float tl = t.x - (t.width / 2);
+			float tr = t.x + (t.width / 2);
+			float tt = t.y + (t.height / 2);
+			float tb = t.y + (t.height / 2);
+
+			if (el < tr && er > tl && et > tb && eb < tt && t.enabled) { //check if entity intersects trigger
 				if (fTrigger != nullptr) {
 					fTrigger(t.codeID, e.codeID);
 				}
