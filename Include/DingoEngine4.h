@@ -433,6 +433,7 @@ DE4_API void TXTSetY(float y);
 DE4_API void TXTSetPosition(float x, float y);
 DE4_API void TXTSetScale(float scale);
 DE4_API void TXTSetFont(unsigned int font);
+DE4_API void TXTSetMaxLineWidth(unsigned int width);
 DE4_API void TXTSetVisible(bool visible);
 DE4_API char* TXTGetText();
 DE4_API char* TXTGetID();

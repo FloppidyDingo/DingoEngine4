@@ -923,6 +923,13 @@ void frameUpdate() {
 				};
 				Texts[e.index].width += t.sheet.widthList[c];
 				curx += t.sheet.widthList[c] * t.scale;
+				if (t.lineWidth > 0 && curx > t.lineWidth / globalScale) {
+					//newline if line width is overrun
+					curx = t.x;
+					cury -= t.lineHeight * t.scale;
+					Texts[e.index].lineCount++;
+					Texts[e.index].height += t.sheet.heightList[0];
+				}
 				if (t.visible) {
 					//send data to GPU
 					drawCalls++;
@@ -3331,6 +3338,10 @@ void TXTSetScale(float scale) {
 
 void TXTSetFont(unsigned int font) {
 	Texts[activeText].font = font;
+}
+
+void TXTSetMaxLineWidth(unsigned int width) {
+	Texts[activeText].lineWidth = width;
 }
 
 void TXTSetVisible(bool visible) {
