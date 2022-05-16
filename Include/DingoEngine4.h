@@ -12,7 +12,7 @@
 #define DE4_LIGHT_AMBIENT 1
 #define DE4_LIGHT_POINT 2
 #define DE4_MAX_INFOLOG_LENGTH 1024
-#define DE4_VERSION "0.20.0b"
+#define DE4_VERSION "0.21.0b"
 
 //DE4 key defines
 #define DE4_MSE_RCLICK			   0
