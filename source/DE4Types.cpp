@@ -731,19 +731,19 @@ void Sound::reset()
 	alSourceRewind(Sound::sourceID);
 }
 
-void setSFXVolume(float volume) {
+void settingSetSFXVolume(float volume) {
 	SFXVolume = volume;
 }
 
-float getSFXVolume() {
+float settingGetSFXVolume() {
 	return SFXVolume;
 }
 
-void setMusicVolume(float volume) {
+void settingSetMusicVolume(float volume) {
 	musVolume = volume;
 }
 
-float getMusicVolume() {
+float settingGetMusicVolume() {
 	return musVolume;
 }
 

@@ -1263,8 +1263,8 @@ void DE4Start(bool debug, int resx, int resy, bool profile, int framerate, void 
 		logFile << getMillis() << " | Audio context created" << std::endl;
 	}
 
-	setMusicVolume(1);
-	setSFXVolume(1);
+	settingSetMusicVolume(1);
+	settingSetSFXVolume(1);
 
 	//execute assigned init function
 	init();
@@ -1410,25 +1410,25 @@ void DE4SetScene(unsigned int sceneID)
 }
 
 void DE4SetSFXVolume(float volume) {
-	setSFXVolume(volume);
+	settingSetSFXVolume(volume);
 	for (Sound & sound : Sounds) {
 		sound.setVolume(sound.getVolume());
 	}
 }
 
 float DE4GetSFXVolume() {
-	return getSFXVolume();
+	return settingGetSFXVolume();
 }
 
 void DE4SetMusicVolume(float volume) {
-	setMusicVolume(volume);
+	settingSetMusicVolume(volume);
 	for (Sound& sound : Sounds) {
 		sound.setVolume(sound.getVolume());
 	}
 }
 
 float DE4GetMusicVolume() {
-	return getMusicVolume();
+	return settingGetMusicVolume();
 }
 
 void DE4SetFullScreen(bool fullScreen) {

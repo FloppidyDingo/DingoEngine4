@@ -278,16 +278,17 @@ public:
 	void reset();
 };
 
-void setSFXVolume(float volume);
-float getSFXVolume();
-void setMusicVolume(float volume);
-float getMusicVolume();
+void settingSetSFXVolume(float volume);
+float settingGetSFXVolume();
+void settingSetMusicVolume(float volume);
+float settingGetMusicVolume();
 #pragma endregion
 
 #pragma region Text
 class Text {
 	public:
 		unsigned int codeID;
+		unsigned int lineWidth = 0;
 		float x;
 		float y;
 		unsigned int font;
