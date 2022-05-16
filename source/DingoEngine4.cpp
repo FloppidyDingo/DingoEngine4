@@ -208,6 +208,21 @@ struct objectData {
 	float width = 0;
 	float height = 0;
 };
+
+//cinematics variables
+struct keyframe {
+	unsigned int code;
+	unsigned int frames;
+	bool manual;
+	bool timed;
+};
+void (*cinematicCall)(unsigned int code);
+std::vector<keyframe> keyframes;
+bool cinematicsRunning;
+bool manualWait;
+bool timedWait;
+unsigned int framesRemaining;
+unsigned int currentKeyframe;
 #pragma endregion
 
 //Update each frame
@@ -216,6 +231,7 @@ When updating:
 	-Update all animations
 	-populate Engine with all object IDs from scenes, place addresses in lists
 	-Run Event Handler (mouse/keyboard events, update function)
+	-advance cinematics timer
 	-Update all objects (Animations, entities, behavior functions)
 	-Apply all physics calculations and call all applicable collision functions
 	-Call postPhysicsTick function
@@ -330,6 +346,28 @@ void frameUpdate() {
 		}
 	}
 	long long userEnd = getMillis();
+	#pragma endregion
+
+	//cinematics
+	#pragma region cinematics
+	if (cinematicsRunning) {
+		if (framesRemaining == 0) {
+			cinematicCall(keyframes[currentKeyframe].code);
+
+			currentKeyframe++;
+			if (currentKeyframe > keyframes.size() - 1) {
+				cinematicsRunning = false;
+			} else {
+				manualWait = keyframes[currentKeyframe].manual;
+				timedWait = keyframes[currentKeyframe].timed;
+				framesRemaining = keyframes[currentKeyframe].frames;
+			}
+		} else {
+			if (timedWait) {
+				framesRemaining--;
+			}
+		}
+	}
 	#pragma endregion
 
 	//rebuild scene if needed and setup data
@@ -1106,6 +1144,7 @@ void DE4Start(bool debug, int resx, int resy, bool profile, int framerate, void 
 	resolutionY = resy;
 	FrameRate = framerate;
 	globalScale = 1;
+	cinematicsRunning = false;
 
 	//start glfw
 	if (!glfwInit()){
@@ -3386,5 +3425,77 @@ float TXTGetWidth() {
 
 float TXTGetHeight() {
 	return Texts[activeText].height * Texts[activeText].scale;
+}
+#pragma endregion
+
+#pragma region Cinematics
+void CINStart() {
+	currentKeyframe = 0;
+
+	//set first keyframe
+	framesRemaining = keyframes[0].frames;
+	manualWait = keyframes[0].manual;
+	timedWait = keyframes[0].timed;
+
+	cinematicsRunning = true;
+}
+
+void CINStop() {
+	cinematicsRunning = false;
+}
+
+void CINContinue() {
+	if (manualWait) {
+		framesRemaining = 0;
+	}
+}
+
+void CINJump(unsigned int code) {
+	currentKeyframe = code;
+	framesRemaining = keyframes[currentKeyframe].frames;
+	manualWait = keyframes[currentKeyframe].manual;
+	timedWait = keyframes[currentKeyframe].timed;
+}
+
+void CINSetCallback(void(*func)(unsigned int code)) {
+	cinematicCall = func;
+}
+
+void CINAddTimedKeyframe(unsigned int code, unsigned int frames) {
+	keyframe kf;
+	kf.code = code;
+	kf.frames = frames;
+	kf.timed = true;
+	kf.manual = false;
+
+	keyframes.push_back(kf);
+}
+
+void CINAddHybridKeyframe(unsigned int code, unsigned int frames) {
+	keyframe kf;
+	kf.code = code;
+	kf.frames = frames;
+	kf.timed = true;
+	kf.manual = true;
+
+	keyframes.push_back(kf);
+}
+
+void CINAddManualKeyframe(unsigned int code) {
+	keyframe kf;
+	kf.code = code;
+	kf.frames = 1;
+	kf.timed = false;
+	kf.manual = true;
+
+	keyframes.push_back(kf);
+}
+
+void CINClearKeyframes() {
+	keyframes.clear();
+}
+
+bool CINIsRunning() {
+	return cinematicsRunning;
 }
 #pragma endregion

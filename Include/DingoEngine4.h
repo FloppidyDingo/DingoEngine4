@@ -445,3 +445,16 @@ DE4_API bool TXTIsVisible();
 DE4_API float TXTGetWidth();
 DE4_API float TXTGetHeight();
 //DE4_API void TXT
+
+//Cinematics---------------------------------------------------------------------------------------------------------
+DE4_API void CINStart();
+DE4_API void CINStop();
+DE4_API void CINContinue();
+DE4_API void CINJump(unsigned int code);
+DE4_API void CINSetCallback(void(*func)(unsigned int code));
+DE4_API void CINAddTimedKeyframe(unsigned int code, unsigned int frames);
+DE4_API void CINAddHybridKeyframe(unsigned int code, unsigned int frames);
+DE4_API void CINAddManualKeyframe(unsigned int code);
+DE4_API void CINClearKeyframes();
+DE4_API bool CINIsRunning();
+//DE4_API void CIN
