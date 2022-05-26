@@ -12,7 +12,7 @@
 #define DE4_LIGHT_AMBIENT 1
 #define DE4_LIGHT_POINT 2
 #define DE4_MAX_INFOLOG_LENGTH 1024
-#define DE4_VERSION "0.21.0b"
+#define DE4_VERSION "0.22.0b"
 
 //DE4 key defines
 #define DE4_MSE_RCLICK			   0
@@ -200,6 +200,7 @@ DE4_API void ENTSetDir(float vec[]);
 DE4_API void ENTSetDir(float dx, float dy);
 DE4_API void ENTSetDirX(float dirx);
 DE4_API void ENTSetDirY(float diry);
+DE4_API void ENTSetForceMove(bool force);
 DE4_API void ENTSetFrictionProfile(float top, float bottom, float left, float right);
 DE4_API void ENTApplyForce(float dx, float dy);
 DE4_API void ENTApplyForce(float vec[]);

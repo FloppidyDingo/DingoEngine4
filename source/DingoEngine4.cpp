@@ -662,6 +662,15 @@ void frameUpdate() {
 		if (fPostPhysicsTick != nullptr) {
 			fPostPhysicsTick();
 		}
+	} else {
+		//check force move entities if physics is disabled
+		for (entry e : scene.Entities) {
+			if (Entities[e.index].forceMove) {
+				Entities[e.index].x += Entities[e.index].dir[0];
+				Entities[e.index].y += Entities[e.index].dir[1];
+			}
+			
+		}
 	}
 	
 	long long physicsEnd = getMillis();
@@ -1755,6 +1764,10 @@ void ENTSetDirX(float dirx) {
 
 void ENTSetDirY(float diry) {
 	Entities[activeEntity].dir[1] = diry;
+}
+
+void ENTSetForceMove(bool force) {
+	Entities[activeEntity].forceMove = force;
 }
 
 void ENTSetFrictionProfile(float top, float bottom, float left, float right) {
