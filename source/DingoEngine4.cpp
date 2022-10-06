@@ -1973,6 +1973,14 @@ void ENTOverridePhysicsSize() {
 void ENTDisablePhysicsOverride() {
 	Entities[activeEntity].setPhysOverride(false);
 }
+
+bool ENTInFrame() {
+	Entity ent = Entities[activeEntity];
+	float gcx = camPos[0];
+	float gcy = camPos[1];
+	return (((ent.x - gcx) + (ent.getWidth() * globalScale / 2)) > -(resolutionX / 2) && ((ent.x - gcx) + (ent.getWidth() * globalScale / 2)) < (resolutionX / 2) &&
+		((ent.y - gcy) + (ent.getHeight() * globalScale / 2)) > -(resolutionY / 2) && ((ent.y - gcy) + (ent.getHeight() * globalScale / 2)) < (resolutionY / 2));
+}
 #pragma endregion
 
 #pragma region Scene Functions

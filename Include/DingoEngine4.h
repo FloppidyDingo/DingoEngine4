@@ -239,6 +239,7 @@ DE4_API unsigned int ENTGetIDCode();
 DE4_API void ENTOverridePhysicsSize(float width, float height);
 DE4_API void ENTOverridePhysicsSize();
 DE4_API void ENTDisablePhysicsOverride();
+DE4_API bool ENTInFrame();
 //DE4_API void ENT();
 
 //Scene--------------------------------------------------------------------------------------------------------------
