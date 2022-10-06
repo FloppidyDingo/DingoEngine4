@@ -248,3 +248,10 @@ bool intersects(Entity e1, Entity e2) {
 
     return e1left < e2right && e1right > e2left && e1top > e2bottom && e1bottom < e2top;
 }
+
+bool intersects(Entity e1, float x, float y) {
+    return x < (e1.x + e1.getWidth() / 2) &&
+        x >(e1.x - e1.getWidth() / 2) &&
+        y < (e1.y + e1.getHeight() / 2) &&
+        y >(e1.y - e1.getHeight() / 2);
+}

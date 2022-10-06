@@ -3211,6 +3211,21 @@ bool UTILIntersect(unsigned int idA, unsigned int idB) {
 
 	return intersects(Entities[entA], Entities[entB]);
 }
+
+bool UTILIntersect(unsigned int idA, float x, float y) {
+	unsigned int i = 0;
+	unsigned int entA = 0;
+
+	while (i < Entities.size()) {
+		if (Entities.at(i).codeID == idA) {
+			entA = i;
+			break;
+		}
+		i++;
+	}
+
+	return intersects(Entities[entA], x, y);
+}
 #pragma endregion
 
 #pragma region Game State

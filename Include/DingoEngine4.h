@@ -400,6 +400,7 @@ DE4_API void MAPAddCleanupTrigger(unsigned int trigID);
 //Utilities----------------------------------------------------------------------------------------------------------
 DE4_API float UTILRange(unsigned int idA, unsigned int idB);
 DE4_API bool UTILIntersect(unsigned int idA, unsigned int idB);
+DE4_API bool UTILIntersect(unsigned int idA, float x, float y);
 //DE4_API void UTIL
 
 //Game States--------------------------------------------------------------------------------------------------------
