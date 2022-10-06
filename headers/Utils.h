@@ -25,3 +25,5 @@ bool load_wav_file_header(std::ifstream& file, std::uint8_t& channels, std::int3
 void stringSplit(std::string const& str, const char delim, std::vector<std::string>& out);
 
 bool intersects(Entity e1, Entity e2);
+
+bool intersects(Entity e1, float x, float y);
