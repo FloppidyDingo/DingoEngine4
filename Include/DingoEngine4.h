@@ -177,7 +177,7 @@ DE4_API void PHYSetTerminalVelocity(float vel);
 DE4_API void PHYSetGravity(float grav);
 DE4_API unsigned int PHYAddNoCollide(unsigned int groupA, unsigned int groupB);
 DE4_API void PHYRemoveNoCollide(unsigned int id);
-DE4_API unsigned int* PHYGetNoCollide(unsigned int id);
+DE4_API void PHYSetNoCollideEnabled(unsigned int id, bool enabled);
 DE4_API void PHYClearNoCollides();
 //DE4_API void PHY
 

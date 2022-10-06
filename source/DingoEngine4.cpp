@@ -103,7 +103,7 @@ float gravity;
 float terminalVelocity;
 float camPos[2];
 float camDir[2];
-std::vector<std::array<unsigned int,3>> noCollides;
+std::vector<std::array<unsigned int, 4>> noCollides;
 unsigned int noCollideCount = 0;
 
 //profiler and logging
@@ -493,9 +493,9 @@ void frameUpdate() {
 					*/
 					//check the noCollide list
 					bool noCollide = false;
-					for (std::array<unsigned int, 3> group : noCollides) {
+					for (std::array<unsigned int, 4> group : noCollides) {
 						noCollide = ((group[1] == e1.getCollisionGroup()) && (group[2] == e2.getCollisionGroup())) || ((group[1] == e2.getCollisionGroup()) && (group[2] == e1.getCollisionGroup()));
-						if (noCollide) {
+						if (noCollide && group[3] > 0) {
 							break;
 						}
 					}
@@ -1605,11 +1605,12 @@ void PHYSetGravity(float grav)
 
 unsigned int PHYAddNoCollide(unsigned int groupA, unsigned int groupB)
 {
-	std::array<unsigned int, 3> nc;
+	std::array<unsigned int, 4> nc;
 	nc[0] = noCollideCount;
 	noCollideCount++;
 	nc[1] = groupA;
 	nc[2] = groupB;
+	nc[3] = 1;
 	noCollides.push_back(nc);
 	return nc[0];
 }
@@ -1626,21 +1627,13 @@ void PHYRemoveNoCollide(unsigned int id)
 	}
 }
 
-unsigned int* PHYGetNoCollide(unsigned int id)
-{
-	unsigned int i = 0;
-	while (i < noCollides.size()) {
-		if (noCollides.at(i)[0] == id) {
-			unsigned int* ar = new unsigned int[3];
-			ar[0] = noCollides.at(i)[0];
-			ar[1] = noCollides.at(i)[1];
-			ar[2] = noCollides.at(i)[2];
-			return ar;
-			break;
+void PHYSetNoCollideEnabled(unsigned int id, bool enabled) {
+	for (std::array<unsigned int, 4> &group : noCollides) {
+		if (group[0] == id) {
+			group[3] = enabled;
+			return;
 		}
-		i++;
 	}
-	return nullptr;
 }
 
 void PHYClearNoCollides()
