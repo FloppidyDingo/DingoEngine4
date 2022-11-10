@@ -193,6 +193,7 @@ DE4_API float ENTGetHeight();
 DE4_API void ENTSetX(float x);
 DE4_API void ENTSetY(float y);
 DE4_API void ENTSetPosition(float x, float y);
+DE4_API void ENTSetPosition(unsigned int ent);
 DE4_API void ENTGetDir(float vec[]);
 DE4_API float ENTGetDirX();
 DE4_API float ENTGetDirY();

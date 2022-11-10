@@ -1726,6 +1726,18 @@ void ENTSetPosition(float x, float y) {
 	Entities[activeEntity].y = y;
 }
 
+void ENTSetPosition(unsigned int ent){
+	unsigned int i = 0;
+	while (i < Entities.size()) {
+		if (Entities.at(i).codeID == ent) {
+			Entities[activeEntity].x = Entities.at(i).x;
+			Entities[activeEntity].y = Entities.at(i).y;
+			break;
+		}
+		i++;
+	}
+}
+
 void ENTGetDir(float vec[])
 {
 	vec[0] = Entities[activeEntity].dir[0];
