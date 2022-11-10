@@ -3239,6 +3239,15 @@ bool UTILIntersect(unsigned int idA, float x, float y) {
 
 	return intersects(Entities[entA], x, y);
 }
+
+void UTILSeedRNG() {
+	seedRNG();
+}
+
+float UTILRandomFloat(float min, float max) {
+	return randomFloat(min, max);
+}
+
 #pragma endregion
 
 #pragma region Game State

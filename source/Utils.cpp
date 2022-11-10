@@ -249,6 +249,14 @@ bool intersects(Entity e1, Entity e2) {
     return e1left < e2right && e1right > e2left && e1top > e2bottom && e1bottom < e2top;
 }
 
+float randomFloat(float min, float max) {
+    return min + (float)(rand()) * (float)(max - min) / RAND_MAX;
+}
+
+void seedRNG() {
+    srand(time(NULL));
+}
+
 bool intersects(Entity e1, float x, float y) {
     return x < (e1.x + e1.getWidth() / 2) &&
         x >(e1.x - e1.getWidth() / 2) &&

@@ -12,7 +12,7 @@
 #define DE4_LIGHT_AMBIENT 1
 #define DE4_LIGHT_POINT 2
 #define DE4_MAX_INFOLOG_LENGTH 1024
-#define DE4_VERSION "0.23.0b"
+#define DE4_VERSION "0.24.0b"
 
 //DE4 key defines
 #define DE4_MSE_RCLICK			   0
@@ -403,6 +403,8 @@ DE4_API void MAPAddCleanupTrigger(unsigned int trigID);
 DE4_API float UTILRange(unsigned int idA, unsigned int idB);
 DE4_API bool UTILIntersect(unsigned int idA, unsigned int idB);
 DE4_API bool UTILIntersect(unsigned int idA, float x, float y);
+DE4_API void UTILSeedRNG();
+DE4_API float UTILRandomFloat(float min, float max);
 //DE4_API void UTIL
 
 //Game States--------------------------------------------------------------------------------------------------------
